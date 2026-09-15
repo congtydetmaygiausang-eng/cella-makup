@@ -293,10 +293,10 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
 
             {/* Personalized Greeting */}
             <h2 className="text-[17px] font-black text-slate-900 text-center">
-              {greeting}, {currentUser ? `chị ${firstName}!` : 'bạn!'}
+              Chào buổi tối chị Phượng dễ thương!
             </h2>
             <p className="text-[13px] text-slate-500 mt-1 text-center leading-relaxed">
-              Hôm nay {currentUser ? `${roleLabel} ` : ''}cần em hỗ trợ điều gì ạ?
+              Hôm nay chị cần em hỗ trợ điều gì ạ?
             </p>
 
             {/* Smart Quick Chips based on role */}
