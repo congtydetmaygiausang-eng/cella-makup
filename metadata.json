@@ -1,0 +1,6 @@
+{
+  "name": "CELLA Beauty & Academy CRM",
+  "description": "Hệ thống quản trị thông minh và vận hành thẩm mỹ, makeup studio & học viện đào tạo CELLA",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

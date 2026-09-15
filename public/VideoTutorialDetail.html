@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cella - Video Mẫu Makeup & Kỹ thuật chi tiết</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#f0f3ff',
+              100: '#e0e7ff',
+              500: '#5850ec',
+              600: '#4e45e4',
+              700: '#4338ca'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    .mesh-aura-bg {
+      background: radial-gradient(circle at 10% 15%, rgba(224, 231, 255, 0.6) 0%, transparent 45%),
+                  radial-gradient(circle at 90% 20%, rgba(253, 230, 240, 0.6) 0%, transparent 40%),
+                  #f8f9ff;
+    }
+  </style>
+</head>
+<body class="mesh-aura-bg text-slate-800 font-sans min-h-screen flex justify-center selection:bg-brand-500 selection:text-white">
+
+  <!-- Mobile Frame Container (iPhone Form Factor ~390px) -->
+  <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-slate-100 bg-transparent">
+    
+    <!-- Top Bar Navigation -->
+    <header class="sticky top-0 z-30 px-5 pt-3 pb-2 flex items-center justify-between glass-card border-b border-white/50">
+      <button onclick="window.history.back()" class="w-10 h-10 rounded-full bg-white/80 border border-slate-200/60 shadow-sm flex items-center justify-center text-slate-700 active:scale-95 transition-transform">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <div class="text-center">
+        <h2 class="text-sm font-bold text-slate-900 tracking-tight">Kỹ Thuật & Review</h2>
+        <p class="text-[10px] font-semibold text-slate-400 tracking-widest uppercase">CELLA MASTERCLASS</p>
+      </div>
+
+      <button class="w-10 h-10 rounded-full bg-white/80 border border-slate-200/60 shadow-sm flex items-center justify-center text-slate-600 active:scale-95 transition-transform">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="px-5 pt-3 space-y-5">
+      
+      <!-- Video Player Frame Component -->
+      <section class="relative rounded-3xl overflow-hidden shadow-xl border border-white/60 bg-slate-950 aspect-[4/3] flex flex-col justify-between p-4">
+        <!-- Video Poster Artwork -->
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'); opacity: 0.85;"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40"></div>
+
+        <!-- Video Top Controls -->
+        <div class="relative z-10 flex items-center justify-between">
+          <span class="px-3 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-white text-xs font-medium border border-white/20 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            4K Glass Skin Master
+          </span>
+          <span class="px-2.5 py-0.5 rounded-lg bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold">
+            1080P HD
+          </span>
+        </div>
+
+        <!-- Center Big Play Button -->
+        <div class="relative z-10 self-center">
+          <button id="playBtn" onclick="togglePlayState()" class="w-16 h-16 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-md border border-white/50 shadow-2xl flex items-center justify-center text-brand-600 pl-1 active:scale-95 transition-all">
+            <svg id="playIcon" class="w-7 h-7 fill-brand-600" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+
+        <!-- Bottom Timeline Bar -->
+        <div class="relative z-10 space-y-2">
+          <div class="flex items-center justify-between text-xs text-white font-medium">
+            <span id="currTime">02:45</span>
+            <div class="flex-1 mx-3 h-1.5 bg-white/30 rounded-full overflow-hidden relative cursor-pointer" onclick="updateTimeline(event)">
+              <div id="timelineProgress" class="w-2/5 h-full bg-brand-500 rounded-full"></div>
+            </div>
+            <span>06:18</span>
+            <button class="ml-2 text-white/80 hover:text-white">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Video Details & Author Info -->
+      <section class="space-y-3">
+        <h1 class="text-lg font-bold text-slate-900 leading-snug">
+          Kỹ Thuật Đánh Nền Thủy Tinh & Mắt Nhũ Prism Holographic
+        </h1>
+
+        <div class="flex items-center justify-between py-1">
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Master Đặng Thuỳ Tiên" class="w-11 h-11 rounded-full object-cover border-2 border-brand-200">
+            <div>
+              <div class="flex items-center gap-1">
+                <h4 class="text-sm font-bold text-slate-900">Master Đặng Thuỳ Tiên</h4>
+                <svg class="w-4 h-4 text-brand-500 fill-brand-500" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+              <p class="text-xs text-slate-500">28.5k người theo dõi</p>
+            </div>
+          </div>
+          <button id="followBtn" onclick="toggleFollow()" class="px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-xs font-bold hover:bg-brand-100 active:scale-95 transition-all">
+            + Theo dõi
+          </button>
+        </div>
+
+        <!-- Social Metrics -->
+        <div class="flex items-center justify-between text-xs text-slate-500 pt-1 pb-2 border-b border-slate-200/60">
+          <span class="flex items-center gap-1.5">👁 14.2k</span>
+          <span class="flex items-center gap-1.5 text-rose-500 font-semibold cursor-pointer" onclick="this.classList.toggle('scale-110')">♥ 2.8k</span>
+          <span class="flex items-center gap-1.5">💬 342</span>
+          <span class="flex items-center gap-1.5">🔖 890</span>
+        </div>
+      </section>
+
+      <!-- Products Tagged in Video -->
+      <section class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Sản phẩm trong video</h3>
+          <span class="text-xs text-brand-600 font-medium">3 món</span>
+        </div>
+
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div class="min-w-[200px] glass-card p-3 rounded-2xl border border-white/60 space-y-1.5 shrink-0">
+            <span class="px-2 py-0.5 rounded bg-brand-50 text-brand-600 text-[10px] font-bold">1 • BẢNG MẮT</span>
+            <h5 class="text-xs font-bold text-slate-900 leading-tight">CELLA Prism Glass Shadow Palette</h5>
+            <div class="text-xs font-bold text-brand-600">650.000đ</div>
+          </div>
+
+          <div class="min-w-[200px] glass-card p-3 rounded-2xl border border-white/60 space-y-1.5 shrink-0">
+            <span class="px-2 py-0.5 rounded bg-pink-50 text-pink-600 text-[10px] font-bold">2 • KEM LÓT</span>
+            <h5 class="text-xs font-bold text-slate-900 leading-tight">Aura Dew Glow Primer Base</h5>
+            <div class="text-xs font-bold text-brand-600">420.000đ</div>
+          </div>
+
+          <div class="min-w-[200px] glass-card p-3 rounded-2xl border border-white/60 space-y-1.5 shrink-0">
+            <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-bold">3 • SON DƯỠNG</span>
+            <h5 class="text-xs font-bold text-slate-900 leading-tight">CELLA Dew Tint Cánh Hồng</h5>
+            <div class="text-xs font-bold text-brand-600">350.000đ</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Timeline Steps (Chapters) -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Các bước kỹ thuật (Timeline)</h3>
+          <span class="text-xs text-slate-400">4 giai đoạn</span>
+        </div>
+
+        <div class="space-y-2.5">
+          
+          <!-- Step 1 -->
+          <div class="glass-card p-3.5 rounded-2xl flex items-start justify-between border-l-4 border-l-emerald-500 cursor-pointer hover:bg-white/90 transition-colors" onclick="selectStep(1, '01:00', 16)">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900">01. Chuẩn bị da & Tạo nền Glass Skin</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-bold">00:00 - 01:45</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Dưỡng ẩm sâu đa tầng, mix primer bắt sáng, dặm nền mỏng mịn tạo độ bóng trong suốt tự nhiên.
+              </p>
+            </div>
+            <span class="text-emerald-500 text-sm">✓</span>
+          </div>
+
+          <!-- Step 2 (Active Playing) -->
+          <div class="glass-card p-3.5 rounded-2xl flex items-start justify-between border-l-4 border-l-brand-500 bg-brand-50/50 cursor-pointer hover:bg-brand-50 transition-colors" onclick="selectStep(2, '02:45', 40)">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-brand-700">02. Kỹ thuật Má hồng Aura sương mờ</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-100 text-brand-700 font-bold">01:45 - 03:20</span>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Khuếch tán đốm màu cam hồng gradient bằng cọ vát mềm, tạo hiệu ứng ửng hồng tỏa sáng từ bên trong.
+              </p>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-brand-500 animate-ping"></span>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="glass-card p-3.5 rounded-2xl flex items-start justify-between border-l-4 border-l-slate-300 cursor-pointer hover:bg-white/90 transition-colors" onclick="selectStep(3, '04:15', 68)">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900">03. Tán Mắt Nhũ Prism Holographic</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">03:20 - 05:10</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Layer nhũ lăng kính quang phổ, nhấn bọng mắt aegyo-sal tạo chiều sâu cuốn hút dưới ánh đèn studio.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="glass-card p-3.5 rounded-2xl flex items-start justify-between border-l-4 border-l-slate-300 cursor-pointer hover:bg-white/90 transition-colors" onclick="selectStep(4, '05:40', 90)">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900">04. Khóa nền & Phủ Son bóng pha lê</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">05:10 - 06:18</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Xịt khóa sương vi hạt giữ ẩm 12h và hoàn thiện làn môi căng mọng 3D.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Pro Tip Box -->
+      <section class="glass-card p-4 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 to-pink-50/70 space-y-1.5">
+        <div class="flex items-center gap-2 text-brand-700 font-bold text-xs">
+          <span>✨ Mẹo độc quyền từ Master Tiên:</span>
+        </div>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Sau bước kem lót, hãy xoa ấm 2 lòng bàn tay và áp nhẹ lên gò má 10 giây trước khi đánh nền để kem thẩm thấu sâu, tránh tình trạng mốc nền (cakey).
+        </p>
+      </section>
+
+    </main>
+
+    <!-- Bottom Action Dock -->
+    <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md p-4 glass-card border-t border-white/50 flex items-center gap-3 z-40 bg-white/80 backdrop-blur-xl">
+      <a href="LookbookDetail.html" class="px-4 py-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-brand-600 text-xs font-bold flex items-center gap-2 hover:bg-slate-50 active:scale-95 transition-transform">
+        <svg class="w-4 h-4 fill-brand-600" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Thử Makeup AI
+      </a>
+
+      <button onclick="alert('Đã chuyển sang đặt lịch dịch vụ Glass Skin Master!')" class="flex-1 py-3.5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 active:scale-98 transition-all">
+        <span>Đặt lịch dịch vụ này</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    let isPlaying = false;
+    function togglePlayState() {
+      isPlaying = !isPlaying;
+      const playIcon = document.getElementById('playIcon');
+      if (isPlaying) {
+        playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      } else {
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      }
+    }
+
+    function toggleFollow() {
+      const btn = document.getElementById('followBtn');
+      if (btn.innerText.includes('Theo dõi')) {
+        btn.innerText = '✓ Đang theo dõi';
+        btn.className = 'px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold';
+      } else {
+        btn.innerText = '+ Theo dõi';
+        btn.className = 'px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-xs font-bold';
+      }
+    }
+
+    function selectStep(step, timeStr, percent) {
+      document.getElementById('currTime').innerText = timeStr;
+      document.getElementById('timelineProgress').style.width = percent + '%';
+    }
+
+    function updateTimeline(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percent = Math.max(0, Math.min(100, Math.round((clickX / rect.width) * 100)));
+      document.getElementById('timelineProgress').style.width = percent + '%';
+    }
+  </script>
+</body>
+</html>
