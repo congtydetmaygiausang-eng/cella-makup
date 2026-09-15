@@ -105,120 +105,33 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* PWA Install Banner */}
         <PWAInstallButton variant="banner" />
 
-        {/* HERO KPI CARD: Inspired by "Time Saved This Week" with soft cyan curve wave */}
-        <div
-          onClick={() => onNavigate('revenue')}
-          className="card-pastel p-5 relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_16px_36px_-6px_rgba(0,163,255,0.12)] group"
-        >
-          {/* Subtle glowing radial background inside the card */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-to-br from-sky-200/40 via-cyan-100/30 to-transparent blur-2xl pointer-events-none" />
-
-          <div className="flex items-center justify-between relative z-10">
-            <span className="text-xs font-semibold text-slate-500">
-              Doanh thu tuần này
-            </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80">
-              <span>+56.4%</span>
-              <span className="text-slate-400 font-normal">30 ngày</span>
-              <ChevronDown className="w-3 h-3 text-emerald-600" />
-            </span>
+        {/* SIMPLIFIED STATS ROW */}
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          {/* Card 1: Doanh thu */}
+          <div
+            onClick={() => onNavigate('revenue')}
+            className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:border-indigo-100 transition-colors text-center"
+          >
+            <span className="text-[11px] font-bold text-slate-500 block mb-1">Doanh thu</span>
+            <span className="text-[14px] font-black text-[#544CDE]">48.5tr</span>
           </div>
 
-          <div className="mt-2 relative z-10 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold tracking-tight text-slate-900">
-              48.5M
-            </span>
-            <span className="text-sm font-semibold text-slate-400">VNĐ</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold mt-1 relative z-10">
-            <span className="text-[#00A3FF]">↑ +28%</span>
-            <span className="text-slate-400 font-normal">so với tuần trước</span>
-          </div>
-
-          {/* Cyan wave chart visualization matching reference */}
-          <div className="mt-3 -mx-2 h-16 relative">
-            <svg
-              className="w-full h-full overflow-visible"
-              viewBox="0 0 320 60"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="cyanWaveGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00A3FF" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#00A3FF" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              {/* Fill area */}
-              <path
-                d="M0,45 C50,42 90,30 140,32 C190,34 230,12 320,8 L320,60 L0,60 Z"
-                fill="url(#cyanWaveGrad)"
-              />
-              {/* Stroke line */}
-              <path
-                d="M0,45 C50,42 90,30 140,32 C190,34 230,12 320,8"
-                fill="none"
-                stroke="#00A3FF"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              {/* Active data point dot */}
-              <circle cx="230" cy="18" r="4" fill="#00A3FF" />
-              <circle cx="230" cy="18" r="7" fill="#00A3FF" opacity="0.25" />
-            </svg>
-
-            {/* Little tooltip badge on point */}
-            <div className="absolute right-14 -top-1 bg-white/95 px-2 py-0.5 rounded-full border border-sky-200 text-[10px] font-bold text-slate-800 shadow-xs flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00A3FF]" />
-              <span>28 Booking</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 2 SIDE-BY-SIDE METRIC CARDS matching reference "Workflows" & "Tasks Automated" */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Card 1: Lịch hẹn Booking */}
+          {/* Card 2: Lịch hẹn Booking */}
           <div
             onClick={() => onNavigate('booking')}
-            className="card-pastel p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md group"
+            className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:border-indigo-100 transition-colors text-center"
           >
-            {/* Subtle blue aura blur spot in corner */}
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-sky-200/50 blur-xl pointer-events-none" />
-
-            <span className="text-xs font-semibold text-slate-500 block">
-              Lịch Booking
-            </span>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-slate-900 tracking-tight">
-                28
-              </span>
-            </div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-              <span>↑ +4%</span>
-              <span className="text-slate-400 font-normal">tuần này</span>
-            </p>
+            <span className="text-[11px] font-bold text-slate-500 block mb-1">Lịch hẹn</span>
+            <span className="text-[14px] font-black text-slate-900">28</span>
           </div>
 
-          {/* Card 2: Khách hàng CRM */}
+          {/* Card 3: Khách hàng CRM */}
           <div
             onClick={() => onNavigate('customers')}
-            className="card-pastel p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md group"
+            className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:border-indigo-100 transition-colors text-center"
           >
-            {/* Subtle cyan-mint aura blur spot in corner */}
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-teal-200/50 blur-xl pointer-events-none" />
-
-            <span className="text-xs font-semibold text-slate-500 block">
-              Khách hàng CRM
-            </span>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-slate-900 tracking-tight">
-                1,243
-              </span>
-            </div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-              <span>↑ +32%</span>
-              <span className="text-slate-400 font-normal">tuần này</span>
-            </p>
+            <span className="text-[11px] font-bold text-slate-500 block mb-1">Khách mới</span>
+            <span className="text-[14px] font-black text-slate-900">12</span>
           </div>
         </div>
 

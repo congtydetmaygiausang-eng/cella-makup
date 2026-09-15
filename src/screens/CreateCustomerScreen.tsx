@@ -253,6 +253,44 @@ export const CreateCustomerScreen: React.FC<CreateCustomerScreenProps> = ({
             </div>
           </div>
         </div>
+
+        {/* THÔNG TIN BỔ SUNG (Thu gọn) */}
+        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
+          <details className="group">
+            <summary className="flex items-center justify-between font-bold text-[13px] text-slate-700 cursor-pointer list-none">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-5 rounded-full bg-slate-300 group-open:bg-[#544CDE] transition-colors"></div>
+                <span className="uppercase tracking-wider">Nhập thêm thông tin phụ</span>
+              </div>
+              <span className="text-[#544CDE] text-lg leading-none group-open:rotate-45 transition-transform duration-200">+</span>
+            </summary>
+            
+            <div className="pt-4 mt-4 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2">
+              <div>
+                <label className="block text-[13px] font-bold text-slate-800 mb-1.5">
+                  Đặc điểm da
+                </label>
+                <select className="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] font-medium focus:outline-none focus:border-[#544CDE]">
+                  <option value="COMBINATION">Da hỗn hợp</option>
+                  <option value="OILY">Da dầu</option>
+                  <option value="DRY">Da khô</option>
+                  <option value="NORMAL">Da thường</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-[13px] font-bold text-slate-800 mb-1.5">
+                  Ghi chú tư vấn
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Ghi chú thêm về khách hàng..."
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] focus:outline-none focus:border-[#544CDE]"
+                />
+              </div>
+            </div>
+          </details>
+        </div>
       </form>
 
       {/* Fixed Bottom Button Area */}

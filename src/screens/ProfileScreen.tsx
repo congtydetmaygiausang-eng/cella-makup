@@ -85,72 +85,36 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </div>
         </div>
 
-        {/* THÔNG TIN LIÊN HỆ */}
+        {/* THÔNG TIN CHUNG (Đã gộp & Rút gọn) */}
         <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5 text-[#544CDE] stroke-[2]" />
-              <h3 className="text-[14px] font-bold text-slate-900">Thông tin liên hệ</h3>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[14px] font-bold text-slate-900">Thông tin cơ bản</h3>
             <button className="text-[12px] font-bold text-[#544CDE] hover:underline">Sửa</button>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Họ và tên</span>
-              <span className="text-[13px] font-medium text-slate-800">{user.fullName}</span>
-            </div>
+          <div className="space-y-3 border-b border-slate-100 pb-4 mb-4">
             <div className="flex items-center justify-between">
               <span className="text-[13px] text-slate-500">Số điện thoại</span>
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-slate-800">{user.phone}</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Đã kích hoạt</span>
-              </div>
+              <span className="text-[13px] font-medium text-slate-800">{user.phone}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Email làm việc</span>
-              <span className="text-[13px] font-medium text-slate-800">{user.email || 'lan.nguyen@cella.vn'}</span>
+              <span className="text-[13px] text-slate-500">Email</span>
+              <span className="text-[13px] font-medium text-slate-800">{user.email || 'Chưa cập nhật'}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Ngày sinh & Giới tính</span>
-              <span className="text-[13px] font-medium text-slate-800">12/08/1996 • Nữ</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Chi nhánh làm việc</span>
-              <span className="text-[13px] font-medium text-slate-800">{user.branch || 'Cơ sở Quận 1 - Trụ sở chính CELLA'}</span>
+              <span className="text-[13px] text-slate-500">Ngày sinh</span>
+              <span className="text-[13px] font-medium text-slate-800">12/08/1996</span>
             </div>
           </div>
-        </div>
 
-        {/* THÔNG TIN CHUYÊN MÔN */}
-        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-2 mb-5">
-            <Briefcase className="w-5 h-5 text-[#544CDE] stroke-[2]" />
-            <h3 className="text-[14px] font-bold text-slate-900">Thông tin chuyên môn</h3>
-          </div>
-
-          <div className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Chi nhánh</span>
+              <span className="text-[13px] font-medium text-slate-800">{user.branch || 'Trụ sở chính'}</span>
+            </div>
             <div className="flex items-center justify-between">
               <span className="text-[13px] text-slate-500">Phòng ban</span>
-              <span className="text-[13px] font-medium text-slate-800">Khối Tuyển sinh & CSKH</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Vị trí đảm nhận</span>
-              <span className="text-[13px] font-medium text-[#544CDE]">Senior Sales Consultant</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] text-slate-500">Ngày gia nhập</span>
-              <span className="text-[13px] font-medium text-slate-800">01/03/2023</span>
-            </div>
-            <div>
-              <span className="text-[13px] text-slate-500 block mb-2.5">Kỹ năng & Chuyên môn:</span>
-              <div className="flex flex-wrap gap-2">
-                {['Tư vấn khóa học', 'Chăm sóc da chuyên sâu', 'CSKH VIP', 'Chốt deal'].map((skill, i) => (
-                  <span key={i} className={`text-[12px] font-medium px-3 py-1.5 rounded-lg ${i === 2 ? 'bg-purple-50 text-purple-600' : 'bg-slate-50 text-slate-600'}`}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              <span className="text-[13px] font-medium text-slate-800">Tư vấn & CSKH</span>
             </div>
           </div>
         </div>

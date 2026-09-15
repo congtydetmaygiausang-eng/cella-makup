@@ -55,27 +55,25 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 px-1">
           {suggestions.map((item, index) => {
             const Icon = item.icon;
             const colorClasses = {
-              blue: 'bg-blue-50 text-blue-500',
-              emerald: 'bg-emerald-50 text-emerald-500',
-              sky: 'bg-sky-50 text-sky-500',
-              rose: 'bg-rose-50 text-rose-500',
-              amber: 'bg-amber-50 text-amber-500',
-              purple: 'bg-purple-50 text-purple-500',
+              blue: 'bg-blue-50 text-blue-500 border-blue-100',
+              emerald: 'bg-emerald-50 text-emerald-500 border-emerald-100',
+              sky: 'bg-sky-50 text-sky-500 border-sky-100',
+              rose: 'bg-rose-50 text-rose-500 border-rose-100',
+              amber: 'bg-amber-50 text-amber-500 border-amber-100',
+              purple: 'bg-purple-50 text-purple-500 border-purple-100',
             }[item.color];
 
             return (
               <button
                 key={index}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm shadow-slate-200/50 hover:border-[#544CDE]/30 transition-colors"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border shrink-0 transition-colors ${colorClasses}`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClasses}`}>
-                  <Icon className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <span className="text-[14px] font-bold text-slate-700">
+                <Icon className="w-4 h-4 stroke-[2.5]" />
+                <span className="text-[13px] font-bold">
                   {item.text}
                 </span>
               </button>
