@@ -5,19 +5,14 @@ import {
   Customer,
   Booking,
   Task,
-  FeedPost,
   Course,
-  MakeupLook,
   Staff,
 } from './types';
 import {
   initialCustomers,
   initialBookings,
   initialTasks,
-  initialFeedPosts,
   initialCourses,
-  initialLooks,
-  initialPayroll,
   CURRENT_USER,
 } from './data/mockData';
 
@@ -32,13 +27,7 @@ import { CreateBookingScreen } from './screens/CreateBookingScreen';
 import { BookingDetailScreen } from './screens/BookingDetailScreen';
 import { TasksScreen } from './screens/TasksScreen';
 import { RevenueScreen } from './screens/RevenueScreen';
-import { PayrollScreen } from './screens/PayrollScreen';
 import { AIAssistantScreen } from './screens/AIAssistantScreen';
-import { LookbookScreen } from './screens/LookbookScreen';
-import { LookbookDetailScreen } from './screens/LookbookDetailScreen';
-import { VideoTutorialDetailScreen } from './screens/VideoTutorialDetailScreen';
-import { FeedScreen } from './screens/FeedScreen';
-import { CreatePostScreen } from './screens/CreatePostScreen';
 import { AcademyScreen } from './screens/AcademyScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { MoreMenuScreen } from './screens/MoreMenuScreen';
@@ -48,14 +37,10 @@ import { AuthScreen } from './screens/AuthScreen';
 import { BottomNavBar } from './components/common/BottomNavBar';
 import { TopDropdownMenu } from './components/common/TopDropdownMenu';
 import {
-  Phone,
-  MessageCircle,
   X,
-  Send,
   PhoneOff,
   Mic,
   Volume2,
-  CheckCircle2,
   Sparkles,
 } from 'lucide-react';
 
@@ -72,14 +57,11 @@ export default function App() {
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [feedPosts, setFeedPosts] = useState<FeedPost[]>(initialFeedPosts);
   const [courses] = useState<Course[]>(initialCourses);
-  const [looks] = useState<MakeupLook[]>(initialLooks);
 
   // Selected Entities
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>(initialCustomers[0]);
   const [selectedBooking, setSelectedBooking] = useState<Booking>(initialBookings[0]);
-  const [selectedLookForDetail, setSelectedLookForDetail] = useState<MakeupLook>(initialLooks[0]);
 
   // Current Logged-in Staff / User Account
   const [currentUser, setCurrentUser] = useState<Staff>(() => {
@@ -93,7 +75,6 @@ export default function App() {
   });
 
   // Modal States
-  const [showCreatePost, setShowCreatePost] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const [callModalData, setCallModalData] = useState<Partial<Customer> | null>(null);
   const [messageModalData, setMessageModalData] = useState<Partial<Customer> | null>(null);
@@ -159,7 +140,6 @@ export default function App() {
     else if (screen === 'booking') setCurrentTab('booking');
     else if (screen === 'customers') setCurrentTab('customers');
     else if (screen === 'tasks') setCurrentTab('tasks');
-    else if (screen === 'feed') setCurrentTab('feed');
     else if (screen === 'profile') setCurrentTab('profile');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -178,7 +158,7 @@ export default function App() {
       setScreenHistory(newHistory);
       setCurrentScreen(prevScreen);
 
-      if (['home', 'booking', 'customers', 'tasks', 'more', 'feed', 'profile'].includes(prevScreen)) {
+      if (['home', 'booking', 'customers', 'tasks', 'more', 'profile'].includes(prevScreen)) {
         setCurrentTab(prevScreen as NavTab);
       }
     } else {
@@ -202,11 +182,11 @@ export default function App() {
       email: newCust.email,
       source: newCust.source || 'TIKTOK',
       status: newCust.status || 'LEAD',
+      crmStage: newCust.crmStage || 'LEAD_NEW',
       vipTier: newCust.vipTier || 'Thành viên mới',
       lastContactText: 'Vừa tạo',
       totalSpent: 0,
       contactCount: 1,
-      skinProfile: newCust.skinProfile,
       notesHistory: newCust.notesHistory || [],
     };
     setCustomers((prev) => [created, ...prev]);
@@ -227,20 +207,16 @@ export default function App() {
       customerId: newBk.customerId || 'CUST-001',
       customerName: newBk.customerName || 'Khách hàng',
       customerPhone: newBk.customerPhone || '0901 234 567',
-      customerVip: newBk.customerVip,
       serviceTitle: newBk.serviceTitle || 'Tư vấn dịch vụ',
       artistId: 'NV-8826',
-      artistName: newBk.artistName || 'Lan Anh (Master Trainer)',
+      artistName: newBk.artistName || 'Lan Anh',
       appointmentDate: newBk.appointmentDate || '2025-04-25',
       appointmentTime: newBk.appointmentTime || '09:00 - 10:30',
-      branchName: newBk.branchName || 'Cơ sở Quận 1 (Trụ sở chính CELLA)',
-      locationAddress: newBk.locationAddress || 'Tòa nhà CELLA, 128 Nguyễn Trãi, Q.1',
-      locationType: newBk.locationType || 'STUDIO',
+      locationAddress: newBk.locationAddress || 'Tòa nhà CELLA',
       status: 'CONFIRMED',
       totalAmount: newBk.totalAmount || 18500000,
       depositAmount: newBk.depositAmount || 5000000,
       notes: newBk.notes,
-      smsReminder: newBk.smsReminder,
     };
     setBookings((prev) => [created, ...prev]);
     setSelectedBooking(created);
@@ -270,46 +246,6 @@ export default function App() {
     setTasks((prev) => [newTask, ...prev]);
   };
 
-  // Feed post handlers
-  const handleLikePost = (postId: string) => {
-    setFeedPosts((prev) =>
-      prev.map((p) => {
-        if (p.id === postId) {
-          const isLiked = !p.isLiked;
-          return {
-            ...p,
-            isLiked,
-            likes: isLiked ? p.likes + 1 : p.likes - 1,
-          };
-        }
-        return p;
-      })
-    );
-  };
-
-  const handleCreatePost = (newPostData: Partial<FeedPost>) => {
-    const newPost: FeedPost = {
-      id: `post-${Date.now()}`,
-      authorName: newPostData.authorName || 'Nguyễn Thị Lan',
-      authorRole: newPostData.authorRole || 'Master Trainer',
-      authorAvatar:
-        newPostData.authorAvatar ||
-        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
-      timestamp: 'Vừa xong',
-      privacy: newPostData.privacy || 'Công khai nội bộ',
-      category: newPostData.category || '✨ Kết quả liệu trình',
-      content: newPostData.content || '',
-      customerTag: newPostData.customerTag,
-      treatmentResult: newPostData.treatmentResult,
-      likes: 1,
-      isLiked: true,
-      commentsCount: 0,
-      sharesCount: 0,
-      comments: [],
-    };
-    setFeedPosts((prev) => [newPost, ...prev]);
-  };
-
   // Format call duration MM:SS
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60)
@@ -320,7 +256,7 @@ export default function App() {
   };
 
   // Determine if bottom navigation bar should be visible
-  const showBottomNav = ['home', 'tasks', 'customers', 'booking', 'profile', 'feed'].includes(
+  const showBottomNav = ['home', 'tasks', 'customers', 'booking', 'profile'].includes(
     currentScreen
   );
 
@@ -420,60 +356,15 @@ export default function App() {
               <RevenueScreen onNavigate={navigateTo} onBack={handleBack} />
             )}
 
-            {currentScreen === 'payroll' && (
-              <PayrollScreen payroll={initialPayroll} onBack={handleBack} />
-            )}
-
             {currentScreen === 'academy' && (
               <AcademyScreen courses={courses} onNavigate={navigateTo} onBack={handleBack} />
-            )}
-
-            {currentScreen === 'lookbook' && (
-              <LookbookScreen
-                looks={looks}
-                onSelectLookForBooking={() => navigateTo('create_booking')}
-                onSelectLookForDetail={(look) => {
-                  setSelectedLookForDetail(look);
-                  navigateTo('lookbook_detail');
-                }}
-                onNavigate={navigateTo}
-                onBack={handleBack}
-              />
-            )}
-
-            {currentScreen === 'lookbook_detail' && (
-              <LookbookDetailScreen
-                look={selectedLookForDetail}
-                onBack={handleBack}
-                onNavigate={navigateTo}
-                onSelectLookForBooking={() => navigateTo('create_booking')}
-              />
-            )}
-
-            {currentScreen === 'video_tutorial' && (
-              <VideoTutorialDetailScreen
-                onBack={handleBack}
-                onNavigate={navigateTo}
-              />
-            )}
-
-            {currentScreen === 'feed' && (
-              <FeedScreen
-                posts={feedPosts}
-                onNavigate={navigateTo}
-                onBack={handleBack}
-                onLikePost={handleLikePost}
-                onOpenCreatePost={() => setShowCreatePost(true)}
-              />
             )}
 
             {currentScreen === 'profile' && (
               <ProfileScreen
                 currentUser={currentUser}
-                posts={feedPosts}
                 onNavigate={navigateTo}
                 onBack={handleBack}
-                onLikePost={handleLikePost}
                 onLogout={handleLogout}
                 onSwitchAccount={() => navigateTo('auth')}
               />
@@ -522,14 +413,6 @@ export default function App() {
           currentUser={currentUser}
           currentScreen={currentScreen}
         />
-
-        {/* Create Post Full-screen Modal */}
-        {showCreatePost && (
-          <CreatePostScreen
-            onClose={() => setShowCreatePost(false)}
-            onSubmitPost={handleCreatePost}
-          />
-        )}
 
         {/* Simulated Phone Call Overlay */}
         {callModalData && (

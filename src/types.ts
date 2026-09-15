@@ -1,20 +1,16 @@
 /**
- * CELLA Core Database & Application Interfaces
+ * CELLA Core Database & Application Interfaces (PHASE 1 - MINIMAL SCHEMA)
  */
 
-// 1. User & Staff
+// 1. User & Staff (profiles)
 export interface Staff {
   id: string;
   fullName: string;
   email?: string;
   password?: string;
-  role: 'MASTER' | 'ARTIST' | 'SALES' | 'ACADEMY_TRAINER';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER_ARTIST' | 'ARTIST' | 'SALES_CONSULTANT' | 'ACADEMY_TRAINER' | 'CUSTOMER';
   phone: string;
   avatarUrl: string;
-  baseSalary: number;
-  commissionRate: number;
-  kpiScore: number;
-  title?: string;
   department?: string;
   branch?: string;
   employeeCode?: string;
@@ -23,116 +19,70 @@ export interface Staff {
 
 export type UserAccount = Staff;
 
-// 2. Customer & Lead
+// 2. Customer & Lead (customers)
 export interface Customer {
   id: string;
-  name: string;
+  customerCode?: string;
+  name: string; // Map to full_name in DB
   phone: string;
   email?: string;
   avatarUrl?: string;
-  source: 'TIKTOK' | 'FACEBOOK' | 'ZALO' | 'REFERRAL' | 'HOTLINE' | 'WALK_IN';
-  status: 'LEAD' | 'CONSULTING' | 'BOOKED' | 'VIP' | 'RE_CARE';
-  vipTier?: string; // 'VIP 1', 'VIP Gold', etc.
-  assignedStaff?: string;
+  source: 'TIKTOK' | 'FACEBOOK' | 'ZALO' | 'REFERRAL' | 'HOTLINE' | 'WALK_IN' | 'WEBSITE';
+  status: 'LEAD' | 'CONSULTING' | 'BOOKED' | 'VIP' | 'RE_CARE'; // Legacy mapping
+  crmStage: 'LEAD_NEW' | 'CONSULTING' | 'BOOKED' | 'PURCHASED' | 'FOLLOW_UP'; // New Phase 1 Stage
   assignedStaffId?: string;
-  lastContactText?: string;
+  lastContactAt?: string;
   totalSpent?: number;
   contactCount?: number;
-  birthDate?: string;
-  address?: string;
-  interests?: string[];
-  skinProfile?: {
-    skinType: 'DRY' | 'OILY' | 'COMBINATION' | 'NORMAL';
-    undertone: 'COOL' | 'WARM' | 'NEUTRAL';
-    faceShape: 'OVAL' | 'ROUND' | 'SQUARE' | 'HEART';
-    notes?: string;
-  };
-  notesHistory?: {
-    id: string;
-    author: string;
-    timestamp: string;
-    content: string;
-  }[];
+  vipTier?: string; 
+  lastContactText?: string; 
+  notesHistory?: any[];
 }
 
-// 3. Makeup Look / Lookbook
-export interface MakeupLook {
-  id: string;
-  title: string;
-  category: 'BRIDAL' | 'EDITORIAL' | 'KOREAN_GLOW' | 'Y2K' | 'AURA_ART';
-  price: number;
-  memberPrice: number;
-  durationMinutes: number;
-  artistId: string;
-  artistName: string;
-  rating: number;
-  reviewCount: number;
-  imageUrl: string;
-  beforeImageUrl?: string;
-  afterImageUrl?: string;
-  description: string;
-  faceShapeFit: string[];
-  undertoneFit: string[];
-  swatches: {
-    name: string;
-    colorCode: string;
-    type: 'LIP' | 'EYE' | 'BLUSH' | 'GLOW';
-  }[];
-  productsUsed: string[];
-  videoTutorialUrl?: string;
-  steps?: {
-    title: string;
-    duration: string;
-    description: string;
-    proTip: string;
-  }[];
-}
-
-// 4. Booking
+// 3. Booking (bookings)
 export interface Booking {
   id: string;
   bookingCode: string; // e.g. #BK-20250425-01
   customerId: string;
-  customerName: string;
-  customerPhone: string;
-  customerVip?: string;
-  serviceTitle: string;
-  serviceCategory?: string;
-  lookId?: string;
-  artistId: string;
-  artistName: string;
-  appointmentTime: string; // e.g. "09:00 - 10:30"
-  appointmentDate: string; // e.g. "2025-04-25"
-  branchName: string; // e.g. "Cơ sở Quận 1"
-  locationAddress: string;
-  locationType: 'STUDIO' | 'HOME_VISIT';
+  customerName: string; // Derived from join
+  customerPhone: string; // Derived from join
+  serviceTitle: string; // Maps to service_name / look_id
+  artistId?: string;
+  artistName?: string;
+  appointmentTime: string; // Derived from booking_date and start_time
+  appointmentDate?: string;
   status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   totalAmount: number;
-  depositAmount: number;
+  depositAmount?: number;
   notes?: string;
-  smsReminder?: boolean;
+  locationAddress?: string;
 }
 
-// 5. Tasks
+// 4. Tasks (tasks)
 export interface Task {
   id: string;
   title: string;
-  time: string;
-  category: string;
-  priority: 'Quan trọng' | 'Bình thường' | 'Thấp';
-  completed: boolean;
-  dueDate: string;
+  description?: string;
+  taskType?: string;
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'Quan tr?ng' | 'B�nh thu?ng' | 'Th?p';
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
+  time: string; // Map to due_at for UI
+  dueTime?: string;
+  dueAt?: string;
+  assignedTo?: string;
+  completed: boolean; // Derived from status === 'DONE'
+  customerName?: string; // UI friendly
 }
 
-// 6. Academy Course
+// Course (Minimal)
 export interface Course {
   id: string;
   title: string;
-  category: 'Chuyên nghiệp' | 'Nâng cao' | 'Cơ bản';
+  category: string;
   code: string;
   instructor: string;
   instructorTitle: string;
-  instructorAvatar?: string;
+  instructorAvatar: string;
   totalLessons: number;
   highlights: string[];
   startDate: string;
@@ -142,97 +92,36 @@ export interface Course {
   price: number;
   originalPrice?: number;
   isHot?: boolean;
-  isEarlyBird?: boolean;
-  syllabus: { lesson: number; title: string; duration: string }[];
+  syllabus: any[];
 }
 
-// 7. Feed Post (Social & Activity Feed)
-export interface FeedPost {
-  id: string;
-  authorName: string;
-  authorRole: string;
-  authorAvatar: string;
-  timestamp: string;
-  privacy: string;
-  category: string;
-  content: string;
-  customerTag?: string;
-  serviceTag?: string;
-  branchTag?: string;
-  treatmentResult?: {
-    beforeImg: string;
-    afterImg: string;
-    treatmentLabel: string;
-    customerName: string;
-    customerId: string;
-  };
-  images?: string[];
-  likes: number;
-  isLiked?: boolean;
-  commentsCount: number;
-  sharesCount: number;
-  comments?: {
-    id: string;
-    author: string;
-    text: string;
-    time: string;
-  }[];
-}
-
-// 8. Notification Item
 export interface NotificationItem {
   id: string;
-  type: 'BOOKING' | 'LEAD' | 'TASK' | 'COMMENT';
+  type: string;
   title: string;
   subtitle: string;
   timestamp: string;
   unread: boolean;
-  details?: string;
   actionText?: string;
   secondaryActionText?: string;
 }
 
-// 8.1 Payroll Record
-export interface PayrollRecord {
-  month: string;
-  netSalary: number;
-  baseSalary: number;
-  commissionService: number;
-  commissionAcademy: number;
-  bonusKpi: number;
-  allowances: number;
-  deductions: number;
-  bankAccount: {
-    bankName: string;
-    accountNumber: string;
-    accountHolder: string;
-  };
-}
-
-// 9. Navigation Screens & Tabs
-export type NavTab = 'home' | 'booking' | 'customers' | 'feed' | 'profile' | 'tasks' | 'more';
+// 5. Navigation Screens & Tabs (Minimal Phase 1)
+export type NavTab = 'home' | 'tasks' | 'customers' | 'booking' | 'more';
 
 export type ScreenId =
   | 'splash'
+  | 'auth'
   | 'home'
-  | 'tasks'
   | 'customers'
-  | 'customer_detail'
   | 'create_customer'
+  | 'customer_detail'
   | 'booking'
   | 'create_booking'
   | 'booking_detail'
-  | 'lookbook'
-  | 'lookbook_detail'
-  | 'video_tutorial'
-  | 'feed'
-  | 'create_post'
-  | 'academy'
-  | 'attendance'
-  | 'payroll'
+  | 'tasks'
   | 'revenue'
+  | 'academy'
   | 'ai_assistant'
   | 'profile'
-  | 'notifications'
-  | 'more'
-  | 'auth';
+  | 'more';

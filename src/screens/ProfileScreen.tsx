@@ -17,6 +17,7 @@ interface ProfileScreenProps {
   onNavigate: (screen: ScreenId) => void;
   onBack?: () => void;
   onLogout?: () => void;
+  onSwitchAccount?: () => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({

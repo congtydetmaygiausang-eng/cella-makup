@@ -62,22 +62,6 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
       group: 'Dịch vụ & Nghệ thuật',
       items: [
         {
-          id: 'lookbook' as ScreenId,
-          title: 'Lookbook Mẫu Makeup',
-          desc: 'Bộ sưu tập xu hướng & Aura',
-          icon: Sparkles,
-          iconBg: 'bg-rose-50 text-rose-600 border border-rose-200/80',
-          badge: 'Mới',
-        },
-        {
-          id: 'video_tutorial' as ScreenId,
-          title: 'Video Masterclass Kỹ thuật',
-          desc: 'Hướng dẫn video 4K chi tiết',
-          icon: Play,
-          iconBg: 'bg-indigo-50 text-indigo-600 border border-indigo-200/80',
-          badge: 'Video',
-        },
-        {
           id: 'ai_assistant' as ScreenId,
           title: 'Trợ lý AI Gemini',
           desc: 'Soi da, phân tích undertone & kịch bản',
@@ -88,7 +72,7 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
       ],
     },
     {
-      group: 'Học viện & Bảng tin',
+      group: 'Học viện',
       items: [
         {
           id: 'academy' as ScreenId,
@@ -96,13 +80,6 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
           desc: 'Khóa học chuyên nghiệp & chứng chỉ',
           icon: GraduationCap,
           iconBg: 'bg-teal-50 text-teal-600 border border-teal-200/80',
-        },
-        {
-          id: 'feed' as ScreenId,
-          title: 'Bảng tin Studio Feed',
-          desc: 'Chia sẻ hoạt động & feedback khách',
-          icon: MessageSquare,
-          iconBg: 'bg-pink-50 text-pink-600 border border-pink-200/80',
         },
       ],
     },
@@ -115,13 +92,6 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
           desc: 'Thống kê KPI & dòng tiền cơ sở',
           icon: TrendingUp,
           iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-200/80',
-        },
-        {
-          id: 'payroll' as ScreenId,
-          title: 'Bảng lương & Hoa hồng',
-          desc: 'Chi tiết thu nhập & thưởng KPI',
-          icon: CreditCard,
-          iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/80',
         },
       ],
     },
