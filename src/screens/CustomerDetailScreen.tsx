@@ -108,46 +108,60 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
             </AuraBadge>
           </div>
 
-          {/* 4 Action Buttons Grid (Matching screenshot 9) */}
-          <div className="grid grid-cols-4 gap-2 w-full mt-4 pt-3 border-t border-slate-100">
+          {/* 5 Action Buttons Grid */}
+          <div className="grid grid-cols-5 gap-1.5 w-full mt-4 pt-3 border-t border-slate-100">
             <button
               onClick={() => onQuickCall(customer)}
-              className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                 <Phone className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-medium">Gọi điện</span>
+              <span className="text-[10px] font-medium whitespace-nowrap">Gọi điện</span>
             </button>
 
             <button
               onClick={() => onQuickMessage(customer)}
-              className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-sky-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-sky-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
                 <MessageCircle className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-medium">Nhắn tin</span>
+              <span className="text-[10px] font-medium whitespace-nowrap">Nhắn tin</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (customer.phone) {
+                  window.open(`https://zalo.me/${customer.phone.replace(/[^0-9]/g, '')}`, '_blank');
+                }
+              }}
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-blue-50 active:scale-95 transition-all text-slate-700"
+            >
+              <div className="w-9 h-9 rounded-full bg-blue-100 text-[#0068FF] flex items-center justify-center font-bold text-[10px] tracking-tighter shrink-0">
+                Zalo
+              </div>
+              <span className="text-[10px] font-medium whitespace-nowrap">Zalo</span>
             </button>
 
             <button
               onClick={() => onNavigate('create_booking')}
-              className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-indigo-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-indigo-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-[#EFF4FF] text-[#5850EC] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-[#EFF4FF] text-[#5850EC] flex items-center justify-center shrink-0">
                 <CalendarPlus className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-medium">Đặt lịch</span>
+              <span className="text-[10px] font-medium whitespace-nowrap">Đặt lịch</span>
             </button>
 
             <button
               onClick={() => setActiveSubTab('notes')}
-              className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-amber-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-amber-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-medium">Ghi chú</span>
+              <span className="text-[10px] font-medium whitespace-nowrap">Ghi chú</span>
             </button>
           </div>
         </GlassCard>
