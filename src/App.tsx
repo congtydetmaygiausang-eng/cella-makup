@@ -470,8 +470,10 @@ export default function App() {
             {currentScreen === 'profile' && (
               <ProfileScreen
                 currentUser={currentUser}
+                posts={feedPosts}
                 onNavigate={navigateTo}
                 onBack={handleBack}
+                onLikePost={handleLikePost}
                 onLogout={handleLogout}
                 onSwitchAccount={() => navigateTo('auth')}
               />
