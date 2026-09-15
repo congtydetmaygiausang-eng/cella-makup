@@ -30,16 +30,8 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
   onBack,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [activeCourseDetail, setActiveCourseDetail] = useState<Course | null>(null);
   const [registeredSuccess, setRegisteredSuccess] = useState(false);
-
-  const categories = [
-    { id: 'ALL', label: 'Tất cả (12)' },
-    { id: 'MESO', label: 'Chăm sóc da & Meso' },
-    { id: 'PMU', label: 'Phun thêu thẩm mỹ' },
-    { id: 'SPA_MGT', label: 'Vận hành Spa' },
-  ];
 
   const filteredCourses = courses.filter((c) => {
     const matchSearch =
@@ -110,23 +102,6 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30"
           />
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedCategory === cat.id
-                  ? 'bg-[#5850EC] text-white shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
         </div>
 
         {/* Course Cards List (Matching screenshot 18) */}
