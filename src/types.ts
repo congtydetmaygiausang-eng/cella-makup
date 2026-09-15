@@ -64,7 +64,7 @@ export interface Task {
   title: string;
   description?: string;
   taskType?: string;
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'Quan tr?ng' | 'B�nh thu?ng' | 'Th?p';
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'Quan trọng' | 'Bình thường' | 'Thấp';
   status?: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
   time: string; // Map to due_at for UI
   dueTime?: string;
