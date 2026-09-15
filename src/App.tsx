@@ -493,6 +493,7 @@ export default function App() {
               <AIAssistantScreen
                 onNavigate={navigateTo}
                 onBack={handleBack}
+                currentUser={currentUser}
                 customerContext={
                   screenHistory[screenHistory.length - 2] === 'customer_detail'
                     ? {

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ScreenId } from '../types';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { ScreenId, Staff } from '../types';
 import {
   Headphones,
   Lightbulb,
@@ -12,11 +12,13 @@ import {
   Sparkles,
   User,
   RefreshCw,
+  ChevronRight,
 } from 'lucide-react';
 
 interface AIAssistantScreenProps {
   onNavigate: (screen: ScreenId) => void;
   onBack: () => void;
+  currentUser?: Staff;
   customerContext?: {
     name?: string;
     source?: string;
@@ -114,6 +116,7 @@ async function callCellaAI(
 
 export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   onBack,
+  currentUser,
   customerContext,
 }) => {
   const [inputMessage, setInputMessage] = useState('');
@@ -124,6 +127,45 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const showChat = messages.length > 0;
+
+  // Personalized greeting based on logged-in user
+  const firstName = useMemo(() => {
+    if (!currentUser?.fullName) return 'bạn';
+    const parts = currentUser.fullName.trim().split(' ');
+    return parts[parts.length - 1]; // Last word = first name in Vietnamese
+  }, [currentUser]);
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Chào buổi sáng';
+    if (hour >= 12 && hour < 18) return 'Chào buổi chiều';
+    return 'Chào buổi tối';
+  }, []);
+
+  const roleLabel = useMemo(() => {
+    switch (currentUser?.role) {
+      case 'SUPER_ADMIN':
+      case 'ADMIN': return 'Quản lý';
+      case 'MASTER_ARTIST': return 'Master Artist';
+      case 'ARTIST': return 'Artist';
+      case 'ACADEMY_TRAINER': return 'Giảng viên';
+      case 'SALES_CONSULTANT': return 'Tư vấn viên';
+      default: return 'chuyên viên';
+    }
+  }, [currentUser]);
+
+  // Smart suggested questions based on role
+  const smartSuggestions = useMemo(() => {
+    const base = [
+      { label: 'Xem lương tháng này', prompt: 'Tính hoa hồng và lương tháng này của tôi dựa trên KPI hiện tại.' },
+      { label: 'Báo cáo doanh thu hôm nay', prompt: 'Tổng hợp doanh thu hôm nay và so sánh với cùng kỳ.' },
+      { label: 'Khách hàng cần follow-up', prompt: 'Liệt kê các khách hàng cần chăm sóc và hành động tiếp theo phù hợp.' },
+    ];
+    if (currentUser?.role === 'ACADEMY_TRAINER') {
+      base[0] = { label: 'Xem học viên mới', prompt: 'Danh sách học viên đăng ký mới nhất và tiến độ khai giảng.' };
+    }
+    return base;
+  }, [currentUser]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -249,15 +291,30 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
               </div>
             </div>
 
+            {/* Personalized Greeting */}
             <h2 className="text-[17px] font-black text-slate-900 text-center">
-              Xin chào! Tôi là trợ lý AI của CELLA
+              {greeting}, {currentUser ? `chị ${firstName}!` : 'bạn!'}
             </h2>
             <p className="text-[13px] text-slate-500 mt-1 text-center leading-relaxed">
-              Phân tích khách hàng · Gợi ý chiến lược · Tư vấn chốt sale
+              Hôm nay {currentUser ? `${roleLabel} ` : ''}cần em hỗ trợ điều gì ạ?
             </p>
 
-            {/* Quick Action Cards – vertical list */}
-            <div className="w-full mt-6 space-y-2.5">
+            {/* Smart Quick Chips based on role */}
+            <div className="w-full mt-3 flex flex-col gap-1.5">
+              {smartSuggestions.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(s.prompt, 'Trả lời câu hỏi')}
+                  className="flex items-center justify-between px-3.5 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl hover:bg-indigo-100 active:scale-[0.98] transition-all text-left"
+                >
+                  <span className="text-[12px] font-semibold text-indigo-700">{s.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                </button>
+              ))}
+            </div>
+
+            <div className="w-full mt-2 border-t border-slate-100 pt-3">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 mb-2">Hoặc chọn chủ đề</p>
               {QUICK_ACTIONS.map((item, i) => {
                 const Icon = item.icon;
                 return (
