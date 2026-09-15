@@ -132,12 +132,12 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         const fallbackReply: ChatMessage = {
           id: `ai-${Date.now()}`,
           sender: 'assistant',
-          text: `Dưới đây là phương án tối ưu quy trình dành cho chuyên viên CELLA:\n\n1. Xác định nhóm da & sở thích: Lắng nghe mối bận tâm của khách về thời gian hồi phục.\n2. Tư vấn giải pháp êm ái: Nhấn mạnh kỹ thuật phun vi chạm không sưng không đau chuẩn Hàn Quốc.\n3. Cam kết dịch vụ: Tặng gói dặm màu miễn phí và bảo hành 6 tháng.`,
+          text: `Dưới đây là quy trình Makeup chuyên nghiệp chuẩn Atelier dành cho chuyên viên CELLA:\n\n1. Skin Prep (Làm sạch & Cấp ẩm): Phân tích loại da và undertone, sử dụng dưỡng ẩm phù hợp để tạo lớp nền ngậm nước.\n2. Xử lý khuyết điểm & Đánh nền: Dùng triệt sắc trung hòa màu da, chọn kem nền tiệp undertone và tán mỏng nhẹ tự nhiên.\n3. Định hình & Khóa nền: Đánh khối tôn vinh đường nét, phủ phấn bột (setting powder) và xịt khóa nền (setting spray) giữ lớp makeup lâu trôi.`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           checklist: [
-            'Bước 1: Lắng nghe & kiểm tra undertone',
-            'Bước 2: Phác thảo dáng mày trên khuôn mặt',
-            'Bước 3: Chốt lịch hẹn & gửi tin nhắn nhắc hẹn',
+            'Bước 1: Phân tích loại da & kiểm tra undertone',
+            'Bước 2: Skin prep & xử lý khuyết điểm chuyên sâu',
+            'Bước 3: Hoàn thiện lớp nền, định hình & xịt khóa nền',
           ],
         };
         setMessages((prev) => [...prev, fallbackReply]);
