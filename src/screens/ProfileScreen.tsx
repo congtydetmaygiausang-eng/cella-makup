@@ -1,318 +1,206 @@
-import React, { useState } from 'react';
-import { ScreenId, Staff, FeedPost } from '../types';
+import React from 'react';
+import { ScreenId, Staff } from '../types';
 import { CURRENT_USER } from '../data/mockData';
-import { GlassCard } from '../components/common/GlassCard';
-import { AuraBadge } from '../components/common/AuraBadge';
+import { MobileHeader } from '../components/common/MobileHeader';
 import {
-  ChevronLeft,
-  Search,
-  MoreVertical,
-  Lock,
-  MapPin,
-  MessageCircle,
-  Image as ImageIcon,
-  Sparkles,
-  Sliders,
-  Heart,
-  Share2,
+  LogOut,
+  ChevronRight,
+  Shield,
+  Briefcase,
   CheckCircle2,
+  Lock,
+  User,
 } from 'lucide-react';
 
 interface ProfileScreenProps {
   currentUser?: Staff;
-  posts?: FeedPost[];
   onNavigate: (screen: ScreenId) => void;
   onBack?: () => void;
-  onLikePost?: (postId: string) => void;
   onLogout?: () => void;
-  onSwitchAccount?: () => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   currentUser,
-  posts = [],
   onNavigate,
   onBack,
-  onLikePost,
+  onLogout,
 }) => {
   const user = currentUser || CURRENT_USER;
-  const [activeTab, setActiveTab] = useState<'ALL' | 'MEDIA' | 'STORY'>('ALL');
-
-  // Filter posts created by the current user (mocked to all for demo if empty, or just show the first few)
-  const userPosts = posts;
 
   return (
     <div className="min-h-full bg-[#F8F9FA] pb-28 text-slate-900 animate-in fade-in duration-300">
-      {/* Cover Photo & Transparent Header */}
-      <div className="relative h-48 bg-linear-to-tr from-[#1E1B4B] via-[#4338CA] to-[#818CF8]">
-        {/* Header Actions */}
-        <div className="absolute top-0 inset-x-0 pt-10 pb-4 px-5 flex items-center justify-between text-white z-10">
-          <button
-            onClick={onBack || (() => onNavigate('home'))}
-            className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/30 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+      <MobileHeader
+        title="Thông tin cá nhân"
+        showBack={true}
+        onBack={onBack || (() => onNavigate('home'))}
+        rightAction={
+          <button className="text-[14px] font-black text-[#544CDE] px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors">
+            Lưu
           </button>
-          <div className="flex items-center gap-3">
-            <button className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/30 transition-colors">
-              <Search className="w-5 h-5 stroke-[2.5]" />
-            </button>
-            <button className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/30 transition-colors">
-              <MoreVertical className="w-5 h-5 stroke-[2.5]" />
-            </button>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
-      <div className="px-5 -mt-16 relative z-20">
-        {/* Profile Info Card */}
-        <div className="bg-white rounded-[32px] p-5 shadow-sm shadow-slate-200/50 border border-slate-100">
-          <div className="flex flex-col items-center">
-            {/* Avatar */}
-            <div className="relative -mt-16 mb-3">
-              <img
-                src={user.avatarUrl}
-                alt={user.fullName}
-                className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-md"
-              />
-              <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center shadow-xs">
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              </div>
-            </div>
-
-            {/* Name & Title */}
-            <div className="flex items-center gap-1.5 justify-center mb-1">
-              <h2 className="text-xl font-black text-slate-900">{user.fullName}</h2>
-              <CheckCircle2 className="w-5 h-5 text-[#00A3FF] fill-[#00A3FF]/10 stroke-[2.5]" />
-            </div>
-            <p className="text-sm font-semibold text-slate-500">
-              {user.title || 'Chuyên viên CELLA'} • {user.role === 'MASTER' ? 'Master Trainer' : 'Makeup Artist'}
-            </p>
-            <p className="text-[13px] text-slate-600 font-medium text-center mt-2 px-4 leading-relaxed">
-              "Lan truyền cảm hứng làm đẹp chuẩn Hàn. Nhận đào tạo học viên 1 kèm 1."
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex items-center justify-center gap-2 mt-4 w-full">
-              <button className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-2xl font-bold text-[13px] hover:bg-slate-200 transition-colors">
-                Chỉnh sửa hồ sơ
-              </button>
-              <button className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors">
-                <Lock className="w-5 h-5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            {/* Tags / Info Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 w-full">
-              <div className="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-[11px] font-bold text-emerald-600">Đang hoạt động</span>
-              </div>
-              <div className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 stroke-[2.5]" />
-                <span className="text-[11px] font-bold text-slate-600">Quận 1, HCM</span>
-              </div>
-              <div className="px-3 py-1.5 rounded-full bg-[#00A3FF]/10 border border-[#00A3FF]/20 flex items-center gap-1.5">
-                <MessageCircle className="w-3.5 h-3.5 text-[#00A3FF] stroke-[2.5]" />
-                <span className="text-[11px] font-bold text-[#00A3FF]">{user.phone}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Post Composer */}
-        <div className="mt-4 bg-white rounded-3xl p-4 shadow-sm shadow-slate-200/50 border border-slate-100 cursor-text">
-          <div className="flex items-center gap-3">
+      <div className="px-4 pt-4 space-y-4">
+        {/* TOP PROFILE CARD */}
+        <div className="bg-white rounded-[24px] pt-8 pb-5 px-5 shadow-sm border border-slate-100 text-center">
+          <div className="relative inline-block mb-3">
             <img
               src={user.avatarUrl}
-              alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover ring-1 ring-slate-100"
+              alt={user.fullName}
+              className="w-20 h-20 rounded-full object-cover ring-[3px] ring-indigo-50"
             />
-            <div className="flex-1 bg-slate-50 rounded-2xl h-10 px-4 flex items-center text-[13px] font-medium text-slate-400">
-              Bạn đang nghĩ gì hoặc muốn chia sẻ ca làm đẹp?
+            <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#544CDE] text-white flex items-center justify-center border-2 border-white shadow-xs">
+              <User className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <h2 className="text-[16px] font-black text-slate-900">{user.fullName}</h2>
+            <CheckCircle2 className="w-4.5 h-4.5 text-[#544CDE] fill-[#544CDE]/10 stroke-[2.5]" />
+          </div>
+
+          <div className="flex items-center justify-center gap-2 mb-6 text-[12px] font-semibold text-slate-500">
+            <span className="px-2 py-1 rounded-md bg-indigo-50 text-[#544CDE]">Sales Specialist</span>
+            <span>•</span>
+            <span>Mã NV: <strong className="text-slate-700">{user.employeeCode || user.id}</strong></span>
+          </div>
+
+          {/* STATS */}
+          <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-5">
+            <div className="flex flex-col items-center">
+              <span className="text-[16px] font-black text-slate-900">128</span>
+              <span className="text-[11px] font-medium text-slate-400 mt-1">Khách hàng</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1">
+                <span className="text-[16px] font-black text-slate-900">4.9</span>
+                <span className="text-amber-400 text-sm">★</span>
+              </div>
+              <span className="text-[11px] font-medium text-slate-400 mt-1">Đánh giá</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-[16px] font-black text-slate-900">15</span>
+              <span className="text-[11px] font-medium text-slate-400 mt-1">Tháng gắn bó</span>
             </div>
           </div>
-          <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-50 text-[12px] font-bold text-slate-600">
-              <ImageIcon className="w-4 h-4 text-emerald-500 stroke-[2.5]" />
-              <span>Ảnh / Video</span>
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-50 text-[12px] font-bold text-slate-600">
-              <Sparkles className="w-4 h-4 text-purple-500 stroke-[2.5]" />
-              <span>Gắn ca điều trị</span>
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-50 text-[12px] font-bold text-slate-600">
-              <Sliders className="w-4 h-4 text-indigo-500 stroke-[2.5]" />
-              <span>Trước / Sau</span>
-            </button>
+        </div>
+
+        {/* THÔNG TIN LIÊN HỆ */}
+        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5 text-[#544CDE] stroke-[2]" />
+              <h3 className="text-[14px] font-bold text-slate-900">Thông tin liên hệ</h3>
+            </div>
+            <button className="text-[12px] font-bold text-[#544CDE] hover:underline">Sửa</button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Họ và tên</span>
+              <span className="text-[13px] font-medium text-slate-800">{user.fullName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Số điện thoại</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-slate-800">{user.phone}</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Đã kích hoạt</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Email làm việc</span>
+              <span className="text-[13px] font-medium text-slate-800">{user.email || 'lan.nguyen@cella.vn'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Ngày sinh & Giới tính</span>
+              <span className="text-[13px] font-medium text-slate-800">12/08/1996 • Nữ</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Chi nhánh làm việc</span>
+              <span className="text-[13px] font-medium text-slate-800">{user.branch || 'Cơ sở Quận 1 - Trụ sở chính CELLA'}</span>
+            </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-2 mt-5 overflow-x-auto no-scrollbar pb-1">
-          <button
-            onClick={() => setActiveTab('ALL')}
-            className={`px-5 py-2.5 rounded-2xl text-[13px] font-bold whitespace-nowrap transition-all ${
-              activeTab === 'ALL'
-                ? 'bg-[#00A3FF] text-white shadow-md shadow-blue-200'
-                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Tất cả bài viết
-          </button>
-          <button
-            onClick={() => setActiveTab('MEDIA')}
-            className={`px-5 py-2.5 rounded-2xl text-[13px] font-bold whitespace-nowrap transition-all ${
-              activeTab === 'MEDIA'
-                ? 'bg-[#00A3FF] text-white shadow-md shadow-blue-200'
-                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Hình ảnh & Video
-          </button>
-          <button
-            onClick={() => setActiveTab('STORY')}
-            className={`px-5 py-2.5 rounded-2xl text-[13px] font-bold whitespace-nowrap transition-all ${
-              activeTab === 'STORY'
-                ? 'bg-[#00A3FF] text-white shadow-md shadow-blue-200'
-                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Story (24h)
-          </button>
+        {/* THÔNG TIN CHUYÊN MÔN */}
+        <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
+          <div className="flex items-center gap-2 mb-5">
+            <Briefcase className="w-5 h-5 text-[#544CDE] stroke-[2]" />
+            <h3 className="text-[14px] font-bold text-slate-900">Thông tin chuyên môn</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Phòng ban</span>
+              <span className="text-[13px] font-medium text-slate-800">Khối Tuyển sinh & CSKH</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Vị trí đảm nhận</span>
+              <span className="text-[13px] font-medium text-[#544CDE]">Senior Sales Consultant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-slate-500">Ngày gia nhập</span>
+              <span className="text-[13px] font-medium text-slate-800">01/03/2023</span>
+            </div>
+            <div>
+              <span className="text-[13px] text-slate-500 block mb-2.5">Kỹ năng & Chuyên môn:</span>
+              <div className="flex flex-wrap gap-2">
+                {['Tư vấn khóa học', 'Chăm sóc da chuyên sâu', 'CSKH VIP', 'Chốt deal'].map((skill, i) => (
+                  <span key={i} className={`text-[12px] font-medium px-3 py-1.5 rounded-lg ${i === 2 ? 'bg-purple-50 text-purple-600' : 'bg-slate-50 text-slate-600'}`}>
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* User Posts Feed */}
-        <div className="mt-4 space-y-4">
-          {userPosts.map((post) => (
-            <GlassCard key={post.id} className="p-4 bg-white border border-slate-100 space-y-3 shadow-sm shadow-slate-200/50">
-              {/* Author Row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={post.authorAvatar}
-                    alt={post.authorName}
-                    className="w-10 h-10 rounded-full object-cover ring-1 ring-slate-100"
-                  />
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="text-[14px] font-black text-slate-900">{post.authorName}</h4>
-                      {post.authorName === user.fullName && (
-                         <CheckCircle2 className="w-4 h-4 text-[#00A3FF] fill-[#00A3FF]/10 stroke-[2.5]" />
-                      )}
-                    </div>
-                    <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-                      {post.timestamp} • {post.privacy}
-                    </p>
-                  </div>
-                </div>
-                <button className="w-8 h-8 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-400">
-                  <MoreVertical className="w-5 h-5 stroke-[2.5]" />
-                </button>
+        {/* SECURITY & SETTINGS */}
+        <div className="bg-white rounded-[24px] p-2 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-between p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-amber-500 stroke-[2]" />
               </div>
-
-              {/* Tagged customer banner if present */}
-              {post.customerTag && (
-                <div className="p-2.5 rounded-2xl bg-[#00A3FF]/5 border border-[#00A3FF]/10 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <User className="w-4 h-4 text-[#00A3FF] stroke-[2.5]" />
-                    <span className="text-[12px] font-bold text-[#00A3FF] truncate">
-                      Cùng với {post.customerTag}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Post Content */}
-              <p className="text-[13px] text-slate-700 leading-relaxed whitespace-pre-line font-medium">
-                {post.content}
-              </p>
-
-              {/* Treatment Before / After Result Image Split */}
-              {post.treatmentResult && (
-                <div className="rounded-2xl overflow-hidden border border-slate-200 space-y-1">
-                  <div className="grid grid-cols-2 gap-1 relative h-48 bg-slate-100">
-                    <div className="relative h-full overflow-hidden">
-                      <img
-                        src={post.treatmentResult.beforeImg}
-                        alt="Trước"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-black/60 text-white backdrop-blur-md">
-                        Trước
-                      </span>
-                    </div>
-                    <div className="relative h-full overflow-hidden">
-                      <img
-                        src={post.treatmentResult.afterImg}
-                        alt="Sau"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#00A3FF]/90 text-white backdrop-blur-md">
-                        Sau 3 buổi
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-slate-50 flex items-center justify-between">
-                    <span className="text-[12px] font-bold text-slate-800">
-                      {post.treatmentResult.treatmentLabel}
-                    </span>
-                    <span className="text-[11px] font-bold text-emerald-600 px-2 py-0.5 rounded-lg bg-emerald-100/50">
-                      Hiệu quả 90%
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Image gallery if present */}
-              {post.images && post.images.length > 0 && !post.treatmentResult && (
-                <div className={`grid gap-1 rounded-2xl overflow-hidden ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                  {post.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt="Feed photo"
-                      className={`w-full object-cover ${post.images?.length === 1 ? 'h-64' : 'h-40'}`}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Likes & Comments Count */}
-              <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 pt-1 px-1">
-                <div className="flex items-center gap-1.5">
-                   <div className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xs">
-                     <Heart className="w-3 h-3 fill-white" />
-                   </div>
-                   <span>{post.likes} lượt thích</span>
-                </div>
-                <span>{post.commentsCount} bình luận • {post.sharesCount} chia sẻ</span>
+              <div>
+                <h4 className="text-[13px] font-bold text-slate-900">Đổi mật khẩu</h4>
+                <p className="text-[11px] text-slate-400">Cập nhật lần cuối 45 ngày trước</p>
               </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-slate-400" />
+          </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <button
-                  onClick={() => onLikePost?.(post.id)}
-                  className={`flex-1 flex justify-center items-center gap-1.5 py-2 rounded-xl transition-colors ${
-                    post.isLiked ? 'text-rose-500' : 'text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 stroke-[2.5] ${post.isLiked ? 'fill-current' : ''}`} />
-                  <span className="text-[12px] font-bold">{post.isLiked ? 'Đã thích' : 'Thích'}</span>
-                </button>
+          <div className="h-px bg-slate-100 mx-3"></div>
 
-                <button className="flex-1 flex justify-center items-center gap-1.5 py-2 rounded-xl text-slate-500 hover:bg-slate-50">
-                  <MessageCircle className="w-5 h-5 stroke-[2.5]" />
-                  <span className="text-[12px] font-bold">Bình luận</span>
-                </button>
-
-                <button className="flex-1 flex justify-center items-center gap-1.5 py-2 rounded-xl text-slate-500 hover:bg-slate-50">
-                  <Share2 className="w-5 h-5 stroke-[2.5]" />
-                  <span className="text-[12px] font-bold">Chia sẻ</span>
-                </button>
+          <div className="flex items-center justify-between p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-emerald-500 stroke-[2]" />
               </div>
-            </GlassCard>
-          ))}
+              <div>
+                <h4 className="text-[13px] font-bold text-slate-900">Xác thực 2 yếu tố (2FA)</h4>
+                <p className="text-[11px] font-bold text-emerald-500">Đang kích hoạt</p>
+              </div>
+            </div>
+            {/* Toggle switch mock */}
+            <div className="w-11 h-6 bg-[#544CDE] rounded-full relative shadow-inner">
+              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* LOGOUT BUTTON */}
+        <div className="pt-2">
+          <button
+            onClick={() => {
+              if (onLogout) onLogout();
+              else onNavigate('auth');
+            }}
+            className="w-full h-14 bg-white border border-rose-200 text-rose-500 rounded-2xl flex items-center justify-center gap-2 font-bold text-[14px] hover:bg-rose-50 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Đăng xuất tài khoản
+          </button>
         </div>
       </div>
     </div>
