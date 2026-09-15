@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, CheckSquare, Users, Calendar } from 'lucide-react';
+import { Home, CheckSquare, Newspaper, Users, Calendar } from 'lucide-react';
 import { NavTab } from '../../types';
 
 interface BottomNavBarProps {
@@ -16,6 +16,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   const tabs = [
     { id: 'home' as NavTab, label: 'Home', icon: Home },
     { id: 'tasks' as NavTab, label: 'Nhiệm vụ', icon: CheckSquare, badge: badgeCount },
+    { id: 'feed' as NavTab, label: 'Bảng tin', icon: Newspaper },
     { id: 'customers' as NavTab, label: 'Khách hàng', icon: Users },
     { id: 'booking' as NavTab, label: 'Lịch hẹn', icon: Calendar },
   ];
