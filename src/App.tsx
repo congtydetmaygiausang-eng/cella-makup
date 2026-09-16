@@ -392,13 +392,7 @@ export default function App() {
             {currentScreen === 'home' && (
               <HomeScreen
                 currentUser={currentUser}
-                customers={customers}
-                bookings={bookings}
-                tasks={tasks}
                 onNavigate={navigateTo}
-                onSelectCustomer={handleSelectCustomer}
-                onSelectBooking={handleSelectBooking}
-                onToggleTask={handleToggleTask}
                 onToggleMenu={() => setIsMenuDropdownOpen((prev) => !prev)}
                 isMenuOpen={isMenuDropdownOpen}
               />
