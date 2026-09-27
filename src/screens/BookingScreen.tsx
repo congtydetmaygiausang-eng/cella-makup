@@ -55,6 +55,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
             <CalendarPlus className="w-5 h-5 stroke-[2.2]" />
           </button>
         </div>
+      </div>
 
       <div className="px-4 pt-2 space-y-3.5">
         {/* Month Navigator & Segmented View Switcher */}
