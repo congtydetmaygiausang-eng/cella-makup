@@ -300,7 +300,13 @@ export default function App() {
         setIsAuthenticated(true);
         fetchUserProfile(session.user.id);
       } else {
-        setIsAuthenticated(false);
+        const saved = localStorage.getItem('cella_current_user');
+        if (saved) {
+          setCurrentUser(JSON.parse(saved));
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
         setIsAuthLoading(false);
       }
     });
@@ -310,8 +316,11 @@ export default function App() {
         setIsAuthenticated(true);
         fetchUserProfile(session.user.id);
       } else {
-        setIsAuthenticated(false);
-        setCurrentUser(null as any);
+        const saved = localStorage.getItem('cella_current_user');
+        if (!saved) {
+          setIsAuthenticated(false);
+          setCurrentUser(null as any);
+        }
       }
     });
 
@@ -386,6 +395,11 @@ export default function App() {
   // Authentication Handlers
   const handleLoginSuccess = (user: Staff) => {
     setCurrentUser(user);
+    try {
+      localStorage.setItem('cella_current_user', JSON.stringify(user));
+    } catch (e) {
+      console.error('Error saving user', e);
+    }
     setIsAuthenticated(true);
     if (screenHistory.length > 1) {
       handleBack();
