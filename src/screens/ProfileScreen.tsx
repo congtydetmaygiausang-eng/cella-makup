@@ -74,19 +74,47 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const [activeTab, setActiveTab] = useState<'feed' | 'reviews'>('feed');
 
   // Posts Feed State
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      time: '2 giờ trước',
-      content: 'Layout makeup trong veo sương mai cho cô dâu sáng nay. Chúc hai bạn trăm năm hạnh phúc! 💕✨',
-      images: ['https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600&auto=format&fit=crop&q=80'],
-      likes: 124,
-      isLiked: false,
-      comments: [{ id: 101, author: 'Mai Lê', text: 'Đẹp quá em ơi 😍', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' }],
-      tagged: ['Hoàng Bảo Châu']
-    }
-  ]);
+  const [posts, setPosts] = useState<any[]>([]);
 
+  useEffect(() => {
+    if (activeTab === 'feed') {
+      fetchPosts();
+    }
+  }, [activeTab]);
+
+  const fetchPosts = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        content,
+        image_url,
+        created_at,
+        profiles(full_name, avatar_url),
+        post_likes(id)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      const mapped = data.map(p => ({
+        id: p.id,
+        time: new Date(p.created_at).toLocaleString('vi-VN'),
+        content: p.content,
+        images: p.image_url ? [p.image_url] : [],
+        likes: p.post_likes?.length || 0,
+        isLiked: p.post_likes?.some((l: any) => l.user_id === session?.user?.id),
+        comments: [],
+        tagged: [],
+        authorName: p.profiles?.full_name || 'Người dùng',
+        authorAvatar: p.profiles?.avatar_url || ''
+      }));
+      setPosts(mapped);
+    }
+  };
+
+  // Dummy initial state to keep types happy before fetch
+  // End Fetch Posts
   // Post Creation & Editing State
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
@@ -193,36 +221,31 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   };
 
   // Handle Post Submit (Create or Update)
-  const handleSubmitPost = () => {
+  const handleSubmitPost = async () => {
     if (!newPostText.trim() && newPostImages.length === 0) return;
     
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      alert('Vui lòng đăng nhập để đăng bài!');
+      return;
+    }
+
     if (editingPostId) {
-      // Update existing
-      setPosts(prev => prev.map(p => {
-        if (p.id === editingPostId) {
-          return {
-            ...p,
-            content: newPostText,
-            images: [...newPostImages],
-            tagged: [...newPostTagged],
-          };
-        }
-        return p;
-      }));
+      // Update existing (mocking update here for simplicity)
+      await supabase.from('posts').update({
+        content: newPostText,
+        image_url: newPostImages[0] || null
+      }).eq('id', editingPostId);
     } else {
       // Create new
-      const newPost = {
-        id: Date.now(),
-        time: 'Vừa xong',
+      await supabase.from('posts').insert({
+        author_id: session.user.id,
         content: newPostText,
-        images: [...newPostImages],
-        likes: 0,
-        isLiked: false,
-        comments: [],
-        tagged: [...newPostTagged]
-      };
-      setPosts([newPost, ...posts]);
+        image_url: newPostImages[0] || null
+      });
     }
+    
+    fetchPosts(); // Reload
     
     // Reset state
     setNewPostText('');
