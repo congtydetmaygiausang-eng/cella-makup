@@ -27,6 +27,8 @@ import { CreateBookingScreen } from './screens/CreateBookingScreen';
 import { BookingDetailScreen } from './screens/BookingDetailScreen';
 import { TasksScreen } from './screens/TasksScreen';
 import { RevenueScreen } from './screens/RevenueScreen';
+import { HRScreen } from './screens/HRScreen';
+import { RolesScreen } from './screens/RolesScreen';
 import { AIAssistantScreen } from './screens/AIAssistantScreen';
 import { AcademyScreen } from './screens/AcademyScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
@@ -42,6 +44,11 @@ import {
   Mic,
   Volume2,
   Sparkles,
+  ChevronLeft,
+  Phone,
+  Calendar,
+  Plus,
+  Send,
 } from 'lucide-react';
 
 // ─── Draggable CELLA AI Floating Button ───────────────────────────────────────
@@ -157,6 +164,124 @@ const CellaAIButton: React.FC<CellaAIButtonProps> = ({ onOpen, isAIOpen }) => {
     </div>
   );
 };
+
+// ─── Customer Chat Modal ─────────────────────────────────────────────────────
+const CustomerChatModal = ({ customer, onClose }: { customer: any, onClose: () => void }) => {
+  const [messages, setMessages] = useState<any[]>([
+    {
+      id: 1,
+      sender: 'me',
+      text: 'Chào anh/chị, em thấy lịch booking của mình sắp đến hạn. Không biết mình có cần hỗ trợ gì thêm không ạ?',
+      time: 'Vừa xong',
+    }
+  ]);
+  const [inputText, setInputText] = useState('');
+
+  const handleSend = () => {
+    if (!inputText.trim()) return;
+    setMessages([...messages, {
+      id: Date.now(),
+      sender: 'me',
+      text: inputText.trim(),
+      time: 'Vừa xong'
+    }]);
+    setInputText('');
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-[#e5e7eb] flex flex-col animate-in slide-in-from-bottom-full duration-300">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#544CDE] to-[#7C3AED] px-4 py-3 flex items-center justify-between text-white sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center -ml-2">
+            <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+          </button>
+          <div className="w-9 h-9 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            {customer.name?.split(' ').map((n: string) => n[0]).slice(-2).join('') || 'KH'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[15px] font-bold truncate">{customer.name}</h3>
+            <p className="text-[11px] opacity-80">Đang hoạt động</p>
+          </div>
+        </div>
+        <button className="w-8 h-8 flex items-center justify-center">
+          <Phone className="w-5 h-5 fill-white" />
+        </button>
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Booking Context Card */}
+        <div className="flex flex-col items-start">
+          <div className="w-[85%] bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mt-2 mb-1">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Calendar className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[14px] font-black text-slate-900">Chi tiết Lịch Hẹn</h4>
+              </div>
+            </div>
+            <div className="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-slate-500 font-medium">Khách hàng:</span>
+                <span className="font-bold text-slate-800">{customer.name}</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-slate-500 font-medium">SĐT:</span>
+                <span className="font-bold text-slate-800">{customer.phone}</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-slate-500 font-medium">Thời gian:</span>
+                <span className="font-bold text-[#544CDE]">Sắp tới</span>
+              </div>
+            </div>
+            <button className="w-full mt-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[13px] font-bold hover:bg-indigo-100 transition-colors">
+              Xem chi tiết lịch
+            </button>
+          </div>
+          <span className="text-[10px] text-slate-400 mt-1 mx-1">Hệ thống tự động nhắc lịch</span>
+        </div>
+
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}`}>
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl shadow-sm ${msg.sender === 'me' ? 'bg-[#544CDE] text-white rounded-tr-sm' : 'bg-white text-slate-800 rounded-tl-sm'}`}>
+              <p className="text-[14px]">{msg.text}</p>
+            </div>
+            <span className="text-[10px] text-slate-400 mt-1 mx-1">{msg.time}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Input Area */}
+      <div className="bg-white px-3 py-3 border-t border-slate-200 flex items-center gap-2">
+        <button className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors shrink-0">
+          <Plus className="w-6 h-6" />
+        </button>
+        <div className="flex-1 relative">
+          <input 
+            type="text"
+            placeholder="Tin nhắn..."
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend();
+              }
+            }}
+            className="w-full bg-slate-100 rounded-full pl-4 pr-10 py-2.5 text-[14px] focus:outline-none"
+          />
+          <button 
+            onClick={handleSend}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[#544CDE] hover:bg-[#544CDE]/10 rounded-full transition-colors"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 // ──────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -169,25 +294,38 @@ export default function App() {
   const [screenHistory, setScreenHistory] = useState<ScreenId[]>(['home']);
 
   // App Data State
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    const saved = localStorage.getItem('cella_customers');
+    return saved ? JSON.parse(saved) : initialCustomers;
+  });
+  const [bookings, setBookings] = useState<Booking[]>(() => {
+    const saved = localStorage.getItem('cella_bookings');
+    return saved ? JSON.parse(saved) : initialBookings;
+  });
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('cella_tasks');
+    return saved ? JSON.parse(saved) : initialTasks;
+  });
   const [courses] = useState<Course[]>(initialCourses);
+
+  useEffect(() => {
+    localStorage.setItem('cella_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('cella_bookings', JSON.stringify(bookings));
+  }, [bookings]);
+
+  useEffect(() => {
+    localStorage.setItem('cella_tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   // Selected Entities
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>(initialCustomers[0]);
   const [selectedBooking, setSelectedBooking] = useState<Booking>(initialBookings[0]);
 
   // Current Logged-in Staff / User Account
-  const [currentUser, setCurrentUser] = useState<Staff>(() => {
-    try {
-      const saved = localStorage.getItem('cella_current_user');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error reading saved user', e);
-    }
-    return CURRENT_USER;
-  });
+  const [currentUser, setCurrentUser] = useState<Staff>(CURRENT_USER);
 
   // Modal States
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
@@ -395,6 +533,7 @@ export default function App() {
                 onNavigate={navigateTo}
                 onToggleMenu={() => setIsMenuDropdownOpen((prev) => !prev)}
                 isMenuOpen={isMenuDropdownOpen}
+                onQuickMessage={(c) => setMessageModalData(c)}
               />
             )}
 
@@ -423,6 +562,19 @@ export default function App() {
               <CreateCustomerScreen
                 onBack={handleBack}
                 onSave={handleCreateCustomer}
+              />
+            )}
+
+            {currentScreen === 'edit_customer' && (
+              <CreateCustomerScreen
+                initialData={selectedCustomer}
+                onBack={handleBack}
+                onSave={(updatedCust) => {
+                  const merged = { ...selectedCustomer, ...updatedCust } as Customer;
+                  setCustomers(prev => prev.map(c => c.id === merged.id ? merged : c));
+                  setSelectedCustomer(merged);
+                  navigateTo('customer_detail');
+                }}
               />
             )}
 
@@ -473,13 +625,32 @@ export default function App() {
               <AcademyScreen courses={courses} onNavigate={navigateTo} onBack={handleBack} />
             )}
 
+            {currentScreen === 'hr' && (
+              <HRScreen currentUser={currentUser} onNavigate={navigateTo} onBack={handleBack} />
+            )}
+
+            {currentScreen === 'roles' && (
+              <RolesScreen onNavigate={navigateTo} onBack={handleBack} />
+            )}
+
             {currentScreen === 'profile' && (
               <ProfileScreen
                 currentUser={currentUser}
+                bookings={bookings}
                 onNavigate={navigateTo}
                 onBack={handleBack}
                 onLogout={handleLogout}
                 onSwitchAccount={() => navigateTo('auth')}
+                onBookPost={(post) => {
+                  handleCreateBooking({
+                    serviceTitle: 'Makeup Demo theo bài viết',
+                    appointmentDate: '24/04/2025',
+                    appointmentTime: '14:00',
+                    customerName: 'Khách hàng quan tâm',
+                    artistName: currentUser.fullName,
+                    status: 'PENDING'
+                  });
+                }}
               />
             )}
 
@@ -603,48 +774,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Quick Message Template Modal */}
+        {/* Chat Interface Modal */}
         {messageModalData && (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white rounded-3xl p-5 w-full max-w-sm space-y-3.5 shadow-2xl text-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Gửi tin nhắn cho {messageModalData.name}
-                  </h3>
-                  <p className="text-xs text-slate-400">{messageModalData.phone}</p>
-                </div>
-                <button
-                  onClick={() => setMessageModalData(null)}
-                  className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase">
-                  Mẫu tin nhắn nhanh CELLA Pro
-                </label>
-                {[
-                  'Chào chị, CELLA xin xác nhận lịch hẹn tư vấn thẩm mỹ của chị vào 09:00 ngày mai tại cơ sở Q.1 ạ.',
-                  'Dạ chị yêu ơi, sau liệu trình Meso Extra hôm nay, chị lưu ý không rửa mặt với nước nóng và thoa kem chống nắng kỹ nhé!',
-                  'CELLA Academy kính gửi chị thông tin học bổng 30% khóa Master Trainer K25 khai giảng ngày 05/05 tới ạ.',
-                ].map((tpl, i) => (
-                  <div
-                    key={i}
-                    onClick={() => {
-                      alert(`Đã gửi tin nhắn thành công qua Zalo/SMS tới ${messageModalData.phone}!`);
-                      setMessageModalData(null);
-                    }}
-                    className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#5850EC] hover:bg-[#EFF4FF] cursor-pointer text-xs text-slate-700 leading-snug transition-colors"
-                  >
-                    {tpl}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <CustomerChatModal 
+            customer={messageModalData} 
+            onClose={() => setMessageModalData(null)} 
+          />
         )}
       </div>
     </div>

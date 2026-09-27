@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronRight,
   ChevronUp,
+  Shield,
 } from 'lucide-react';
 
 interface MoreMenuScreenProps {
@@ -216,7 +217,7 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
             </button>
 
             <button
-              onClick={() => onNavigate('payroll')}
+              onClick={() => onNavigate('hr')}
               className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-white active:bg-slate-50 transition-colors group"
             >
               <div className="flex items-center gap-3.5">
@@ -224,8 +225,24 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
                   <CreditCard className="w-5 h-5 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[14px] font-bold text-slate-800 block">Bảng lương & Hoa hồng</span>
-                  <span className="text-[12px] font-medium text-slate-400">Chi tiết thu nhập & thưởng KPI</span>
+                  <span className="text-[14px] font-bold text-slate-800 block">Quản lý Nhân sự & Lương</span>
+                  <span className="text-[12px] font-medium text-slate-400">Chấm công, Lương, Hoa hồng, Thưởng</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
+            </button>
+
+            <button
+              onClick={() => onNavigate('roles')}
+              className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-white active:bg-slate-50 transition-colors group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl border-2 border-violet-100 bg-violet-50 text-violet-600 flex items-center justify-center">
+                  <Shield className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[14px] font-bold text-slate-800 block">Phân quyền Vai trò</span>
+                  <span className="text-[12px] font-medium text-slate-400">Quản lý quyền hạn tài khoản hệ thống</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />

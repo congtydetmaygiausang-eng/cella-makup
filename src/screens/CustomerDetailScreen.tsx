@@ -59,7 +59,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
         rightAction={
           <div className="flex items-center gap-1">
             <button
-              onClick={() => onNavigate('create_customer')}
+              onClick={() => onNavigate('edit_customer')}
               className="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
               title="Chỉnh sửa"
             >

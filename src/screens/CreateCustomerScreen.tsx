@@ -8,19 +8,21 @@ import { Check, UserPlus, Music, Facebook, Share2, Phone, UserCircle2, Calendar 
 interface CreateCustomerScreenProps {
   onBack: () => void;
   onSave: (customer: Partial<Customer>) => void;
+  initialData?: Customer;
 }
 
 export const CreateCustomerScreen: React.FC<CreateCustomerScreenProps> = ({
   onBack,
   onSave,
+  initialData,
 }) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [dob, setDob] = useState('');
+  const [name, setName] = useState(initialData?.name || '');
+  const [phone, setPhone] = useState(initialData?.phone || '');
+  const [email, setEmail] = useState(initialData?.email || '');
+  const [dob, setDob] = useState(initialData?.birthDate?.split(' ')[0] || '');
   const [gender, setGender] = useState<'Nữ' | 'Nam' | 'Khác'>('Nữ');
-  const [source, setSource] = useState<Customer['source']>('TIKTOK');
-  const [status, setStatus] = useState<Customer['status']>('LEAD');
+  const [source, setSource] = useState<Customer['source']>(initialData?.source || 'TIKTOK');
+  const [status, setStatus] = useState<Customer['status']>(initialData?.status || 'LEAD');
   
   const sources: { id: Customer['source']; label: string; icon?: React.ElementType }[] = [
     { id: 'TIKTOK', label: 'TikTok', icon: Music },
@@ -48,19 +50,20 @@ export const CreateCustomerScreen: React.FC<CreateCustomerScreenProps> = ({
       name: name.trim(),
       phone: phone.trim(),
       email: email.trim() || undefined,
+      birthDate: dob ? dob : undefined,
       source,
       status,
-      vipTier: status === 'VIP' ? 'VIP 1' : 'Thành viên mới',
-      lastContactText: 'Vừa tạo',
+      vipTier: initialData?.vipTier || (status === 'VIP' ? 'VIP 1' : 'Thành viên mới'),
+      lastContactText: initialData ? 'Vừa cập nhật' : 'Vừa tạo',
       totalSpent: 0,
       contactCount: 1,
-      skinProfile: {
+      skinProfile: initialData?.skinProfile || {
         skinType: 'COMBINATION',
         undertone: 'WARM',
         faceShape: 'OVAL',
         notes: '',
       },
-      notesHistory: [],
+      notesHistory: initialData?.notesHistory || [],
     };
 
     onSave(newCust);
@@ -71,8 +74,8 @@ export const CreateCustomerScreen: React.FC<CreateCustomerScreenProps> = ({
       <MobileHeader
         showBack
         onBack={onBack}
-        title="Thêm mới khách hàng"
-        subtitle="Hệ thống quản lý CELLA"
+        title={initialData ? 'Chỉnh sửa khách hàng' : 'Thêm mới khách hàng'}
+        subtitle={initialData ? initialData.id : 'Hệ thống quản lý CELLA'}
         rightAction={
           <button
             onClick={() => handleSubmit()}

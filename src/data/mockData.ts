@@ -3,10 +3,10 @@ import { Staff, Customer, Booking, Task, Course, NotificationItem } from '../typ
 export const CURRENT_USER: Staff = {
   id: 'NV-8826',
   employeeCode: 'CELLA-8826',
-  fullName: 'Nguyễn Thị Lan',
+  fullName: 'HƯƠNG PHƯỢNG CELLA',
   email: 'lan.nguyen@cellabeaute.vn',
   password: '123',
-  role: 'SALES_CONSULTANT',
+  role: 'SUPER_ADMIN',
   phone: '0908 654 321',
   avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
   department: 'Khối Tuyển sinh & CSKH',

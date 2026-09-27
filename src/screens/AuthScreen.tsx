@@ -46,8 +46,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const [regFullName, setRegFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regBranch, setRegBranch] = useState('Cơ sở Quận 1 - Trụ sở chính CELLA');
-  const [regRole, setRegRole] = useState<'MASTER' | 'ARTIST' | 'SALES' | 'ACADEMY_TRAINER'>('ARTIST');
+  const [regBranch] = useState('Cơ sở Quận 1 - Trụ sở chính CELLA');
+  const [regRole, setRegRole] = useState<'STAFF' | 'CUSTOMER' | 'TRAINER' | 'STUDENT'>('STAFF');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -201,14 +201,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         fullName: regFullName.trim(),
         email: regEmail.trim(),
         phone: regPhone.trim(),
-        role: regRole,
-        title: regRole === 'MASTER' ? 'Master Trainer' : regRole === 'SALES' ? 'Chuyên viên Sales' : 'Makeup Artist',
-        department: regRole === 'ACADEMY_TRAINER' ? 'Khối Học viện' : 'Khối Atelier Dịch vụ',
+        role: regRole === 'STAFF' ? 'ARTIST'
+            : regRole === 'CUSTOMER' ? 'CUSTOMER'
+            : regRole === 'TRAINER' ? 'ACADEMY_TRAINER'
+            : 'ARTIST',
+        department: regRole === 'TRAINER' ? 'Khối Học viện'
+                  : regRole === 'STUDENT' ? 'Học viên Academy'
+                  : regRole === 'CUSTOMER' ? 'Khách hàng'
+                  : 'Khối Dịch vụ',
         branch: regBranch,
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-        baseSalary: 8500000,
-        commissionRate: 0.12,
-        kpiScore: 100,
         joinedDate: new Date().toLocaleDateString('vi-VN'),
       };
       setSuccessMessage('Đăng ký tài khoản thành công!');
@@ -536,43 +538,22 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 </div>
               </div>
 
-              {/* Role & Branch selection */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Vị trí chuyên môn
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="reg-role-select"
-                      value={regRole}
-                      onChange={(e) => setRegRole(e.target.value as any)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF] text-slate-800"
-                    >
-                      <option value="ARTIST">Makeup Artist & Stylist</option>
-                      <option value="MASTER">Master Trainer (Giảng dạy)</option>
-                      <option value="SALES">Tư vấn viên Tuyển sinh & CRM</option>
-                      <option value="ACADEMY_TRAINER">Giảng viên Thực hành</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Cơ sở / Chi nhánh
-                  </label>
-                  <select
-                    id="reg-branch-select"
-                    value={regBranch}
-                    onChange={(e) => setRegBranch(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF] text-slate-800"
-                  >
-                    <option value="Cơ sở Quận 1 - Trụ sở chính CELLA">Cơ sở Quận 1 (Trụ sở)</option>
-                    <option value="Cơ sở Quận 3 - Atelier Studio">Cơ sở Quận 3 (Atelier)</option>
-                    <option value="Cơ sở Thủ Đức - Trung tâm Thực hành">Cơ sở Thủ Đức (Academy)</option>
-                    <option value="Cơ sở Hoàn Kiếm - Hà Nội">Cơ sở Hà Nội</option>
-                  </select>
-                </div>
+              {/* Role selection */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Vai trò người dùng
+                </label>
+                <select
+                  id="reg-role-select"
+                  value={regRole}
+                  onChange={(e) => setRegRole(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF] text-slate-800"
+                >
+                  <option value="STAFF">👤 Nhân sự (Artist / Sales / Admin)</option>
+                  <option value="CUSTOMER">💎 Khách hàng (CRM)</option>
+                  <option value="TRAINER">🏫 Giảng viên Academy</option>
+                  <option value="STUDENT">🎓 Học viên</option>
+                </select>
               </div>
 
               {/* Password & Confirm */}
