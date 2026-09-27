@@ -91,6 +91,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       return;
     }
 
+    // Bypass Supabase for mock accounts
+    const mockAccount = SAMPLE_ACCOUNTS.find(acc => acc.email === loginInput.trim() || acc.employeeCode === loginInput.trim() || acc.phone === loginInput.trim());
+    if (mockAccount && loginPassword === '123') {
+      setSuccessMessage('Đăng nhập tài khoản mẫu thành công!');
+      setTimeout(() => {
+        onLoginSuccess(mockAccount);
+      }, 500);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
