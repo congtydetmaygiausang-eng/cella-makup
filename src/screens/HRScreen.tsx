@@ -504,9 +504,9 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             {/* Header stats */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Tổng NV', value: `${TEAM_MEMBERS.length}`, color: 'text-indigo-600 bg-indigo-50 border-indigo-100' },
-                { label: 'Đang làm', value: `${TEAM_MEMBERS.filter(m => m.status === 'active').length}`, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
-                { label: 'Nghỉ phép', value: `${TEAM_MEMBERS.filter(m => m.status === 'leave').length}`, color: 'text-amber-600 bg-amber-50 border-amber-100' },
+                { label: 'Tổng NV', value: `${teamMembers.length}`, color: 'text-indigo-600 bg-indigo-50 border-indigo-100' },
+                { label: 'Đang làm', value: `${teamMembers.filter((m: any) => m.status === 'active').length}`, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+                { label: 'Nghỉ phép', value: `${teamMembers.filter((m: any) => m.status === 'leave').length}`, color: 'text-amber-600 bg-amber-50 border-amber-100' },
               ].map((stat, i) => (
                 <div key={i} className={`rounded-2xl border p-2.5 ${stat.color}`}>
                   <p className="text-[9px] font-bold uppercase tracking-wider opacity-70">{stat.label}</p>
