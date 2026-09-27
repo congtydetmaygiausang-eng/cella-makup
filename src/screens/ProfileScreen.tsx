@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ScreenId, Staff } from '../types';
 import { CURRENT_USER, SAMPLE_ACCOUNTS } from '../data/mockData';
 import {
