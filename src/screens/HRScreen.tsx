@@ -29,7 +29,7 @@ const ROLE_META: Record<string, { label: string; color: string; bg: string }> = 
   SALES:          { label: 'Sales & CRM',       color: 'text-blue-700',   bg: 'bg-blue-50 border-blue-200' },
 };
 
-const TEAM_MEMBERS = [
+const INITIAL_TEAM_MEMBERS = [
   {
     id: 'NV-001', name: 'Nguyễn Thị Lan Anh', role: 'MASTER_ARTIST',
     phone: '0908 654 321', email: 'lananh@cellabeaute.vn',
@@ -75,11 +75,54 @@ const TEAM_MEMBERS = [
 ];
 
 export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManageRoles, currentUser }) => {
+  const [teamMembers, setTeamMembers] = useState(() => {
+    const saved = localStorage.getItem('cella_team');
+    return saved ? JSON.parse(saved) : INITIAL_TEAM_MEMBERS;
+  });
+
+  // Add effect to persist team members
+  React.useEffect(() => {
+    localStorage.setItem('cella_team', JSON.stringify(teamMembers));
+  }, [teamMembers]);
+
   const [activeTab, setActiveTab] = useState<TabType>('attendance');
   const [teamSearch, setTeamSearch] = useState('');
   const [filterRole, setFilterRole] = useState('ALL');
   const [isPayrollDetailOpen, setIsPayrollDetailOpen] = useState(false);
   const [isAddBonusOpen, setIsAddBonusOpen] = useState(false);
+  const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
+
+  // Add staff form state
+  const [newStaff, setNewStaff] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    role: 'ARTIST',
+    branch: 'Quận 1 (Trụ sở)',
+  });
+
+  const handleAddStaff = () => {
+    if (!newStaff.name || !newStaff.phone) {
+      alert('Vui lòng nhập tên và số điện thoại');
+      return;
+    }
+    const newId = `NV-00${teamMembers.length + 1}`;
+    const staffToAdd = {
+      id: newId,
+      name: newStaff.name,
+      phone: newStaff.phone,
+      email: newStaff.email,
+      role: newStaff.role,
+      branch: newStaff.branch,
+      joinedDate: new Date().toLocaleDateString('vi-VN'),
+      kpi: 100,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      status: 'active',
+    };
+    setTeamMembers([...teamMembers, staffToAdd]);
+    setIsAddStaffModalOpen(false);
+    setNewStaff({ name: '', phone: '', email: '', role: 'ARTIST', branch: 'Quận 1 (Trụ sở)' });
+  };
 
   const isAdmin = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN';
 
@@ -126,7 +169,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
     { id: 'ADMIN', label: 'Admin' },
   ];
 
-  const filteredTeam = TEAM_MEMBERS.filter((m) => {
+  const filteredTeam = teamMembers.filter((m: any) => {
     const matchSearch = m.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
       m.email.toLowerCase().includes(teamSearch.toLowerCase()) ||
       m.phone.includes(teamSearch);
@@ -574,7 +617,10 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             </div>
 
             {/* Add staff button */}
-            <button className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-indigo-200 text-indigo-500 text-sm font-bold hover:bg-indigo-50 transition-colors">
+            <button 
+              onClick={() => setIsAddStaffModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-indigo-200 text-indigo-500 text-sm font-bold hover:bg-indigo-50 transition-colors"
+            >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               Thêm nhân viên mới
             </button>
@@ -684,7 +730,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 <label className="text-[13px] font-bold text-slate-700">Chọn nhân sự nhận thưởng</label>
                 <select className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-400/50">
                   <option value="">-- Chọn nhân sự --</option>
-                  {TEAM_MEMBERS.map(m => (
+                  {teamMembers.map((m: any) => (
                     <option key={m.id} value={m.id}>{m.name} - {m.role}</option>
                   ))}
                 </select>
@@ -715,6 +761,90 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-[15px] font-bold shadow-md shadow-amber-500/30"
               >
                 Xác nhận khen thưởng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── ADD STAFF MODAL ── */}
+      {isAddStaffModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex flex-col justify-end animate-in fade-in">
+          <div className="bg-white rounded-t-3xl flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[85vh]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <h3 className="text-[16px] font-black text-slate-900">Thêm nhân sự mới</h3>
+              <button 
+                onClick={() => setIsAddStaffModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"
+              >
+                <Plus className="w-5 h-5 rotate-45" />
+              </button>
+            </div>
+            <div className="p-5 flex-1 overflow-y-auto space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-bold text-slate-700">Họ & Tên <span className="text-red-500">*</span></label>
+                <input 
+                  type="text"
+                  value={newStaff.name}
+                  onChange={(e) => setNewStaff({...newStaff, name: e.target.value})}
+                  placeholder="Nhập tên nhân viên..."
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-bold text-slate-700">Số điện thoại <span className="text-red-500">*</span></label>
+                <input 
+                  type="tel"
+                  value={newStaff.phone}
+                  onChange={(e) => setNewStaff({...newStaff, phone: e.target.value})}
+                  placeholder="Nhập số điện thoại..."
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-bold text-slate-700">Email</label>
+                <input 
+                  type="email"
+                  value={newStaff.email}
+                  onChange={(e) => setNewStaff({...newStaff, email: e.target.value})}
+                  placeholder="Nhập email..."
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Vai trò</label>
+                  <select 
+                    value={newStaff.role}
+                    onChange={(e) => setNewStaff({...newStaff, role: e.target.value})}
+                    className="w-full px-3 py-3 rounded-xl border border-slate-200 text-[13px] font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                  >
+                    <option value="ARTIST">Artist</option>
+                    <option value="MASTER_ARTIST">Master Artist</option>
+                    <option value="SALES_CONSULTANT">Sales / CSKH</option>
+                    <option value="ACADEMY_TRAINER">Trainer</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[13px] font-bold text-slate-700">Chi nhánh</label>
+                  <select 
+                    value={newStaff.branch}
+                    onChange={(e) => setNewStaff({...newStaff, branch: e.target.value})}
+                    className="w-full px-3 py-3 rounded-xl border border-slate-200 text-[13px] font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                  >
+                    <option value="Quận 1 (Trụ sở)">Quận 1 (Trụ sở)</option>
+                    <option value="Quận 3 (Atelier)">Quận 3 (Atelier)</option>
+                    <option value="Thủ Đức (Academy)">Thủ Đức</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="p-5 border-t border-slate-100">
+              <button 
+                onClick={handleAddStaff}
+                className="w-full py-3.5 bg-gradient-to-r from-[#544CDE] to-[#7C3AED] text-white rounded-xl text-[15px] font-bold shadow-md shadow-indigo-500/30 active:scale-[0.98] transition-transform"
+              >
+                Lưu nhân sự
               </button>
             </div>
           </div>
