@@ -4,8 +4,9 @@ import { ScreenId, Staff } from '../types';
 import {
   Calendar, Clock, CreditCard, Award, ChevronRight, TrendingUp,
   DollarSign, Star, Users, Phone, MessageCircle, Search,
-  Shield, MapPin, Mail, UserCog, Plus, Camera,
+  Shield, MapPin, Mail, UserCog, Plus, Camera, Loader2
 } from 'lucide-react';
+import { supabase } from '../config/supabase';
 
 interface HRScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -75,15 +76,44 @@ const INITIAL_TEAM_MEMBERS = [
 ];
 
 export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManageRoles, currentUser }) => {
-  const [teamMembers, setTeamMembers] = useState(() => {
-    const saved = localStorage.getItem('cella_team');
-    return saved ? JSON.parse(saved) : INITIAL_TEAM_MEMBERS;
-  });
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Add effect to persist team members
   React.useEffect(() => {
-    localStorage.setItem('cella_team', JSON.stringify(teamMembers));
-  }, [teamMembers]);
+    fetchStaff();
+  }, []);
+
+  const fetchStaff = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        // Map Supabase profiles to teamMembers format
+        const formatted = data.map(profile => ({
+          id: profile.id,
+          name: profile.full_name || 'Chưa cập nhật',
+          role: profile.role || 'ARTIST',
+          phone: profile.phone || 'Chưa cập nhật',
+          email: profile.id + '@temp.com', // Profiles table doesn't have email by default unless we join auth.users
+          branch: profile.branch_studio || 'Chưa cập nhật',
+          joinedDate: new Date(profile.created_at).toLocaleDateString('vi-VN'),
+          kpi: Math.floor(Math.random() * (100 - 80 + 1)) + 80, // Mock KPI for now
+          avatar: profile.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+          status: 'active',
+        }));
+        setTeamMembers(formatted);
+      } else {
+        setTeamMembers(INITIAL_TEAM_MEMBERS);
+      }
+    } catch (err) {
+      console.error('Error fetching staff:', err);
+      setTeamMembers(INITIAL_TEAM_MEMBERS);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<TabType>('attendance');
   const [teamSearch, setTeamSearch] = useState('');
@@ -568,7 +598,17 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
 
             {/* Team member cards */}
             <div className="space-y-2">
-              {filteredTeam.map((member) => {
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-2" />
+                  <p className="text-xs text-slate-500">Đang tải danh sách nhân sự từ Supabase...</p>
+                </div>
+              ) : filteredTeam.length === 0 ? (
+                <div className="text-center py-10 text-slate-500 text-[13px]">
+                  Không tìm thấy nhân sự phù hợp.
+                </div>
+              ) : (
+                filteredTeam.map((member: any) => {
                 const roleMeta = ROLE_META[member.role] || { label: member.role, color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200' };
                 return (
                   <div 
@@ -622,7 +662,8 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
 
           </div>
