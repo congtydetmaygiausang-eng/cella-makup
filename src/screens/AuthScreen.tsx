@@ -177,7 +177,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
       if (error) throw error;
 
-      setSuccessMessage('Đăng ký thành công! Đang chuyển hướng...');
+      setSuccessMessage('Đăng ký thành công! Đang tự động đăng nhập...');
+      
+      // Force sign-in to establish a real session (if email confirmation is off)
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: regEmail.trim(),
+        password: regPassword
+      });
+
+      if (signInError) {
+        console.error('Auto login error:', signInError);
+      }
+
       setTimeout(() => {
         if (data.user) {
           onLoginSuccess({
@@ -513,6 +524,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       onChange={(e) => setRegEmail(e.target.value)}
                       placeholder="linh.hoang@cellabeaute.vn"
                       className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF]"
+                      autoComplete="username"
                       required
                     />
                   </div>
@@ -551,6 +563,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       onChange={(e) => setRegPassword(e.target.value)}
                       placeholder="Ít nhất 3 ký tự"
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF]"
+                      autoComplete="new-password"
                       required
                     />
                   </div>
@@ -568,6 +581,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       onChange={(e) => setRegConfirmPassword(e.target.value)}
                       placeholder="Nhập lại mật khẩu"
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30 focus:border-[#5850EC] bg-[#F8F9FF]"
+                      autoComplete="new-password"
                       required
                     />
                   </div>
