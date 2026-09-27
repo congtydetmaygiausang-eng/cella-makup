@@ -811,33 +811,19 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-[13px] font-bold text-slate-700">Vai trò</label>
-                  <select 
-                    value={newStaff.role}
-                    onChange={(e) => setNewStaff({...newStaff, role: e.target.value})}
-                    className="w-full px-3 py-3 rounded-xl border border-slate-200 text-[13px] font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
-                  >
-                    <option value="ARTIST">Artist</option>
-                    <option value="MASTER_ARTIST">Master Artist</option>
-                    <option value="SALES_CONSULTANT">Sales / CSKH</option>
-                    <option value="ACADEMY_TRAINER">Trainer</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[13px] font-bold text-slate-700">Chi nhánh</label>
-                  <select 
-                    value={newStaff.branch}
-                    onChange={(e) => setNewStaff({...newStaff, branch: e.target.value})}
-                    className="w-full px-3 py-3 rounded-xl border border-slate-200 text-[13px] font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
-                  >
-                    <option value="Quận 1 (Trụ sở)">Quận 1 (Trụ sở)</option>
-                    <option value="Quận 3 (Atelier)">Quận 3 (Atelier)</option>
-                    <option value="Thủ Đức (Academy)">Thủ Đức</option>
-                  </select>
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-bold text-slate-700">Vai trò</label>
+                <select 
+                  value={newStaff.role}
+                  onChange={(e) => setNewStaff({...newStaff, role: e.target.value})}
+                  className="w-full px-3 py-3 rounded-xl border border-slate-200 text-[13px] font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                >
+                  <option value="ARTIST">Thợ trang điểm (Makeup Artist)</option>
+                  <option value="MASTER_ARTIST">Thợ chính (Master)</option>
+                  <option value="SALES_CONSULTANT">Sales / Chăm sóc khách hàng</option>
+                  <option value="ACADEMY_TRAINER">Giảng viên đào tạo</option>
+                  <option value="ADMIN">Quản lý (Admin)</option>
+                </select>
               </div>
             </div>
             <div className="p-5 border-t border-slate-100">
