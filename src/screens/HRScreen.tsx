@@ -170,9 +170,9 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
   ];
 
   const filteredTeam = teamMembers.filter((m: any) => {
-    const matchSearch = m.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
-      m.email.toLowerCase().includes(teamSearch.toLowerCase()) ||
-      m.phone.includes(teamSearch);
+    const matchSearch = (m.name || '').toLowerCase().includes(teamSearch.toLowerCase()) ||
+      (m.email || '').toLowerCase().includes(teamSearch.toLowerCase()) ||
+      (m.phone || '').includes(teamSearch);
     const matchRole = filterRole === 'ALL' || m.role === filterRole;
     return matchSearch && matchRole;
   });
