@@ -10,6 +10,8 @@ import {
   Send, UserPlus, Smile, Search, HelpCircle, Edit2, Plus, ChevronLeft
 } from 'lucide-react';
 import { supabase } from '../config/supabase';
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from '../utils/cropImage';
 
 interface ProfileScreenProps {
   currentUser?: Staff;
@@ -72,6 +74,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   // Zalo Tabs State
   const [activeTab, setActiveTab] = useState<'feed' | 'reviews'>('feed');
+
+  // Cropper State
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropField, setCropField] = useState<'avatar_url' | 'cover_url' | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
   // Posts Feed State
   const [posts, setPosts] = useState<any[]>([]);
@@ -152,27 +161,44 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   // Post Menu State
 
-  // Handle Profile Image Changes
-  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: (v: string) => void, field: 'avatar_url' | 'cover_url') => {
+  // Handle Profile Image Changes (Open Cropper)
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (v: string) => void, field: 'avatar_url' | 'cover_url') => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async (ev) => {
+    reader.onload = (ev) => {
       const base64Str = ev.target?.result as string;
-      setter(base64Str);
-      
-      // Save to Supabase
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        try {
-          await supabase.from('profiles').update({ [field]: base64Str }).eq('id', session.user.id);
-        } catch (err) {
-          console.error('Error saving image to Supabase:', err);
-        }
-      }
+      setCropSrc(base64Str);
+      setCropField(field);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleSaveCrop = async () => {
+    if (!cropSrc || !croppedAreaPixels || !cropField) return;
+    try {
+      const croppedImage = await getCroppedImg(cropSrc, croppedAreaPixels);
+      
+      // Update Local State
+      if (cropField === 'avatar_url') setAvatarImg(croppedImage);
+      if (cropField === 'cover_url') setCoverImg(croppedImage);
+
+      // Save to Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.from('profiles').update({ [cropField]: croppedImage }).eq('id', session.user.id);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCropSrc(null);
+      setCropField(null);
+    }
   };
 
   // Handle Post Images
@@ -963,6 +989,38 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 Xác nhận tạo Booking
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Crop Modal */}
+      {cropSrc && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+          <div className="flex items-center justify-between p-4 bg-black/50 text-white z-10">
+            <button 
+              onClick={() => { setCropSrc(null); setCropField(null); }} 
+              className="p-2 hover:bg-white/10 rounded-full"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h3 className="font-bold">Chỉnh sửa ảnh</h3>
+            <button 
+              onClick={handleSaveCrop}
+              className="px-4 py-1.5 bg-white text-black font-bold rounded-full text-sm"
+            >
+              Lưu
+            </button>
+          </div>
+          <div className="relative flex-1">
+            <Cropper
+              image={cropSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={cropField === 'avatar_url' ? 1 : 16/9}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+            />
           </div>
         </div>
       )}
