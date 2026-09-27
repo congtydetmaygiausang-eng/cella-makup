@@ -9,6 +9,7 @@ import {
   MessageCircle, Heart, Share2, MoreHorizontal,
   Send, UserPlus, Smile, Search, HelpCircle, Edit2, Plus, ChevronLeft
 } from 'lucide-react';
+import { supabase } from '../config/supabase';
 
 interface ProfileScreenProps {
   currentUser?: Staff;
@@ -124,11 +125,24 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   // Post Menu State
 
   // Handle Profile Image Changes
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (v: string) => void) => {
+  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: (v: string) => void, field: 'avatar_url' | 'cover_url') => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setter(ev.target?.result as string);
+    reader.onload = async (ev) => {
+      const base64Str = ev.target?.result as string;
+      setter(base64Str);
+      
+      // Save to Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        try {
+          await supabase.from('profiles').update({ [field]: base64Str }).eq('id', session.user.id);
+        } catch (err) {
+          console.error('Error saving image to Supabase:', err);
+        }
+      }
+    };
     reader.readAsDataURL(file);
     e.target.value = '';
   };
@@ -274,8 +288,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </div>
       )}
 
-      <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setCoverImg)} />
-      <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setAvatarImg)} />
+      <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setCoverImg, 'cover_url')} />
+      <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setAvatarImg, 'avatar_url')} />
 
       {/* ── COVER + AVATAR ── */}
       <div className="relative bg-white pb-4 border-b border-slate-200">
