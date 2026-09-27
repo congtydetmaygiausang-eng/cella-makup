@@ -22,6 +22,7 @@ import {
   Briefcase,
   Check,
 } from 'lucide-react';
+import { supabase } from '../config/supabase';
 
 interface AuthScreenProps {
   onLoginSuccess: (user: Staff) => void;
@@ -82,58 +83,51 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
     setErrorMessage(null);
 
     if (!loginInput.trim()) {
-      setErrorMessage('Vui lòng nhập email, số điện thoại hoặc mã nhân viên.');
+      setErrorMessage('Vui lòng nhập email.');
       return;
     }
     if (!loginPassword) {
-      setErrorMessage('Vui lòng nhập mật khẩu đăng nhập.');
+      setErrorMessage('Vui lòng nhập mật khẩu.');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          emailOrPhone: loginInput.trim(),
-          password: loginPassword,
-        }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginInput.trim(),
+        password: loginPassword,
       });
 
-      const data = await res.json();
-      if (res.ok && data.user) {
+      if (error) throw error;
+
+      if (data.user) {
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
         setSuccessMessage('Đăng nhập thành công!');
         setTimeout(() => {
-          onLoginSuccess(data.user);
-        }, 300);
-      } else {
-        // Local fallback if server unreachable
-        const localMatch = SAMPLE_ACCOUNTS.find(
-          (u) =>
-            u.email?.toLowerCase() === loginInput.toLowerCase() ||
-            u.phone.replace(/\s+/g, '') === loginInput.replace(/\s+/g, '') ||
-            u.employeeCode?.toLowerCase() === loginInput.toLowerCase()
-        );
-        if (localMatch) {
-          onLoginSuccess(localMatch);
-        } else {
-          setErrorMessage(data.error || 'Tài khoản hoặc mật khẩu không chính xác.');
-        }
+          onLoginSuccess({
+            id: data.user.id,
+            employeeCode: 'CELLA-USER',
+            fullName: profile?.full_name || 'Người dùng CELLA',
+            email: data.user.email || '',
+            password: '',
+            role: profile?.role || 'CUSTOMER',
+            phone: profile?.phone || '',
+            avatarUrl: profile?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+            department: '',
+            branch: profile?.branch_studio || '',
+            joinedDate: new Date(profile?.created_at || new Date()).toLocaleDateString('vi-VN'),
+          });
+        }, 500);
       }
-    } catch {
-      // Local fallback on network error
-      const localMatch = SAMPLE_ACCOUNTS.find(
-        (u) =>
-          u.email?.toLowerCase() === loginInput.toLowerCase() ||
-          u.phone.replace(/\s+/g, '') === loginInput.replace(/\s+/g, '') ||
-          u.employeeCode?.toLowerCase() === loginInput.toLowerCase()
-      );
-      if (localMatch) {
-        onLoginSuccess(localMatch);
-      } else {
-        setErrorMessage('Tài khoản hoặc mật khẩu không chính xác. Bạn có thể chọn tài khoản mẫu phía dưới.');
-      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage('Đăng nhập thất bại: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -171,52 +165,39 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: regFullName,
-          email: regEmail,
-          phone: regPhone,
-          role: regRole,
-          branch: regBranch,
-          password: regPassword,
-        }),
+      const { data, error } = await supabase.auth.signUp({
+        email: regEmail.trim(),
+        password: regPassword,
+        options: {
+          data: {
+            full_name: regFullName.trim(),
+          },
+        },
       });
 
-      const data = await res.json();
-      if (res.ok && data.user) {
-        setSuccessMessage('Đăng ký thành công! Đang chuyển hướng...');
-        setTimeout(() => {
-          onLoginSuccess(data.user);
-        }, 500);
-      } else {
-        setErrorMessage(data.error || 'Không thể hoàn tất đăng ký.');
-      }
-    } catch {
-      // Local fallback create
-      const newUser: Staff = {
-        id: `NV-${Math.floor(1000 + Math.random() * 9000)}`,
-        employeeCode: `CELLA-${Math.floor(1000 + Math.random() * 9000)}`,
-        fullName: regFullName.trim(),
-        email: regEmail.trim(),
-        phone: regPhone.trim(),
-        role: regRole === 'STAFF' ? 'ARTIST'
-            : regRole === 'CUSTOMER' ? 'CUSTOMER'
-            : regRole === 'TRAINER' ? 'ACADEMY_TRAINER'
-            : 'ARTIST',
-        department: regRole === 'TRAINER' ? 'Khối Học viện'
-                  : regRole === 'STUDENT' ? 'Học viên Academy'
-                  : regRole === 'CUSTOMER' ? 'Khách hàng'
-                  : 'Khối Dịch vụ',
-        branch: regBranch,
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-        joinedDate: new Date().toLocaleDateString('vi-VN'),
-      };
-      setSuccessMessage('Đăng ký tài khoản thành công!');
+      if (error) throw error;
+
+      setSuccessMessage('Đăng ký thành công! Đang chuyển hướng...');
       setTimeout(() => {
-        onLoginSuccess(newUser);
-      }, 500);
+        if (data.user) {
+          onLoginSuccess({
+            id: data.user.id,
+            employeeCode: 'CELLA-USER',
+            fullName: regFullName.trim(),
+            email: data.user.email || '',
+            password: '',
+            role: 'CUSTOMER',
+            phone: regPhone,
+            avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+            department: '',
+            branch: '',
+            joinedDate: new Date().toLocaleDateString('vi-VN'),
+          });
+        }
+      }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage('Đăng ký thất bại: ' + err.message);
     } finally {
       setLoading(false);
     }

@@ -15,6 +15,7 @@ import {
   initialCourses,
   CURRENT_USER,
 } from './data/mockData';
+import { supabase } from './config/supabase';
 
 // Screens
 import { SplashScreen } from './screens/SplashScreen';
@@ -288,6 +289,55 @@ export default function App() {
   // Splash screen state
   const [showSplash, setShowSplash] = useState(true);
 
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsAuthenticated(true);
+        fetchUserProfile(session.user.id);
+      } else {
+        setIsAuthenticated(false);
+        setIsAuthLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setIsAuthenticated(true);
+        fetchUserProfile(session.user.id);
+      } else {
+        setIsAuthenticated(false);
+        setCurrentUser(null as any);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (data) {
+      setCurrentUser({
+        id: userId,
+        employeeCode: 'CELLA-USER',
+        fullName: data.full_name || 'Người dùng',
+        email: '',
+        password: '',
+        role: data.role || 'CUSTOMER',
+        phone: data.phone || '',
+        avatarUrl: data.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+        department: '',
+        branch: data.branch_studio || '',
+        joinedDate: new Date(data.created_at).toLocaleDateString('vi-VN'),
+      });
+    }
+    setIsAuthLoading(false);
+  };
+
   // App Navigation State
   const [currentTab, setCurrentTab] = useState<NavTab>('home');
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('home');
@@ -336,11 +386,7 @@ export default function App() {
   // Authentication Handlers
   const handleLoginSuccess = (user: Staff) => {
     setCurrentUser(user);
-    try {
-      localStorage.setItem('cella_current_user', JSON.stringify(user));
-    } catch (e) {
-      console.error('Error saving user', e);
-    }
+    setIsAuthenticated(true);
     if (screenHistory.length > 1) {
       handleBack();
     } else {
@@ -348,12 +394,11 @@ export default function App() {
     }
   };
 
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem('cella_current_user');
-    } catch (e) {
-      console.error('Error removing user', e);
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsAuthenticated(false);
+    setCurrentUser(null as any);
+    localStorage.removeItem('cella_current_user');
     navigateTo('auth');
   };
 
@@ -522,8 +567,12 @@ export default function App() {
       <div className="w-full max-w-md h-screen sm:h-[890px] bg-pastel-mesh sm:rounded-[44px] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,30,60,0.25)] relative flex flex-col border sm:border-white/90 ring-1 sm:ring-slate-900/10">
 
         {/* Splash screen transition */}
-        {showSplash ? (
+        {showSplash || isAuthLoading ? (
           <SplashScreen onFinish={() => setShowSplash(false)} />
+        ) : !isAuthenticated ? (
+          <div className="flex-1 overflow-y-auto relative no-scrollbar">
+            <AuthScreen onLoginSuccess={handleLoginSuccess} />
+          </div>
         ) : (
           <div className="flex-1 overflow-y-auto relative no-scrollbar">
             {/* Screen Router */}
