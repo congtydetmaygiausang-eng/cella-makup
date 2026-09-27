@@ -557,6 +557,15 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
               <ChevronRight className="w-4 h-4 opacity-70" />
             </button>
 
+            {/* Add staff button */}
+            <button 
+              onClick={() => setIsAddStaffModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-indigo-200 text-indigo-500 text-sm font-bold hover:bg-indigo-50 transition-colors"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              Thêm nhân viên mới
+            </button>
+
             {/* Team member cards */}
             <div className="space-y-2">
               {filteredTeam.map((member) => {
@@ -616,14 +625,6 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
               })}
             </div>
 
-            {/* Add staff button */}
-            <button 
-              onClick={() => setIsAddStaffModalOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-indigo-200 text-indigo-500 text-sm font-bold hover:bg-indigo-50 transition-colors"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              Thêm nhân viên mới
-            </button>
           </div>
         )}
       </div>
