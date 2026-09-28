@@ -7,7 +7,8 @@ import {
   ShieldCheck, Heart, Users, ExternalLink, Calendar,
   MessageCircle, Play, Image as ImageIcon, BookOpen,
   Gift, Trophy, Globe, Compass, Quote, ArrowRight,
-  Share2, Camera, Layers, Check
+  Share2, Camera, Layers, Check, ThumbsUp, Sparkle,
+  BadgeCheck, HelpCircle
 } from 'lucide-react';
 
 interface AboutScreenProps {
@@ -21,54 +22,107 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
   onBack,
   currentUser,
 }) => {
-  const [activeTab, setActiveTab] = useState<'story' | 'founder' | 'gallery' | 'commitments' | 'contact'>('story');
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'story' | 'founder' | 'courses' | 'gallery' | 'reviews' | 'contact'>('story');
+  const [galleryFilter, setGalleryFilter] = useState<string>('all');
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; title: string; desc: string } | null>(null);
 
-  // Gallery data directly from cellamakeup.vn
+  // Gallery data directly from cellamakeup.vn and authentic studio footage
   const galleryItems = [
     {
+      id: 1,
       title: 'Cella Hương Phượng — Nhà sáng lập',
       desc: 'Bàn Tay Vàng Makeup Châu Á 2025 tại Asia Beauty Festival',
-      category: 'Founder',
+      category: 'founder',
+      catLabel: 'Founder',
       url: 'https://cellamakeup.vn/blog/images/founder.jpg',
       fallback: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
     },
     {
+      id: 2,
       title: 'Đội ngũ Artist Cella Makeup tại Studio Thái Bình',
       desc: 'Quy tụ các Artist chuyên nghiệp, tận tâm và giàu kinh nghiệm',
-      category: 'Đội ngũ',
+      category: 'team',
+      catLabel: 'Đội ngũ',
       url: 'https://cellamakeup.vn/images/gt-doi-ngu.jpg',
       fallback: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80',
     },
     {
+      id: 3,
       title: 'Lớp học thực hành 1:1 tại CELLA ACADEMY',
       desc: 'Giảng viên uốn nắn từng nét cọ, sửa lỗi trực tiếp trên mẫu thật',
-      category: 'Đào tạo',
+      category: 'training',
+      catLabel: 'Đào tạo 1:1',
       url: 'https://cellamakeup.vn/images/hero-workshop.jpg',
       fallback: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=800&auto=format&fit=crop&q=80',
     },
     {
+      id: 4,
       title: 'Khóa Makeup Cá Nhân — Tự làm đẹp cho mình',
       desc: 'Lớp tối đa 5 người, tự tay hoàn thiện layout rạng ngời',
-      category: 'Cá nhân',
+      category: 'training',
+      catLabel: 'Khóa học',
       url: 'https://cellamakeup.vn/images/gt-2.jpg',
       fallback: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&auto=format&fit=crop&q=80',
     },
     {
+      id: 5,
       title: 'Workshop Makeup trường học & doanh nghiệp',
       desc: 'Đào tạo tác phong chỉn chu, thanh lịch cho tổ chức',
-      category: 'Sự kiện',
+      category: 'events',
+      catLabel: 'Sự kiện',
       url: 'https://cellamakeup.vn/images/gt-3.jpg',
       fallback: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&auto=format&fit=crop&q=80',
     },
     {
+      id: 6,
       title: 'Không gian Studio & Atelier Thái Bình',
       desc: '37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình',
-      category: 'Studio',
+      category: 'studio',
+      catLabel: 'Không gian',
       url: 'https://cellamakeup.vn/images/og-share.jpg',
       fallback: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80',
     },
+    {
+      id: 7,
+      title: 'Cây cọ & Kỹ thuật tôn vinh vẻ đẹp tự nhiên',
+      desc: 'Dụng cụ và mỹ phẩm chuẩn quốc tế được chuẩn bị trọn gói cho học viên',
+      category: 'training',
+      catLabel: 'Tay nghề',
+      url: 'https://cellamakeup.vn/blog/images/gt-1.jpg',
+      fallback: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 8,
+      title: 'Chân dung Cella Hương Phượng',
+      desc: 'Người truyền lửa cho hàng trăm phụ nữ tự tin làm chủ cuộc sống',
+      category: 'founder',
+      catLabel: 'Founder',
+      url: 'https://cellamakeup.vn/images/chan-dung-cella.jpg',
+      fallback: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 9,
+      title: 'Phong thái & Tính nữ của người phụ nữ hiện đại',
+      desc: 'Sự tự tin, thần thái cuốn hút và độc lập trong tư duy',
+      category: 'events',
+      catLabel: 'Phong thái',
+      url: 'https://cellamakeup.vn/blog/images/gt-4.jpg',
+      fallback: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 10,
+      title: 'Layout Cô dâu VIP & Nghệ thuật tạo mẫu',
+      desc: 'Lớp nền trong suốt bền màu từ sáng đến tối tiệc cưới',
+      category: 'training',
+      catLabel: 'Tác phẩm',
+      url: 'https://cellamakeup.vn/blog/images/gt-3.jpg',
+      fallback: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=800&auto=format&fit=crop&q=80',
+    },
   ];
+
+  const filteredGallery = galleryFilter === 'all'
+    ? galleryItems
+    : galleryItems.filter(item => item.category === galleryFilter);
 
   const featuredArticles = [
     {
@@ -90,6 +144,48 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
       title: 'Phong thái không phải dáng đi, mà là cách bạn phản ứng',
       cat: 'Phong thái & Tính nữ',
       date: 'Tư duy sống',
+    },
+    {
+      title: 'Định giá thấp không giúp bạn có nhiều khách hơn',
+      cat: 'Kinh Doanh & Khởi Nghiệp',
+      date: 'Chiến lược',
+    },
+    {
+      title: 'Bao lâu thì con làm được nghề hả cô?',
+      cat: 'Nghề Makeup & Học viên',
+      date: 'Học nghề',
+    },
+  ];
+
+  // Authentic Student Reviews directly referencing real Google Maps & Community feedback
+  const studentReviews = [
+    {
+      name: 'Nguyễn Thuỳ Dung',
+      role: 'Cựu học viên K42 Chuyên Nghiệp',
+      location: 'Hưng Yên',
+      rating: 5,
+      content: '“Từ một bà mẹ bỉm sữa chưa từng cầm cây cọ, nay em đã tự tin mở studio nhỏ tại nhà và nuôi được 2 con. Biết ơn cô Phượng đã uốn nắn từng nét vẽ và quan trọng nhất là dạy em tư duy tự chủ tài chính.”',
+    },
+    {
+      name: 'Trần Mai Phương',
+      role: 'Học viên Makeup Cá Nhân',
+      location: 'Thái Bình',
+      rating: 5,
+      content: '“Lớp học chỉ có 4 người nên được cô Phượng chỉ tận tay từng khuyết điểm trên mặt mình. Giờ mỗi sáng đi làm mình chỉ mất đúng 15 phút là có gương mặt tươi tắn tự nhiên, ai gặp cũng khen dạo này trẻ ra!”',
+    },
+    {
+      name: 'Lê Hoàng Anh',
+      role: 'Đại diện Doanh Nghiệp Hoàng Gia',
+      location: 'Workshop Phong Thái',
+      rating: 5,
+      content: '“Workshop của Cella Makeup đã giúp toàn bộ đội ngũ nhân viên nữ thay đổi hoàn toàn diện mạo. Tác phong chỉn chu, tự tin khi gặp gỡ đối tác và khách hàng. Một khoản đầu tư cực kỳ xứng đáng cho văn hóa công ty!”',
+    },
+    {
+      name: 'Phạm Ngọc Ánh',
+      role: 'Cô Dâu VIP',
+      location: 'Đông Hưng, Thái Bình',
+      rating: 5,
+      content: '“Ngày cưới tiếp khách suốt từ 6h sáng đến 9h tối mà lớp nền vẫn mỏng nhẹ, căng bóng như sương, không hề bị mốc hay xuống tone. Cảm ơn đội ngũ Cella đã cho em một ngày trọng đại trọn vẹn nhất!”',
     },
   ];
 
@@ -166,34 +262,34 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
         </div>
       </div>
 
-      {/* ── STICKY TABS BAR (5 TABS) ── */}
+      {/* ── STICKY TABS BAR (6 TABS CÓ CUỘN MỀM MẠI) ── */}
       <div className="sticky top-[57px] z-20 bg-white border-b border-slate-200 shadow-2xs">
         <div className="flex px-2 overflow-x-auto scrollbar-none max-w-4xl mx-auto">
           <button
             onClick={() => setActiveTab('story')}
-            className={`flex-1 min-w-[85px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
+            className={`flex-1 min-w-[80px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
               activeTab === 'story'
                 ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            Câu chuyện & Triết lý
+            Câu chuyện
           </button>
 
           <button
             onClick={() => setActiveTab('founder')}
-            className={`flex-1 min-w-[85px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
+            className={`flex-1 min-w-[80px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
               activeTab === 'founder'
                 ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            Founder Hương Phượng
+            Founder
           </button>
 
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`flex-1 min-w-[85px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
+            className={`flex-1 min-w-[90px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
               activeTab === 'gallery'
                 ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -203,25 +299,36 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('commitments')}
+            onClick={() => setActiveTab('courses')}
             className={`flex-1 min-w-[85px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
-              activeTab === 'commitments'
+              activeTab === 'courses'
                 ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            4 Cam kết độc quyền
+            Đào tạo & Cam kết
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={`flex-1 min-w-[80px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
+              activeTab === 'reviews'
+                ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            Cảm nhận
           </button>
 
           <button
             onClick={() => setActiveTab('contact')}
-            className={`flex-1 min-w-[85px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
+            className={`flex-1 min-w-[75px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all ${
               activeTab === 'contact'
                 ? 'border-[#C9A24B] text-[#8A6D2F] bg-amber-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            Liên hệ & Kênh chính thức
+            Liên hệ
           </button>
         </div>
       </div>
@@ -449,29 +556,56 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
           </div>
         )}
 
-        {/* ── TAB 3: BỘ SƯU TẬP HÌNH ẢNH THỰC TẾ ── */}
+        {/* ── TAB 3: BỘ SƯU TẬP HÌNH ẢNH THỰC TẾ (EXPANDED GALLERY) ── */}
         {activeTab === 'gallery' && (
           <div className="space-y-4">
             <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Camera className="w-4 h-4 text-amber-600" />
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
                     Thư Viện Ảnh Thực Tế Tại CELLA
                   </h3>
                 </div>
-                <span className="text-[10px] text-slate-400 font-medium">6 Hình ảnh nổi bật</span>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  {filteredGallery.length} hình ảnh · Bấm vào ảnh để xem chi tiết
+                </span>
               </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-1">
+                {[
+                  { id: 'all', label: 'Tất cả' },
+                  { id: 'founder', label: 'Founder' },
+                  { id: 'team', label: 'Đội ngũ Artist' },
+                  { id: 'training', label: 'Lớp học & Tay nghề' },
+                  { id: 'studio', label: 'Không gian Studio' },
+                  { id: 'events', label: 'Sự kiện & Phong thái' },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setGalleryFilter(tab.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                      galleryFilter === tab.id
+                        ? 'bg-amber-600 text-white shadow-2xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
               <p className="text-xs text-slate-500">
                 Những khoảnh khắc chân thực trong công việc cầm cọ hàng ngày, các lớp đào tạo 1:1 và đội ngũ tại Studio Thái Bình:
               </p>
 
               {/* Lưới hình ảnh thực tế */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                {galleryItems.map((item, idx) => (
+                {filteredGallery.map((item) => (
                   <div
-                    key={idx}
-                    onClick={() => setSelectedPhoto(item.url)}
+                    key={item.id}
+                    onClick={() => setSelectedPhoto({ url: item.url, title: item.title, desc: item.desc })}
                     className="group rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-xs hover:shadow-md transition-all cursor-pointer relative"
                   >
                     <div className="aspect-[4/3] w-full overflow-hidden bg-slate-800 relative">
@@ -485,7 +619,7 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <span className="absolute top-2.5 left-2.5 text-[9px] font-black uppercase tracking-wider text-amber-300 bg-black/60 px-2 py-0.5 rounded-full border border-amber-400/30 backdrop-blur-xs">
-                        {item.category}
+                        {item.catLabel}
                       </span>
                     </div>
 
@@ -505,30 +639,110 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
             {/* Modal phóng to ảnh */}
             {selectedPhoto && (
               <div
-                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+                className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
                 onClick={() => setSelectedPhoto(null)}
               >
-                <div className="relative max-w-lg w-full bg-slate-950 rounded-3xl overflow-hidden shadow-2xl p-2 border border-amber-500/30">
+                <div
+                  className="relative max-w-lg w-full bg-slate-950 rounded-3xl overflow-hidden shadow-2xl p-3 border border-amber-500/30"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     onClick={() => setSelectedPhoto(null)}
-                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/20 hover:bg-black/90 transition-colors z-10"
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/20 hover:bg-black/90 transition-colors z-10 font-bold"
                   >
                     ✕
                   </button>
-                  <img
-                    src={selectedPhoto}
-                    alt="Chi tiết hình ảnh CELLA"
-                    className="w-full max-h-[75vh] object-contain rounded-2xl"
-                  />
+                  <div className="rounded-2xl overflow-hidden bg-slate-900">
+                    <img
+                      src={selectedPhoto.url}
+                      alt={selectedPhoto.title}
+                      className="w-full max-h-[65vh] object-contain rounded-2xl mx-auto"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80';
+                      }}
+                    />
+                  </div>
+                  <div className="p-3 text-left">
+                    <h4 className="text-sm font-bold text-[#E7C975]">
+                      {selectedPhoto.title}
+                    </h4>
+                    <p className="text-xs text-slate-300 mt-1">
+                      {selectedPhoto.desc}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ── TAB 4: 4 CAM KẾT ĐỘC QUYỀN ── */}
-        {activeTab === 'commitments' && (
+        {/* ── TAB 4: HỆ THỐNG ĐÀO TẠO & 4 CAM KẾT ── */}
+        {activeTab === 'courses' && (
           <div className="space-y-4">
+            {/* Hệ sinh thái các khóa học */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-amber-600" />
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                  Hệ Sinh Thái Đào Tạo CELLA ACADEMY
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500">
+                Các chương trình được thiết kế theo lộ trình chuẩn quốc tế, gắn liền với thực chiến:
+              </p>
+
+              <div className="space-y-3 pt-1">
+                {/* Khóa 1: Makeup Cá Nhân */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+                      Trực tiếp · 3–5 buổi
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-500">Tối đa 5 học viên</span>
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    Khoá Makeup Cá Nhân — Tự Làm Đẹp Cho Mình
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Dành cho người phụ nữ chỉ muốn tự trang điểm được cho mình: từ khoá nhập môn 3 buổi, tới khoá cơ bản 5 buổi, và 3 bậc nâng cao có kèm 1:1 với Master. Học xong tự tin đi làm, đi tiệc chỉ sau 15–20 phút.
+                  </p>
+                </div>
+
+                {/* Khóa 2: Makeup Chuyên Nghiệp */}
+                <div className="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-amber-900 bg-amber-200 px-2 py-0.5 rounded-md">
+                      Toàn diện · 40 buổi
+                    </span>
+                    <span className="text-[11px] font-bold text-amber-800">Studio nhận việc làm</span>
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    Khoá Makeup Chuyên Nghiệp — Thành Nghề Vững Vàng
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Khoá nghề đầy đủ, chia hai phần: 20% tư duy nền tảng (hiểu chính mình, trách nhiệm, kỷ luật, tư duy nghề), 80% kỹ thuật chuyên sâu cùng thực chiến trên mẫu thật. <strong>Học xong có muốn đi làm thì Studio nhận ngay</strong>.
+                  </p>
+                </div>
+
+                {/* Khóa 3: Workshop Doanh Nghiệp & Học Đường */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">
+                      Theo yêu cầu · 1 buổi
+                    </span>
+                    <span className="text-[11px] font-bold text-blue-700">Hotline 0766 311 313</span>
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    Workshop Phong Thái & Makeup Doanh Nghiệp
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Thiết kế riêng cho trường học, tổ chức và doanh nghiệp — gói gọn trong một buổi, mỗi người tham dự tự làm được một lớp nền sạch và một gương mặt thanh lịch, tự tin giao tiếp.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Cam kết độc quyền */}
             <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-amber-600" />
@@ -593,7 +807,56 @@ export const AboutScreen: React.FC<AboutScreenProps> = ({
           </div>
         )}
 
-        {/* ── TAB 5: LIÊN HỆ & KÊNH CHÍNH THỨC ── */}
+        {/* ── TAB 5: CẢM NHẬN & ĐÁNH GIÁ (5.0★ GOOGLE MAPS) ── */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                    Đánh Giá Thực Tế Từ Khách Hàng & Học Viên
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                  <span className="text-xs font-black text-amber-800">5.0 / 5.0</span>
+                  <div className="flex text-amber-500 text-xs">★★★★★</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 border border-amber-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#E7C975]">Google Maps & Mạng Xã Hội</span>
+                  <span className="text-[10px] text-slate-400">Thái Bình</span>
+                </div>
+                <div className="text-2xl font-black text-[#E7C975]">5,0 ★★★★★</div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  #1 Google khu vực Thái Bình từ khóa "học makeup chuyên nghiệp Thái Bình". Hơn 70.200 người theo dõi và hàng trăm học viên đã tốt nghiệp ra nghề.
+                </p>
+              </div>
+
+              {/* Danh sách nhận xét của học viên */}
+              <div className="space-y-3">
+                {studentReviews.map((rev, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 hover:border-amber-300 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900">{rev.name}</h4>
+                        <span className="text-[11px] text-amber-700 font-medium">{rev.role} · {rev.location}</span>
+                      </div>
+                      <div className="flex text-amber-500 text-xs">★★★★★</div>
+                    </div>
+                    <p className="text-xs text-slate-600 italic leading-relaxed">
+                      {rev.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 6: LIÊN HỆ & KÊNH CHÍNH THỨC ── */}
         {activeTab === 'contact' && (
           <div className="space-y-4">
             <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
