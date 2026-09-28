@@ -28,6 +28,7 @@ import {
   Maximize2,
   Share2,
 } from 'lucide-react';
+import { canCreate, canEdit, canDelete } from '../utils/permissions';
 
 interface StudentsScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -178,6 +179,10 @@ export const StudentsScreen: React.FC<StudentsScreenProps> = ({
   onBack,
   currentUser,
 }) => {
+  const allowCreateStudent = canCreate(currentUser?.role, 'students');
+  const allowEditStudent = canEdit(currentUser?.role, 'students');
+  const allowDeleteStudent = canDelete(currentUser?.role, 'students');
+
   const [students, setStudents] = useState<Student[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -401,13 +406,15 @@ export const StudentsScreen: React.FC<StudentsScreenProps> = ({
         showBack={true}
         onBack={onBack || (() => onNavigate('academy'))}
         rightAction={
-          <button
-            onClick={handleOpenAdd}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#544CDE] to-[#7B73F0] text-white text-xs font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Thêm học viên</span>
-          </button>
+          allowCreateStudent ? (
+            <button
+              onClick={handleOpenAdd}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#544CDE] to-[#7B73F0] text-white text-xs font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Thêm học viên</span>
+            </button>
+          ) : undefined
         }
       />
 
@@ -630,13 +637,15 @@ export const StudentsScreen: React.FC<StudentsScreenProps> = ({
                         <MessageCircle className="w-3.5 h-3.5" />
                         <span>Zalo</span>
                       </a>
-                      <button
-                        onClick={() => handleOpenEdit(std)}
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-[#544CDE] transition-colors"
-                        title="Chỉnh sửa"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
+                      {allowEditStudent && (
+                        <button
+                          onClick={() => handleOpenEdit(std)}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-[#544CDE] transition-colors"
+                          title="Chỉnh sửa"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
 
                     <button
@@ -859,24 +868,30 @@ export const StudentsScreen: React.FC<StudentsScreenProps> = ({
               </div>
 
               {/* Nút sửa / xóa */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <button
-                  onClick={() => handleDelete(activeStudent.id, activeStudent.name)}
-                  className="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Xóa hồ sơ</span>
-                </button>
-                <button
-                  onClick={() => {
-                    handleOpenEdit(activeStudent);
-                  }}
-                  className="px-4 py-2 bg-[#544CDE] text-white rounded-xl text-xs font-bold shadow hover:bg-[#4338CA] transition-all flex items-center gap-1"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  <span>Chỉnh sửa thông tin</span>
-                </button>
-              </div>
+              {(allowDeleteStudent || allowEditStudent) && (
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  {allowDeleteStudent && (
+                    <button
+                      onClick={() => handleDelete(activeStudent.id, activeStudent.name)}
+                      className="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Xóa hồ sơ</span>
+                    </button>
+                  )}
+                  {allowEditStudent && (
+                    <button
+                      onClick={() => {
+                        handleOpenEdit(activeStudent);
+                      }}
+                      className="px-4 py-2 bg-[#544CDE] text-white rounded-xl text-xs font-bold shadow hover:bg-[#4338CA] transition-all flex items-center gap-1 ml-auto"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      <span>Chỉnh sửa thông tin</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -688,7 +688,7 @@ export default function App() {
             )}
 
             {currentScreen === 'academy' && (
-              <AcademyScreen courses={courses} onNavigate={navigateTo} onBack={handleBack} />
+              <AcademyScreen courses={courses} onNavigate={navigateTo} onBack={handleBack} currentUser={currentUser} />
             )}
 
             {currentScreen === 'hr' && (
@@ -696,7 +696,17 @@ export default function App() {
             )}
 
             {currentScreen === 'roles' && (
-              <RolesScreen onNavigate={navigateTo} onBack={handleBack} />
+              <RolesScreen
+                onNavigate={navigateTo}
+                onBack={handleBack}
+                currentUser={currentUser}
+                onSwitchRole={(newRole) => {
+                  setCurrentUser((prev) => ({
+                    ...prev,
+                    role: newRole as any,
+                  }));
+                }}
+              />
             )}
 
             {currentScreen === 'makeup_lookbook' && (

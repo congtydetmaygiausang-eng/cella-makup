@@ -26,6 +26,7 @@ import {
   Eye,
   Camera
 } from 'lucide-react';
+import { canCreate, canEdit, canDelete } from '../utils/permissions';
 
 interface InstructorsScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -188,6 +189,10 @@ export const InstructorsScreen: React.FC<InstructorsScreenProps> = ({
   onBack,
   currentUser,
 }) => {
+  const allowCreateInstructor = canCreate(currentUser?.role, 'instructors');
+  const allowEditInstructor = canEdit(currentUser?.role, 'instructors');
+  const allowDeleteInstructor = canDelete(currentUser?.role, 'instructors');
+
   const [instructors, setInstructors] = useState<Instructor[]>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -338,13 +343,15 @@ export const InstructorsScreen: React.FC<InstructorsScreenProps> = ({
         showBack={true}
         onBack={onBack || (() => onNavigate('academy'))}
         rightAction={
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="w-9 h-9 rounded-full bg-[#5850EC] flex items-center justify-center text-white active:scale-95 transition-transform shadow-md"
-            title="Thêm giảng viên mới"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          allowCreateInstructor ? (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="w-9 h-9 rounded-full bg-[#5850EC] flex items-center justify-center text-white active:scale-95 transition-transform shadow-md"
+              title="Thêm giảng viên mới"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          ) : undefined
         }
       />
 
@@ -544,13 +551,15 @@ export const InstructorsScreen: React.FC<InstructorsScreenProps> = ({
 
                   <div className="flex items-center gap-1.5">
                     {/* Sửa */}
-                    <button
-                      onClick={() => setEditInstructor(ins)}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold"
-                      title="Sửa thông tin"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
+                    {allowEditInstructor && (
+                      <button
+                        onClick={() => setEditInstructor(ins)}
+                        className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold"
+                        title="Sửa thông tin"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
 
                     {/* Xem chi tiết */}
                     <button
@@ -709,28 +718,34 @@ export const InstructorsScreen: React.FC<InstructorsScreenProps> = ({
                 </a>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    const ins = selectedInstructor;
-                    setSelectedInstructor(null);
-                    setEditInstructor(ins);
-                  }}
-                  className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
-                >
-                  <Edit2 className="w-3 h-3" />
-                  <span>Sửa thông tin</span>
-                </button>
-                <button
-                  onClick={() =>
-                    handleDeleteInstructor(selectedInstructor.id, selectedInstructor.name)
-                  }
-                  className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  <span>Xóa</span>
-                </button>
-              </div>
+              {(allowEditInstructor || allowDeleteInstructor) && (
+                <div className="flex gap-2">
+                  {allowEditInstructor && (
+                    <button
+                      onClick={() => {
+                        const ins = selectedInstructor;
+                        setSelectedInstructor(null);
+                        setEditInstructor(ins);
+                      }}
+                      className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      <span>Sửa thông tin</span>
+                    </button>
+                  )}
+                  {allowDeleteInstructor && (
+                    <button
+                      onClick={() =>
+                        handleDeleteInstructor(selectedInstructor.id, selectedInstructor.name)
+                      }
+                      className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Xóa</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -33,11 +33,14 @@ import {
   FileText,
   Gift
 } from 'lucide-react';
+import { canCreate, canEdit, canDelete } from '../utils/permissions';
+import { Staff } from '../types';
 
 interface AcademyScreenProps {
   courses?: Course[];
   onNavigate: (screen: ScreenId) => void;
   onBack?: () => void;
+  currentUser?: Staff;
 }
 
 const COURSES_STORAGE_KEY = 'cella_academy_courses_v2';
@@ -227,7 +230,11 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
   courses: propCourses,
   onNavigate,
   onBack,
+  currentUser,
 }) => {
+  const allowCreateCourse = canCreate(currentUser?.role, 'courses');
+  const allowEditCourse = canEdit(currentUser?.role, 'courses');
+  const allowDeleteCourse = canDelete(currentUser?.role, 'courses');
   // Load courses from localStorage with fallback
   const [courses, setCourses] = useState<Course[]>(() => {
     try {
@@ -526,13 +533,15 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
         showBack={true}
         onBack={onBack || (() => onNavigate('home'))}
         rightAction={
-          <button
-            onClick={handleOpenAddCourse}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#5850EC] to-purple-600 text-white text-xs font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Thêm khóa học</span>
-          </button>
+          allowCreateCourse ? (
+            <button
+              onClick={handleOpenAddCourse}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#5850EC] to-purple-600 text-white text-xs font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Thêm khóa học</span>
+            </button>
+          ) : undefined
         }
       />
 
@@ -689,22 +698,28 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
                   </div>
 
                   {/* Sửa giá nút nhỏ góc trên phải */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1">
-                    <button
-                      onClick={() => handleOpenEditPrice(course)}
-                      className="p-1.5 rounded-full bg-black/60 text-white/90 hover:text-white backdrop-blur-md hover:bg-black/80 transition-all"
-                      title="Sửa giá & thông tin"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCourse(course.id, course.title)}
-                      className="p-1.5 rounded-full bg-black/60 text-rose-300 hover:text-rose-100 backdrop-blur-md hover:bg-black/80 transition-all"
-                      title="Xóa khóa học"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  {(allowEditCourse || allowDeleteCourse) && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1">
+                      {allowEditCourse && (
+                        <button
+                          onClick={() => handleOpenEditPrice(course)}
+                          className="p-1.5 rounded-full bg-black/60 text-white/90 hover:text-white backdrop-blur-md hover:bg-black/80 transition-all"
+                          title="Sửa giá & thông tin"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {allowDeleteCourse && (
+                        <button
+                          onClick={() => handleDeleteCourse(course.id, course.title)}
+                          className="p-1.5 rounded-full bg-black/60 text-rose-300 hover:text-rose-100 backdrop-blur-md hover:bg-black/80 transition-all"
+                          title="Xóa khóa học"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   {/* Nút Xem Video Demo ở giữa hoặc góc dưới */}
                   {course.videoUrl && (
