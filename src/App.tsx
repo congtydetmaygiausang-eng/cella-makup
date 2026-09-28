@@ -35,6 +35,7 @@ import { AcademyScreen } from './screens/AcademyScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { MoreMenuScreen } from './screens/MoreMenuScreen';
 import { AuthScreen } from './screens/AuthScreen';
+import { MakeupLookbookScreen } from './screens/MakeupLookbookScreen';
 
 // Common Components
 import { BottomNavBar } from './components/common/BottomNavBar';
@@ -694,6 +695,10 @@ export default function App() {
 
             {currentScreen === 'roles' && (
               <RolesScreen onNavigate={navigateTo} onBack={handleBack} />
+            )}
+
+            {currentScreen === 'makeup_lookbook' && (
+              <MakeupLookbookScreen onNavigate={navigateTo} onBack={handleBack} />
             )}
 
             {currentScreen === 'profile' && (

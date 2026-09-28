@@ -80,7 +80,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="text-[11px] font-medium text-slate-700">Đăng bài</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('profile')}>
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('makeup_lookbook')}>
             <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
               <Image className="w-6 h-6 text-slate-600" />
             </div>
