@@ -555,35 +555,35 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
           <div className="relative z-10">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">
-                Học viện Makeup · Thái Bình
+                Hệ thống Học viện & Studio Cao cấp · TP. Hồ Chí Minh
               </span>
               <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-medium">
-                Founder: Master Cella
+                Viện trưởng: Master Đặng Thuỳ Tiên
               </span>
             </div>
 
             <h2 className="text-xl font-black mt-1 leading-tight">
               CELLA MAKEUP <span className="text-amber-400">ACADEMY</span>
             </h2>
-            <p className="text-[12px] text-slate-300 mt-1 italic">
-              "Makeup your mind, makeup your life"
+            <p className="text-[12px] text-amber-300/90 mt-1 italic font-semibold">
+              "Better People, Better Beauty, A Brighter Tomorrow"
             </p>
-            <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
-              Đào tạo nghề trang điểm chuyên nghiệp, cô dâu, editorial và cá nhân. Học nghề vững vàng – Tự tin làm chủ thu nhập.
+            <p className="text-[12px] text-slate-300 mt-1.5 leading-relaxed">
+              Đào tạo nghề trang điểm chuyên nghiệp, cô dâu VIP, editorial & cá nhân. Thực hành 85% trên mẫu thật, tài trợ 100% mỹ phẩm High-End tại lớp, bảo trợ việc làm toàn diện.
             </p>
 
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
               <div>
-                <div className="text-sm font-black text-amber-400">5,0 ★</div>
-                <div className="text-[9px] text-slate-400">32 đánh giá Google</div>
+                <div className="text-sm font-black text-amber-400">4,95 ★</div>
+                <div className="text-[9px] text-slate-400">15.000+ Khách hàng</div>
               </div>
               <div>
-                <div className="text-sm font-black text-amber-400">70K+</div>
-                <div className="text-[9px] text-slate-400">Follower Facebook</div>
+                <div className="text-sm font-black text-amber-400">1.200+</div>
+                <div className="text-[9px] text-slate-400">Học viên tốt nghiệp Pro</div>
               </div>
               <div>
-                <div className="text-sm font-black text-amber-400">2025</div>
-                <div className="text-[9px] text-slate-400">Bàn Tay Vàng Châu Á</div>
+                <div className="text-sm font-black text-amber-400">10+ Năm</div>
+                <div className="text-[9px] text-slate-400">Uy tín kiến tạo sắc đẹp</div>
               </div>
             </div>
           </div>

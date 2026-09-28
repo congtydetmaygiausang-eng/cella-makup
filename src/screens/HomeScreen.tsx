@@ -5,7 +5,7 @@ import { CURRENT_USER } from '../data/mockData';
 import { MOCK_POSTS } from '../data/mockPosts';
 import { CreatePostInput } from '../components/newsfeed/CreatePostInput';
 import { PostCard } from '../components/newsfeed/PostCard';
-import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info } from 'lucide-react';
+import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info, Building2, Award, CheckCircle2, Phone, MapPin, Clock, ChevronRight, GraduationCap, ShieldCheck, Star } from 'lucide-react';
 
 interface HomeScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -25,6 +25,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const user = currentUser || CURRENT_USER;
   const [isPostMenuOpen, setIsPostMenuOpen] = React.useState(false);
   const [isMultiPlatformOpen, setIsMultiPlatformOpen] = React.useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = React.useState(false);
 
   return (
     <div className="min-h-full bg-[#EEF3ED] bg-botanical-mesh pb-28 text-[#1A2820]">
@@ -88,7 +89,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="text-[11px] font-medium text-[#203227]">Mẫu makeup</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('academy')}>
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => setIsAboutModalOpen(true)}>
             <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
               <Info className="w-6 h-6 text-[#264736]" />
             </div>
@@ -280,6 +281,185 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: GIỚI THIỆU CELLA MAKEUP & ACADEMY ── */}
+      {isAboutModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+          <div className="w-full sm:max-w-xl bg-white rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in slide-in-from-bottom-6 duration-300">
+            {/* Modal Header */}
+            <div className="relative bg-gradient-to-br from-[#0F172A] via-[#1E1B4B] to-[#0A0A0C] text-white p-5 overflow-hidden">
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 80% 20%, #C9A24B 0%, transparent 70%)' }}
+              />
+              
+              <button
+                onClick={() => setIsAboutModalOpen(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="relative z-10 pr-8">
+                <span className="inline-block text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full mb-1.5">
+                  Hồ Sơ Năng Lực & Thương Hiệu
+                </span>
+                <h3 className="text-xl font-black text-white leading-tight">
+                  CELLA MAKEUP & <span className="text-amber-400">ACADEMY</span>
+                </h3>
+                <p className="text-xs text-amber-300/90 font-medium italic mt-0.5">
+                  "Better People, Better Beauty, A Brighter Tomorrow"
+                </p>
+              </div>
+
+              {/* Quick stats ribbon */}
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/10 text-center relative z-10">
+                <div className="bg-white/5 py-1.5 rounded-xl border border-white/10">
+                  <div className="text-sm font-black text-amber-400">10+ Năm</div>
+                  <div className="text-[9px] text-slate-300">Uy tín ngành làm đẹp</div>
+                </div>
+                <div className="bg-white/5 py-1.5 rounded-xl border border-white/10">
+                  <div className="text-sm font-black text-amber-400">15.000+</div>
+                  <div className="text-[9px] text-slate-300">Khách hàng tin chọn</div>
+                </div>
+                <div className="bg-white/5 py-1.5 rounded-xl border border-white/10">
+                  <div className="text-sm font-black text-amber-400">1.200+</div>
+                  <div className="text-[9px] text-slate-300">Học viên tốt nghiệp Pro</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4 text-xs text-slate-700">
+              {/* Viện trưởng Master Đặng Thuỳ Tiên */}
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-start gap-3.5">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-amber-200 shrink-0 ring-2 ring-amber-400 shadow-xs">
+                  <img
+                    src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80"
+                    alt="Master Đặng Thuỳ Tiên"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="text-sm font-black text-slate-900">Master Đặng Thuỳ Tiên</h4>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-full">
+                      Founder & Viện trưởng
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                    Hơn 10 năm kinh nghiệm tu nghiệp chuyên sâu tại Hàn Quốc & Thái Lan. Giám khảo danh dự tại các đấu trường trang điểm quốc tế và trực tiếp dẫn dắt giáo trình đào tạo tại CELLA Academy.
+                  </p>
+                </div>
+              </div>
+
+              {/* Hệ thống Cơ sở & Chi nhánh */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-[#544CDE]" />
+                  <span>Hệ thống Cơ sở & Studio tại TP. Hồ Chí Minh</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[#544CDE] font-bold text-xs">
+                      <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Cơ sở 1 (Trụ sở & Studio):</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal pl-5">
+                      18A Ngô Thời Nhiệm, Phường Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[#544CDE] font-bold text-xs">
+                      <GraduationCap className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                      <span>Cơ sở 2 (Học viện Academy):</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal pl-5">
+                      245 Phan Xích Long, Phường 2, Quận Phú Nhuận, TP. Hồ Chí Minh.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Giờ làm việc & Hotline */}
+                <div className="p-3 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <Clock className="w-3.5 h-3.5 text-[#544CDE]" />
+                    <span><strong>07:00 - 19:30</strong> (Tất cả các ngày trong tuần)</span>
+                  </div>
+                  <a
+                    href="tel:0908654321"
+                    className="flex items-center gap-1 text-[#544CDE] font-bold hover:underline"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Hotline: 0908 654 321 / 0766 311 313</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* 4 Cam kết Vàng */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>4 Cam kết Vàng của CELLA BEAUTÉ</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>100% Mỹ phẩm High-End:</strong> Tom Ford, Dior, Chanel, Charlotte Tilbury an toàn lành tính cho mọi loại da.</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Thực hành 85% trên mẫu:</strong> Học viên Academy được tài trợ mỹ phẩm lớp học và tặng cọ Master 3.5tr.</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Bảo trợ việc làm:</strong> Cấp bằng tốt nghiệp có giá trị toàn quốc, cơ hội gia nhập nghệ nhân CELLA.</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Chính sách dời lịch linh hoạt:</strong> Báo trước 24h được dời lịch hoàn toàn miễn phí.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsAboutModalOpen(false);
+                  onNavigate('academy');
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-[#544CDE] hover:bg-[#433bc7] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span>Xem Khóa Học</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsAboutModalOpen(false);
+                  onNavigate('makeup_lookbook');
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Mẫu Makeup</span>
+              </button>
+              <a
+                href="tel:0908654321"
+                className="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1 transition-colors shrink-0"
+                title="Gọi Hotline"
+              >
+                <Phone className="w-4 h-4" />
+                <span className="hidden sm:inline">Gọi ngay</span>
+              </a>
             </div>
           </div>
         </div>
