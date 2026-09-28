@@ -698,7 +698,12 @@ export default function App() {
             )}
 
             {currentScreen === 'makeup_lookbook' && (
-              <MakeupLookbookScreen onNavigate={navigateTo} onBack={handleBack} />
+              <MakeupLookbookScreen
+                onNavigate={navigateTo}
+                onBack={handleBack}
+                currentUser={currentUser}
+                onSaveBooking={handleCreateBooking}
+              />
             )}
 
             {currentScreen === 'profile' && (

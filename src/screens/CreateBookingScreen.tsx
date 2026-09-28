@@ -29,21 +29,25 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
   onNavigate,
 }) => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || 'CUST-001');
-  const [selectedService, setSelectedService] = useState('Tư vấn khóa học thẩm mỹ & Lộ trình Master Trainer');
-  const [selectedBranch, setSelectedBranch] = useState('Cơ sở Quận 1 (Trụ sở chính CELLA)');
+  const [selectedService, setSelectedService] = useState('Makeup cô dâu cao cấp');
+  const [selectedBranch, setSelectedBranch] = useState('CELLA Studio Thái Bình (37–39 Phan Bội Châu, TP. Thái Bình)');
   const [selectedDay, setSelectedDay] = useState(25);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('09:00 – 10:30 (Sáng)');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('08:00 – 09:30 (Sáng)');
   const [meetingType, setMeetingType] = useState<'STUDIO' | 'ONLINE'>('STUDIO');
-  const [notes, setNotes] = useState('Khách cần tư vấn kỹ về lộ trình học nghề và ưu đãi học phí.');
+  const [notes, setNotes] = useState('Khách đặt lịch trang điểm.');
   const [smsReminder, setSmsReminder] = useState(true);
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId) || customers[0];
 
   const services = [
-    'Tư vấn khóa học thẩm mỹ & Lộ trình Master Trainer',
-    'Chăm sóc da chuyên sâu Glass Skin Pro',
-    'Phun thêu Điêu khắc Chân mày 9D',
-    'Trang điểm cô dâu Glass Skin Bridal',
+    'Makeup cô dâu cao cấp (Bao gồm cả ngày)',
+    'Makeup dự tiệc & dạ hội sang trọng',
+    'Makeup kỷ yếu & nhóm học sinh',
+    'Makeup sự kiện & biểu diễn',
+    'Makeup cá nhân tự nhiên hàng ngày',
+    'Makeup tận nơi / Tại nhà',
+    'Khóa học Makeup Chuyên Nghiệp',
+    'Dự Án 0 Đồng - Khóa Nền Tảng',
   ];
 
   const timeSlots = [
@@ -71,19 +75,19 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
       customerPhone: selectedCustomer.phone,
       customerVip: selectedCustomer.vipTier,
       serviceTitle: selectedService,
-      artistId: 'NV-8826',
-      artistName: 'Lan Anh (Master Trainer)',
+      artistId: 'NV-CELLA',
+      artistName: 'Cella Hương Phượng',
       appointmentDate: `2025-04-${selectedDay}`,
       appointmentTime: selectedTimeSlot,
       branchName: selectedBranch,
       locationAddress:
-        selectedBranch.includes('Quận 1')
-          ? 'Tòa nhà CELLA, 128 Nguyễn Trãi, Q.1'
-          : 'Chi nhánh CELLA Nam Sài Gòn, Nguyễn Thị Thập, Q.7',
+        selectedBranch.includes('Thái Bình')
+          ? '37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình'
+          : 'Trang điểm tận nơi theo yêu cầu của khách hàng',
       locationType: 'STUDIO',
       status: 'CONFIRMED',
-      totalAmount: 18500000,
-      depositAmount: 5000000,
+      totalAmount: 800000,
+      depositAmount: 300000,
       notes,
       smsReminder,
     };
@@ -202,11 +206,11 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
               onChange={(e) => setSelectedBranch(e.target.value)}
               className="w-full h-10 px-3 rounded-xl bg-[#F8F9FF] border border-slate-200 text-xs font-semibold text-slate-800"
             >
-              <option value="Cơ sở Quận 1 (Trụ sở chính CELLA)">
-                Cơ sở Quận 1 (Trụ sở chính CELLA - 128 Nguyễn Trãi)
+              <option value="CELLA Studio Thái Bình (37–39 Phan Bội Châu, TP. Thái Bình)">
+                CELLA Studio (37–39 Phan Bội Châu, TP. Thái Bình)
               </option>
-              <option value="Cơ sở Quận 7 (Chi nhánh Nam Sài Gòn)">
-                Cơ sở Quận 7 (Chi nhánh Nam Sài Gòn - Nguyễn Thị Thập)
+              <option value="Trang điểm tận nơi / Tại nhà (TP. Thái Bình & huyện lân cận)">
+                Trang điểm tận nơi / Tại nhà (Thái Bình)
               </option>
             </select>
           </div>
@@ -215,19 +219,19 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
           <div className="p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80"
-                alt="Lan Anh"
+                src="https://cellamakeup.vn/blog/images/founder.jpg"
+                alt="Cella Hương Phượng"
                 className="w-10 h-10 rounded-full object-cover border border-[#5850EC]/30"
               />
               <div>
-                <p className="text-xs font-bold text-slate-900">Lan Anh (Master Trainer)</p>
+                <p className="text-xs font-bold text-slate-900">Cella Hương Phượng</p>
                 <div className="flex items-center gap-1 text-[11px] text-slate-500">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span>4.9 (140+ đánh giá)</span>
+                  <span>5.0 (Bàn Tay Vàng Makeup Châu Á 2025)</span>
                 </div>
               </div>
             </div>
-            <span className="text-xs text-[#5850EC] font-semibold">Chuyên gia chính</span>
+            <span className="text-xs text-[#5850EC] font-semibold">Master Artist</span>
           </div>
         </GlassCard>
 
