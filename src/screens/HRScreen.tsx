@@ -691,9 +691,6 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${roleMeta.bg} ${roleMeta.color}`}>
                           {roleMeta.label}
                         </span>
-                        <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
-                          <MapPin className="w-2.5 h-2.5" />{member.branch}
-                        </span>
                       </div>
                       {/* KPI bar */}
                       <div className="flex items-center gap-1.5">
@@ -714,6 +711,9 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                       </button>
                       <button className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 hover:bg-sky-100 transition-colors">
                         <Mail className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                      <button className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 hover:bg-blue-100 transition-colors" title="Nhắn tin Zalo">
+                        <span className="text-[9px] font-bold tracking-tight">Zalo</span>
                       </button>
                     </div>
                   </div>
