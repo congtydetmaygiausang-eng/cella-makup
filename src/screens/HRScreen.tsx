@@ -148,6 +148,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
           kpi: Math.floor(Math.random() * (100 - 80 + 1)) + 80, // Mock KPI for now
           avatar: profile.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
           status: 'active',
+        }));
         const localStaffStr = localStorage.getItem('cella_local_staff');
         const localStaff = localStaffStr ? JSON.parse(localStaffStr) : [];
         setTeamMembers([...formatted, ...localStaff]);
