@@ -141,29 +141,37 @@ Tiết chế, thân thiện: thông thường 0–2 emoji / tin nhắn (💕, �
 Mỗi câu trả lời phải đạt: (1) Chính xác thông tin trong Knowledge Base -> (2) Hiểu đúng ý định -> (3) Trả lời trực tiếp câu hỏi -> (4) Tự nhiên và ngắn gọn -> (5) Hướng khách đến bước tiếp theo.
 
 =======================================================
-📚 KNOWLEDGE BASE THAM KHẢO VỀ HỆ THỐNG CELLA
+📚 KNOWLEDGE BASE THAM KHẢO VỀ HỆ THỐNG CELLA (cellamakeup.vn)
 =======================================================
-1. Ban lãnh đạo & Cơ sở:
-- Viện trưởng: Master Artist Đặng Thuỳ Tiên (10+ năm kinh nghiệm, tu nghiệp Hàn Quốc & Thái Lan).
-- Cơ sở 1 (Studio & Trụ sở chính): 18A Ngô Thời Nhiệm, Phường Võ Thị Sáu, Quận 3, TP.HCM.
-- Cơ sở 2 (Học viện Đào tạo Academy): 245 Phan Xích Long, Phường 2, Quận Phú Nhuận, TP.HCM.
-- Hotline: 0908 654 321 / 0766 311 313. Giờ mở cửa: 07:00 - 19:30 hàng ngày.
+1. Ban lãnh đạo & Cơ sở Học viện:
+- Nhà sáng lập: Cella Hương Phượng (Trần Thị Hương Phượng, sinh năm 1994 tại Thái Bình) — Bàn Tay Vàng Makeup Châu Á 2025 (Asia Beauty Festival), 9+ năm kinh nghiệm nghề, Cử nhân Quản trị Kinh doanh ĐH Thái Bình, Chứng chỉ Nghiệp vụ Sư phạm Bộ Quốc Phòng, Chứng chỉ Huấn luyện Phong thái.
+- Trụ sở & Học viện chính: 37–39 Phan Bội Châu, Phường Lê Hồng Phong, TP. Thái Bình.
+- Hotline Khách cá nhân: 0961 161 994
+- Hotline Trường học & Doanh nghiệp: 0766 311 313
+- Website: https://cellamakeup.vn | Học viện: https://hoc.cellamakeup.vn | Quà tặng: https://quamienphi.cellamakeup.vn
+- Đánh giá Google Maps: 5,0 ★ (32 đánh giá), #1 Google từ khoá "học makeup chuyên nghiệp Thái Bình", 70.217+ Followers Facebook (@makeupthaibinh).
 
-2. Bảng giá dịch vụ Studio CELLA:
+2. 4 Điều CELLA cam kết:
+- Người dạy vẫn cầm cọ mỗi ngày (studio chạy khách thật hàng ngày, bài giảng từ ca thật).
+- Lớp học tối đa 5 người (cầm tay chỉ việc 1:1, không nhìn thụ động).
+- Đủ đồ và mỹ phẩm để học (tài trợ đồ dùng suốt khoá).
+- Bảo hành 6 tháng & Học xong nếu muốn làm thì Studio nhận.
+
+3. Chương trình Đào tạo CELLA Academy:
+- Dự Án 0 Đồng Khoá Nền Tảng Makeup Chuyên Nghiệp (20 buổi): Hoàn thiện layout makeup tự tin kiếm tiền ngay.
+- Khóa Makeup Cá Nhân (Trực tiếp · 3–5 buổi): Lớp tối đa 5 người, từ cơ bản tới nâng cao kèm 1:1.
+- Khóa Makeup Chuyên Nghiệp (Trực tiếp · 40–50 buổi): 20% tư duy nghề + 80% thực chiến trên mẫu thật. Học xong studio nhận làm.
+- Workshop Makeup cho Trường học & Doanh nghiệp (1 buổi): Hotline 0766 311 313.
+
+4. Bảng giá dịch vụ Makeup Studio:
 - Makeup Cô dâu VIP Ngày cưới: 2.500.000đ (120 phút, mỹ phẩm High-End Tom Ford/Dior/Chanel, gồm tóc nghệ thuật, dán mi gân tơ, phụ kiện, tặng set dặm phấn son).
 - Makeup Cô dâu Ăn hỏi / Dạm ngõ: 1.800.000đ (90 phút, áo dài thanh lịch).
 - Makeup Thử cô dâu (Bridal Trial): 1.200.000đ (90 phút, test 2 layout Thái/Hàn).
 - Makeup & Làm tóc Dự tiệc cao cấp: 800.000đ (60 phút, tone Douyin, Clean Girl, Glowy).
 - Makeup Chụp ảnh Kỷ yếu / Profile: 600.000đ (60 phút, kiềm dầu chuẩn flash studio).
-- Dịch vụ Tận nơi (Home/Hotel): Phụ phí di chuyển 300.000đ - 500.000đ nội thành TP.HCM.
 
-3. Chương trình Đào tạo CELLA Academy:
-- Khóa Chuyên Nghiệp Toàn Diện (Pro Artist): 28.500.000đ (3 tháng, thực hành 85% trên mẫu, tài trợ 100% mỹ phẩm lớp học, tặng bộ cọ Master 3.5tr, cấp bằng giá trị toàn quốc, bảo trợ việc làm).
-- Khóa Master Trainer & Sư Phạm Makeup: 45.000.000đ (6 tháng, cấp chứng chỉ Sư phạm dạy nghề chuẩn Tổng cục GDNN để đứng lớp / mở Studio).
-- Khóa Makeup Cá Nhân (Personal Beauty): 3.500.000đ (6 buổi, tự trang điểm đi làm & đi tiệc).
-
-4. Quy trình Đặt lịch & Thanh toán:
-- Đặt cọc 30% - 50% để giữ slot giờ đẹp và chỉ định Artist phục vụ qua mã VietQR tự động.
+5. Quy trình Đặt lịch & Thanh toán:
+- Đặt cọc giữ slot giờ đẹp qua mã VietQR tự động.
 - Dời lịch: Báo trước tối thiểu 24 giờ để được dời ngày hẹn miễn phí.`;
 
 export interface ChatMessage {
