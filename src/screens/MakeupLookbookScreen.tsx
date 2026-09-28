@@ -18,6 +18,7 @@ import {
   Sparkles,
   CreditCard,
   ChevronRight,
+  ChevronLeft,
   Info,
   CalendarCheck,
   Heart,
@@ -27,9 +28,8 @@ import {
   Upload,
   Image as ImageIcon,
   Check,
-  User,
-  Sliders,
-  DollarSign
+  DollarSign,
+  Layers
 } from 'lucide-react';
 
 interface MakeupLookbookScreenProps {
@@ -58,7 +58,8 @@ const INITIAL_LOOKS: MakeupLook[] = [
     hero_image_url: 'https://cellamakeup.vn/blog/images/gt-1.jpg',
     gallery_images: [
       'https://cellamakeup.vn/blog/images/gt-1.jpg',
-      'https://cellamakeup.vn/images/hero-workshop.jpg'
+      'https://cellamakeup.vn/images/hero-workshop.jpg',
+      'https://cellamakeup.vn/blog/images/gt-2.jpg'
     ],
     artist: 'Cella Hương Phượng',
     description: 'Lớp nền căng mọng Glass Skin chuẩn Hàn, tôn vinh nét đẹp thanh tú dịu dàng của cô dâu trong ngày trọng đại. Giữ nền bền suốt 16 tiếng không xuống tone.',
@@ -81,7 +82,10 @@ const INITIAL_LOOKS: MakeupLook[] = [
     standard_price: 350000,
     member_price: 300000,
     hero_image_url: 'https://cellamakeup.vn/blog/images/gt-2.jpg',
-    gallery_images: ['https://cellamakeup.vn/blog/images/gt-2.jpg'],
+    gallery_images: [
+      'https://cellamakeup.vn/blog/images/gt-2.jpg',
+      'https://cellamakeup.vn/blog/images/gt-4.jpg'
+    ],
     artist: 'Cella Hương Phượng',
     description: 'Nhấn mắt nhũ khói sâu hút hồn, eyeliner cong vút tinh tế, phối cùng sắc son đỏ nhung quyền lực giúp bạn chiếm trọn spotlight mọi buổi tiệc dạ hội.',
     suitable_face_shapes: ['Trái xoan', 'Vuông', 'Kim cương'],
@@ -103,7 +107,10 @@ const INITIAL_LOOKS: MakeupLook[] = [
     standard_price: 300000,
     member_price: 270000,
     hero_image_url: 'https://cellamakeup.vn/blog/images/gt-3.jpg',
-    gallery_images: ['https://cellamakeup.vn/blog/images/gt-3.jpg'],
+    gallery_images: [
+      'https://cellamakeup.vn/blog/images/gt-3.jpg',
+      'https://cellamakeup.vn/images/gt-doi-ngu.jpg'
+    ],
     artist: 'Cella Team',
     description: 'Tone cam đào tươi trẻ, bền màu ngoài trời suốt ngày dài chụp ảnh áo dài kỷ yếu. Lớp nền mỏng nhẹ không bí da, đánh khối mũi tự nhiên.',
     suitable_face_shapes: ['Tròn', 'Trái xoan', 'Dài'],
@@ -125,7 +132,10 @@ const INITIAL_LOOKS: MakeupLook[] = [
     standard_price: 500000,
     member_price: 450000,
     hero_image_url: 'https://cellamakeup.vn/blog/images/gt-4.jpg',
-    gallery_images: ['https://cellamakeup.vn/blog/images/gt-4.jpg'],
+    gallery_images: [
+      'https://cellamakeup.vn/blog/images/gt-4.jpg',
+      'https://cellamakeup.vn/images/hero-workshop.jpg'
+    ],
     artist: 'Cella Team',
     description: 'Tạo hình phong thái đĩnh đạc, hiện đại, phù hợp dẫn chương trình MC, diễn giả, doanh nhân dự hội nghị hoặc chụp profile doanh nghiệp.',
     suitable_face_shapes: ['Trái xoan', 'Vuông', 'Trái tim'],
@@ -147,7 +157,10 @@ const INITIAL_LOOKS: MakeupLook[] = [
     standard_price: 900000,
     member_price: 800000,
     hero_image_url: 'https://cellamakeup.vn/images/hero-workshop.jpg',
-    gallery_images: ['https://cellamakeup.vn/images/hero-workshop.jpg'],
+    gallery_images: [
+      'https://cellamakeup.vn/images/hero-workshop.jpg',
+      'https://cellamakeup.vn/blog/images/gt-1.jpg'
+    ],
     artist: 'Cella Hương Phượng',
     description: 'Đỉnh cao kỹ thuật tạo khối 3D chuẩn phương Tây kết hợp bờ môi căng bóng tràn đầy sức sống. Thích hợp cho đám cưới không gian tiệc ngoài trời hoặc khách sạn 5 sao.',
     suitable_face_shapes: ['Trái xoan', 'Góc cạnh', 'Kim cương'],
@@ -192,7 +205,7 @@ const TIME_SLOTS = [
   '19:30 - 21:00',
 ];
 
-const LOCAL_STORAGE_KEY = 'cella_makeup_looks_v2';
+const LOCAL_STORAGE_KEY = 'cella_makeup_looks_v3';
 
 // ---------- MAIN COMPONENT ----------
 export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
@@ -251,7 +264,9 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
             standard_price: Number(d.standard_price) || 350000,
             member_price: Number(d.member_price) || 300000,
             hero_image_url: d.hero_image_url || 'https://cellamakeup.vn/blog/images/gt-1.jpg',
-            gallery_images: d.gallery_images || [],
+            gallery_images: (d.gallery_images && d.gallery_images.length > 0)
+              ? d.gallery_images
+              : [d.hero_image_url || 'https://cellamakeup.vn/blog/images/gt-1.jpg'],
             artist: d.artist || 'Cella Hương Phượng',
             description: d.description || '',
             suitable_face_shapes: d.suitable_face_shapes || ['Trái xoan'],
@@ -271,12 +286,17 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
 
   // Modal states
   const [detailLook, setDetailLook] = useState<MakeupLook | null>(null);
+  const [detailActiveImgIndex, setDetailActiveImgIndex] = useState(0);
   const [editLook, setEditLook] = useState<MakeupLook | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // File upload refs
   const addFileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
+
+  // URL input states for adding photo by link
+  const [editUrlInput, setEditUrlInput] = useState('');
+  const [addUrlInput, setAddUrlInput] = useState('');
 
   // Quick Booking Modal state
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
@@ -305,7 +325,7 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
   const [newDuration, setNewDuration] = useState('60');
   const [newAuraTone, setNewAuraTone] = useState('');
   const [newDescription, setNewDescription] = useState('');
-  const [newImage, setNewImage] = useState('');
+  const [newGalleryImages, setNewGalleryImages] = useState<string[]>([]);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -324,21 +344,56 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
     return matchCat && matchSearch;
   });
 
-  // Handle Image File Upload (FileReader)
-  const handleImageFile = (file: File, callback: (url: string) => void) => {
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Vui lòng chọn ảnh dung lượng dưới 5MB');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        callback(e.target.result as string);
-        showToast('✓ Tải ảnh thành công!');
+  // Handle Multiple Files Upload (FileReader)
+  const handleMultipleFiles = (
+    files: FileList | null,
+    onSuccess: (newUrls: string[]) => void
+  ) => {
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
+    const loadedUrls: string[] = [];
+    let completed = 0;
+
+    fileList.forEach((file) => {
+      if (file.size > 8 * 1024 * 1024) {
+        alert(`Ảnh ${file.name} vượt quá 8MB`);
+        completed++;
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          loadedUrls.push(e.target.result as string);
+        }
+        completed++;
+        if (completed === fileList.length) {
+          onSuccess(loadedUrls);
+          showToast(`✓ Đã tải lên ${loadedUrls.length} ảnh!`);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Open Edit Modal with full gallery initialized
+  const openEditModal = (sample: MakeupLook) => {
+    const gallery = (sample.gallery_images && sample.gallery_images.length > 0)
+      ? [...sample.gallery_images]
+      : [sample.hero_image_url];
+    if (!gallery.includes(sample.hero_image_url)) {
+      gallery.unshift(sample.hero_image_url);
+    }
+    setEditLook({
+      ...sample,
+      gallery_images: gallery,
+    });
+    setEditUrlInput('');
+  };
+
+  // Open Detail Modal
+  const openDetailModal = (sample: MakeupLook) => {
+    setDetailLook(sample);
+    setDetailActiveImgIndex(0);
   };
 
   // Open booking modal prefilled
@@ -397,7 +452,7 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
     }, 2000);
   };
 
-  // Add new look
+  // Add new look with multiple images
   const handleAddSample = async () => {
     if (!newTitle || !newPrice) {
       alert('Vui lòng điền Tên mẫu và Giá dịch vụ');
@@ -406,6 +461,9 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
 
     const numericPrice = parseInt(newPrice.replace(/\D/g, '')) || 350000;
     const numericMemberPrice = newMemberPrice ? parseInt(newMemberPrice.replace(/\D/g, '')) : Math.round(numericPrice * 0.9);
+
+    const gallery = newGalleryImages.length > 0 ? newGalleryImages : ['https://cellamakeup.vn/blog/images/gt-1.jpg'];
+    const heroImage = gallery[0];
 
     const newLook: MakeupLook = {
       id: 'm' + Date.now(),
@@ -419,8 +477,8 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
       duration_minutes: parseInt(newDuration) || 60,
       standard_price: numericPrice,
       member_price: numericMemberPrice,
-      hero_image_url: newImage || 'https://cellamakeup.vn/blog/images/gt-1.jpg',
-      gallery_images: newImage ? [newImage] : ['https://cellamakeup.vn/blog/images/gt-1.jpg'],
+      hero_image_url: heroImage,
+      gallery_images: gallery,
       artist: newArtist || 'Cella Hương Phượng',
       description: newDescription || 'Mẫu makeup thiết kế độc quyền tại CELLA MAKEUP ACADEMY.',
       suitable_face_shapes: ['Trái xoan', 'Tròn'],
@@ -455,7 +513,7 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
     }
 
     setShowAddModal(false);
-    showToast('✓ Đã thêm mẫu makeup mới thành công!');
+    showToast(`✓ Đã thêm mẫu makeup mới với ${gallery.length} ảnh!`);
 
     // Reset inputs
     setNewTitle('');
@@ -466,18 +524,31 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
     setNewDuration('60');
     setNewAuraTone('');
     setNewDescription('');
-    setNewImage('');
+    setNewGalleryImages([]);
+    setAddUrlInput('');
   };
 
-  // Save edited look
+  // Save edited look with multiple images
   const handleSaveEdit = async () => {
     if (!editLook) return;
 
-    setLooks((prev) => prev.map((item) => (item.id === editLook.id ? editLook : item)));
+    const gallery = (editLook.gallery_images && editLook.gallery_images.length > 0)
+      ? editLook.gallery_images
+      : [editLook.hero_image_url];
+    const heroImage = editLook.hero_image_url && gallery.includes(editLook.hero_image_url)
+      ? editLook.hero_image_url
+      : gallery[0];
 
-    // If detailLook is currently open and is this look, update it too
-    if (detailLook && detailLook.id === editLook.id) {
-      setDetailLook(editLook);
+    const updatedLook: MakeupLook = {
+      ...editLook,
+      hero_image_url: heroImage,
+      gallery_images: gallery,
+    };
+
+    setLooks((prev) => prev.map((item) => (item.id === updatedLook.id ? updatedLook : item)));
+
+    if (detailLook && detailLook.id === updatedLook.id) {
+      setDetailLook(updatedLook);
     }
 
     // Try Supabase update
@@ -485,24 +556,25 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
       await supabase
         .from('makeup_looks')
         .update({
-          title: editLook.title,
-          tagline: editLook.tagline,
-          category: editLook.category,
-          aura_tone: editLook.aura_tone,
-          standard_price: editLook.standard_price,
-          member_price: editLook.member_price,
-          duration_minutes: editLook.duration_minutes,
-          hero_image_url: editLook.hero_image_url,
-          description: editLook.description,
-          artist: editLook.artist,
+          title: updatedLook.title,
+          tagline: updatedLook.tagline,
+          category: updatedLook.category,
+          aura_tone: updatedLook.aura_tone,
+          standard_price: updatedLook.standard_price,
+          member_price: updatedLook.member_price,
+          duration_minutes: updatedLook.duration_minutes,
+          hero_image_url: updatedLook.hero_image_url,
+          gallery_images: updatedLook.gallery_images,
+          description: updatedLook.description,
+          artist: updatedLook.artist,
         })
-        .eq('id', editLook.id);
+        .eq('id', updatedLook.id);
     } catch (e) {
       // Ignored
     }
 
     setEditLook(null);
-    showToast('✓ Đã lưu thay đổi giá & thông tin mẫu!');
+    showToast(`✓ Đã lưu thay đổi giá & ${gallery.length} hình ảnh!`);
   };
 
   // Delete look
@@ -608,97 +680,106 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2.5">
-                {filtered.map((sample) => (
-                  <div
-                    key={sample.id}
-                    className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow relative"
-                  >
-                    {/* Image Container with Click for Details */}
+                {filtered.map((sample) => {
+                  const galleryCount = sample.gallery_images?.length || 1;
+                  return (
                     <div
-                      onClick={() => setDetailLook(sample)}
-                      className="aspect-[4/5] bg-slate-100 relative overflow-hidden cursor-pointer"
+                      key={sample.id}
+                      className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow relative"
                     >
-                      <img
-                        src={sample.hero_image_url}
-                        alt={sample.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            'https://cellamakeup.vn/images/og-share.jpg';
-                        }}
-                      />
+                      {/* Image Container with Click for Details */}
+                      <div
+                        onClick={() => openDetailModal(sample)}
+                        className="aspect-[4/5] bg-slate-100 relative overflow-hidden cursor-pointer"
+                      >
+                        <img
+                          src={sample.hero_image_url}
+                          alt={sample.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://cellamakeup.vn/images/og-share.jpg';
+                          }}
+                        />
 
-                      {/* Category Badge */}
-                      <div className="absolute top-2 left-2">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-[#5850EC] shadow-sm">
-                          {sample.category}
-                        </span>
-                      </div>
-
-                      {/* Rating Badge */}
-                      <div className="absolute top-2 right-2">
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-black/60 text-white flex items-center gap-0.5 backdrop-blur-sm">
-                          <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                          {sample.rating}.0
-                        </span>
-                      </div>
-
-                      {/* View Detail overlay hint */}
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-[11px] font-bold">
-                        <Eye className="w-4 h-4" />
-                        <span>Xem chi tiết</span>
-                      </div>
-                    </div>
-
-                    {/* Card Content */}
-                    <div className="p-2.5 space-y-2 flex-1 flex flex-col justify-between">
-                      {/* Title & Artist */}
-                      <div onClick={() => setDetailLook(sample)} className="cursor-pointer">
-                        <p className="text-[12px] font-bold text-slate-900 leading-tight line-clamp-1 hover:text-[#5850EC] transition-colors">
-                          {sample.title}
-                        </p>
-                        <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
-                          {sample.artist || 'Cella Hương Phượng'}
-                        </p>
-                      </div>
-
-                      {/* Bottom Row: Price + SỬA GIÁ (RED BOX AREA) + Đặt lịch */}
-                      <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between gap-1">
-                        {/* Price */}
-                        <div className="shrink-0">
-                          <span className="text-[12px] font-black text-[#5850EC] tracking-tight">
-                            {sample.standard_price.toLocaleString('vi-VN')}đ
+                        {/* Category Badge */}
+                        <div className="absolute top-2 left-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-[#5850EC] shadow-sm">
+                            {sample.category}
                           </span>
                         </div>
 
-                        {/* Middle Action: SỬA GIÁ & ẢNH (RED BOX REQUESTED BY USER) */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditLook(sample);
-                          }}
-                          className="px-2 py-1 bg-slate-100 hover:bg-[#5850EC]/10 hover:text-[#5850EC] text-slate-600 rounded-lg text-[10px] font-bold flex items-center gap-0.5 transition-colors active:scale-95 border border-slate-200/80"
-                          title="Sửa giá & cập nhật ảnh"
-                        >
-                          <Edit2 className="w-2.5 h-2.5" />
-                          <span>Sửa</span>
-                        </button>
+                        {/* Rating Badge & Gallery Count Badge */}
+                        <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-black/60 text-white flex items-center gap-0.5 backdrop-blur-sm">
+                            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                            {sample.rating}.0
+                          </span>
+                          {galleryCount > 1 && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#5850EC]/90 text-white flex items-center gap-0.5 shadow-sm backdrop-blur-sm">
+                              <Layers className="w-2.5 h-2.5" />
+                              {galleryCount} ảnh
+                            </span>
+                          )}
+                        </div>
 
-                        {/* Right Action: Đặt lịch */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenBooking(sample.title, sample.standard_price, sample.artist);
-                          }}
-                          className="px-2 py-1 bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-900 rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm transition-transform shrink-0"
-                        >
-                          <CalendarCheck className="w-3 h-3" />
-                          <span>Đặt</span>
-                        </button>
+                        {/* View Detail overlay hint */}
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-[11px] font-bold">
+                          <Eye className="w-4 h-4" />
+                          <span>Xem chi tiết</span>
+                        </div>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-2.5 space-y-2 flex-1 flex flex-col justify-between">
+                        {/* Title & Artist */}
+                        <div onClick={() => openDetailModal(sample)} className="cursor-pointer">
+                          <p className="text-[12px] font-bold text-slate-900 leading-tight line-clamp-1 hover:text-[#5850EC] transition-colors">
+                            {sample.title}
+                          </p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                            {sample.artist || 'Cella Hương Phượng'}
+                          </p>
+                        </div>
+
+                        {/* Bottom Row: Price + SỬA GIÁ (RED BOX AREA) + Đặt lịch */}
+                        <div className="pt-1.5 border-t border-slate-50 flex items-center justify-between gap-1">
+                          {/* Price */}
+                          <div className="shrink-0">
+                            <span className="text-[12px] font-black text-[#5850EC] tracking-tight">
+                              {sample.standard_price.toLocaleString('vi-VN')}đ
+                            </span>
+                          </div>
+
+                          {/* Middle Action: SỬA GIÁ & ẢNH (RED BOX REQUESTED BY USER) */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditModal(sample);
+                            }}
+                            className="px-2 py-1 bg-slate-100 hover:bg-[#5850EC]/10 hover:text-[#5850EC] text-slate-600 rounded-lg text-[10px] font-bold flex items-center gap-0.5 transition-colors active:scale-95 border border-slate-200/80"
+                            title="Sửa giá & quản lý nhiều ảnh"
+                          >
+                            <Edit2 className="w-2.5 h-2.5" />
+                            <span>Sửa</span>
+                          </button>
+
+                          {/* Right Action: Đặt lịch */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenBooking(sample.title, sample.standard_price, sample.artist);
+                            }}
+                            className="px-2 py-1 bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-900 rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm transition-transform shrink-0"
+                          >
+                            <CalendarCheck className="w-3 h-3" />
+                            <span>Đặt</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
@@ -759,7 +840,7 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
                   }`}
                 >
                   <div
-                    onClick={() => setDetailLook(item)}
+                    onClick={() => openDetailModal(item)}
                     className="flex-1 min-w-0 pr-3 cursor-pointer"
                   >
                     <div className="flex items-center gap-1.5">
@@ -789,9 +870,9 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
 
                     {/* Sửa giá */}
                     <button
-                      onClick={() => setEditLook(item)}
+                      onClick={() => openEditModal(item)}
                       className="p-1.5 bg-slate-100 hover:bg-[#5850EC]/10 hover:text-[#5850EC] text-slate-600 rounded-lg text-[10px] font-bold transition-colors"
-                      title="Sửa giá"
+                      title="Sửa giá & ảnh"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
@@ -1158,54 +1239,126 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* MODAL 1: XEM CHI TIẾT MẪU MAKEUP (DETAIL MODAL)               */}
+      {/* MODAL 1: XEM CHI TIẾT MẪU MAKEUP (VỚI GALLERY SLIDER)        */}
       {/* ============================================================ */}
       {detailLook && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto flex flex-col shadow-2xl">
-            {/* Modal Header with Hero Image */}
-            <div className="relative aspect-[16/11] bg-slate-900 overflow-hidden shrink-0">
-              <img
-                src={detailLook.hero_image_url}
-                alt={detailLook.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://cellamakeup.vn/images/og-share.jpg';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
+            {/* Gallery Images Array */}
+            {(() => {
+              const gallery = (detailLook.gallery_images && detailLook.gallery_images.length > 0)
+                ? detailLook.gallery_images
+                : [detailLook.hero_image_url];
+              const currentImg = gallery[detailActiveImgIndex] || detailLook.hero_image_url;
 
-              {/* Close button */}
-              <button
-                onClick={() => setDetailLook(null)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors backdrop-blur-sm"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              return (
+                <div className="relative aspect-[16/11] bg-slate-900 overflow-hidden shrink-0">
+                  <img
+                    src={currentImg}
+                    alt={detailLook.title}
+                    className="w-full h-full object-cover transition-all duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://cellamakeup.vn/images/og-share.jpg';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 pointer-events-none" />
 
-              {/* Badges on hero */}
-              <div className="absolute top-3 left-3 flex gap-1.5">
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#5850EC] text-white shadow-sm">
-                  {detailLook.category}
-                </span>
-                <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-400 text-slate-900 flex items-center gap-1 shadow-sm">
-                  <Star className="w-3 h-3 fill-slate-900 text-slate-900" />
-                  {detailLook.rating}.0 ({detailLook.reviews_count || 30}+ đánh giá)
-                </span>
-              </div>
+                  {/* Close button */}
+                  <button
+                    onClick={() => setDetailLook(null)}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors backdrop-blur-sm z-10"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
 
-              {/* Title & Tagline on bottom of hero */}
-              <div className="absolute bottom-3 left-4 right-4 text-white">
-                <h3 className="text-[18px] font-black leading-tight drop-shadow-md">
-                  {detailLook.title}
-                </h3>
-                {detailLook.tagline && (
-                  <p className="text-[12px] text-amber-300 font-medium mt-0.5 drop-shadow">
-                    {detailLook.tagline}
-                  </p>
-                )}
-              </div>
-            </div>
+                  {/* Badges on hero */}
+                  <div className="absolute top-3 left-3 flex gap-1.5 z-10">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#5850EC] text-white shadow-sm">
+                      {detailLook.category}
+                    </span>
+                    <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-400 text-slate-900 flex items-center gap-1 shadow-sm">
+                      <Star className="w-3 h-3 fill-slate-900 text-slate-900" />
+                      {detailLook.rating}.0
+                    </span>
+                  </div>
+
+                  {/* Left / Right arrows if multiple photos */}
+                  {gallery.length > 1 && (
+                    <>
+                      <button
+                        onClick={() =>
+                          setDetailActiveImgIndex((prev) =>
+                            prev === 0 ? gallery.length - 1 : prev - 1
+                          )
+                        }
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDetailActiveImgIndex((prev) =>
+                            prev === gallery.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+
+                      {/* Photo index indicator badge */}
+                      <div className="absolute bottom-12 right-3 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold backdrop-blur-sm">
+                        📸 {detailActiveImgIndex + 1} / {gallery.length} ảnh
+                      </div>
+                    </>
+                  )}
+
+                  {/* Title & Tagline on bottom of hero */}
+                  <div className="absolute bottom-3 left-4 right-4 text-white">
+                    <h3 className="text-[17px] font-black leading-tight drop-shadow-md">
+                      {detailLook.title}
+                    </h3>
+                    {detailLook.tagline && (
+                      <p className="text-[11px] text-amber-300 font-medium mt-0.5 drop-shadow">
+                        {detailLook.tagline}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Thumbnail Gallery Strip if multiple photos */}
+            {(() => {
+              const gallery = (detailLook.gallery_images && detailLook.gallery_images.length > 0)
+                ? detailLook.gallery_images
+                : [detailLook.hero_image_url];
+
+              if (gallery.length <= 1) return null;
+
+              return (
+                <div className="px-4 pt-2.5 pb-1 flex gap-2 overflow-x-auto no-scrollbar bg-slate-50 border-b border-slate-100">
+                  {gallery.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setDetailActiveImgIndex(idx)}
+                      className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
+                        detailActiveImgIndex === idx
+                          ? 'border-[#5850EC] scale-105 shadow-md'
+                          : 'border-slate-200 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img} alt="Thumb" className="w-full h-full object-cover" />
+                      {img === detailLook.hero_image_url && (
+                        <div className="absolute bottom-0 inset-x-0 bg-[#5850EC] text-white text-[7px] font-bold text-center py-0.5">
+                          Bìa
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
 
             {/* Modal Body */}
             <div className="p-4 space-y-4 text-xs flex-1">
@@ -1309,17 +1462,17 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
             {/* Modal Actions */}
             <div className="p-4 border-t border-slate-100 bg-white sticky bottom-0 space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                {/* Sửa giá & thông tin button */}
+                {/* Sửa giá & nhiều ảnh */}
                 <button
                   onClick={() => {
                     const lk = detailLook;
                     setDetailLook(null);
-                    setEditLook(lk);
+                    openEditModal(lk);
                   }}
                   className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Edit2 className="w-3.5 h-3.5 text-[#5850EC]" />
-                  <span>Sửa Giá & Mẫu</span>
+                  <span>Sửa Giá & Thêm Ảnh</span>
                 </button>
 
                 {/* Xóa button */}
@@ -1350,17 +1503,17 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
       )}
 
       {/* ============================================================ */}
-      {/* MODAL 2: SỬA GIÁ VÀ TẢI ẢNH LÊN (EDIT MODAL)                  */}
+      {/* MODAL 2: SỬA GIÁ & QUẢN LÝ NHIỀU HÌNH ẢNH (EDIT MODAL)        */}
       {/* ============================================================ */}
       {editLook && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-[16px] font-black text-slate-900 flex items-center gap-1.5">
                   <Edit2 className="w-4 h-4 text-[#5850EC]" /> Sửa Giá & Thông Tin Mẫu
                 </h3>
-                <p className="text-[11px] text-slate-500">Cập nhật giá, ảnh đại diện và thông tin lookbook</p>
+                <p className="text-[11px] text-slate-500">Cập nhật giá dịch vụ và quản lý bộ sưu tập nhiều ảnh</p>
               </div>
               <button
                 onClick={() => setEditLook(null)}
@@ -1370,63 +1523,166 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
               </button>
             </div>
 
-            <div className="space-y-3.5 text-xs">
-              {/* TẢI ẢNH LÊN / ĐỔI ẢNH (FILE UPLOAD) */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Hình ảnh mẫu makeup <span className="text-rose-500">*</span>
-                </label>
-                <div className="flex gap-3 items-center">
-                  <div className="w-20 h-24 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 relative group">
-                    <img
-                      src={editLook.hero_image_url}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://cellamakeup.vn/images/og-share.jpg';
-                      }}
-                    />
+            <div className="space-y-4 text-xs">
+              {/* === KHỐI QUẢN LÝ NHIỀU HÌNH ẢNH (GALLERY IMAGES) === */}
+              <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-[#5850EC]" />
+                      <span>Bộ sưu tập hình ảnh ({editLook.gallery_images?.length || 1} ảnh)</span>
+                    </label>
+                    <p className="text-[10px] text-slate-500">
+                      Tải lên nhiều góc chụp (chính diện, góc nghiêng, cận cảnh mắt...)
+                    </p>
                   </div>
 
-                  <div className="flex-1 space-y-2">
-                    <input
-                      type="file"
-                      ref={editFileInputRef}
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleImageFile(file, (url) => {
-                            setEditLook((prev) => (prev ? { ...prev, hero_image_url: url } : null));
-                          });
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => editFileInputRef.current?.click()}
-                      className="w-full py-2 bg-[#5850EC]/10 hover:bg-[#5850EC]/20 text-[#5850EC] rounded-xl font-bold flex items-center justify-center gap-1.5 border border-[#5850EC]/20 transition-colors"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Tải ảnh mới từ máy</span>
-                    </button>
-                    <p className="text-[10px] text-slate-400">Hỗ trợ JPG, PNG, WEBP (tối đa 5MB)</p>
+                  <button
+                    type="button"
+                    onClick={() => editFileInputRef.current?.click()}
+                    className="px-3 py-1.5 bg-[#5850EC] hover:bg-[#4338CA] text-white rounded-xl text-[11px] font-bold flex items-center gap-1 shadow-sm active:scale-95 transition-transform"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>+ Thêm ảnh</span>
+                  </button>
+                </div>
+
+                {/* Hidden multiple file input */}
+                <input
+                  type="file"
+                  ref={editFileInputRef}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    handleMultipleFiles(e.target.files, (newUrls) => {
+                      setEditLook((prev) => {
+                        if (!prev) return null;
+                        const existing = prev.gallery_images || [prev.hero_image_url];
+                        const merged = [...existing, ...newUrls];
+                        return {
+                          ...prev,
+                          gallery_images: merged,
+                          hero_image_url: prev.hero_image_url || merged[0],
+                        };
+                      });
+                    });
+                  }}
+                />
+
+                {/* Multi-image preview grid */}
+                <div className="grid grid-cols-3 gap-2.5 pt-1">
+                  {(editLook.gallery_images && editLook.gallery_images.length > 0
+                    ? editLook.gallery_images
+                    : [editLook.hero_image_url]
+                  ).map((imgUrl, idx) => {
+                    const isCover = imgUrl === editLook.hero_image_url;
+                    return (
+                      <div
+                        key={idx}
+                        className={`relative aspect-[3/4] rounded-xl overflow-hidden border-2 bg-slate-100 group shadow-sm transition-all ${
+                          isCover ? 'border-[#5850EC] ring-2 ring-[#5850EC]/30' : 'border-slate-200'
+                        }`}
+                      >
+                        <img src={imgUrl} alt={`Ảnh ${idx + 1}`} className="w-full h-full object-cover" />
+
+                        {/* Cover Badge */}
+                        {isCover && (
+                          <div className="absolute top-1.5 left-1.5">
+                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-[#5850EC] text-white shadow-sm flex items-center gap-0.5">
+                              ★ Ảnh Bìa
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Actions overlay */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
+                          <div className="flex justify-end">
+                            {/* Delete photo button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditLook((prev) => {
+                                  if (!prev) return null;
+                                  const currentGallery = prev.gallery_images || [prev.hero_image_url];
+                                  if (currentGallery.length <= 1) {
+                                    alert('Mẫu makeup cần giữ ít nhất 1 ảnh đại diện.');
+                                    return prev;
+                                  }
+                                  const filteredGallery = currentGallery.filter((_, i) => i !== idx);
+                                  const newCover = (imgUrl === prev.hero_image_url)
+                                    ? filteredGallery[0]
+                                    : prev.hero_image_url;
+                                  return {
+                                    ...prev,
+                                    gallery_images: filteredGallery,
+                                    hero_image_url: newCover,
+                                  };
+                                });
+                              }}
+                              className="p-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                              title="Xóa ảnh này"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+
+                          {!isCover && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditLook((prev) => (prev ? { ...prev, hero_image_url: imgUrl } : null));
+                                showToast('✓ Đã đặt làm ảnh bìa đại diện!');
+                              }}
+                              className="w-full py-1 bg-white/90 hover:bg-white text-slate-900 rounded-lg text-[9px] font-bold text-center shadow-sm"
+                            >
+                              Đặt làm bìa
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Add more button card */}
+                  <div
+                    onClick={() => editFileInputRef.current?.click()}
+                    className="aspect-[3/4] rounded-xl border-2 border-dashed border-slate-300 hover:border-[#5850EC] flex flex-col items-center justify-center p-2 text-center cursor-pointer bg-white hover:bg-[#5850EC]/5 transition-all text-slate-500 hover:text-[#5850EC]"
+                  >
+                    <Plus className="w-5 h-5 mb-1" />
+                    <span className="text-[10px] font-bold leading-tight">Thêm ảnh</span>
+                    <span className="text-[8px] text-slate-400">Chọn nhiều ảnh</span>
                   </div>
                 </div>
 
-                {/* Hoặc nhập link ảnh */}
-                <div className="mt-2">
+                {/* Hoặc thêm bằng đường link URL */}
+                <div className="pt-1 flex gap-1.5">
                   <input
                     type="text"
-                    value={editLook.hero_image_url}
-                    onChange={(e) =>
-                      setEditLook((prev) => (prev ? { ...prev, hero_image_url: e.target.value } : null))
-                    }
-                    placeholder="Hoặc dán URL link ảnh..."
-                    className="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-[#5850EC]"
+                    value={editUrlInput}
+                    onChange={(e) => setEditUrlInput(e.target.value)}
+                    placeholder="Dán link ảnh online (https://...)..."
+                    className="flex-1 h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-[#5850EC]"
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!editUrlInput.trim()) return;
+                      setEditLook((prev) => {
+                        if (!prev) return null;
+                        const existing = prev.gallery_images || [prev.hero_image_url];
+                        return {
+                          ...prev,
+                          gallery_images: [...existing, editUrlInput.trim()],
+                        };
+                      });
+                      setEditUrlInput('');
+                      showToast('✓ Đã thêm ảnh từ link!');
+                    }}
+                    className="px-3 h-8 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-[11px]"
+                  >
+                    Thêm link
+                  </button>
                 </div>
               </div>
 
@@ -1585,17 +1841,17 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
       )}
 
       {/* ============================================================ */}
-      {/* MODAL 3: THÊM MẪU MAKEUP MỚI (VỚI TẢI ẢNH LÊN)               */}
+      {/* MODAL 3: THÊM MẪU MAKEUP MỚI (VỚI TẢI NHIỀU ẢNH LÊN)         */}
       {/* ============================================================ */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-[16px] font-black text-slate-900 flex items-center gap-1.5">
                   <Plus className="w-4 h-4 text-[#5850EC]" /> Thêm Mẫu Makeup Mới
                 </h3>
-                <p className="text-[11px] text-slate-500">Tải ảnh lên và bổ sung vào bảng giá lookbook</p>
+                <p className="text-[11px] text-slate-500">Tải lên nhiều hình ảnh và thiết lập bảng giá dịch vụ</p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -1606,67 +1862,95 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
             </div>
 
             <div className="space-y-3.5 text-xs">
-              {/* TẢI ẢNH LÊN (FILE UPLOAD) */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Ảnh mẫu makeup <span className="text-rose-500">*</span>
-                </label>
-
-                {newImage ? (
-                  <div className="flex items-center gap-3 p-2 bg-slate-50 rounded-2xl border border-slate-200">
-                    <img
-                      src={newImage}
-                      alt="Preview"
-                      className="w-16 h-20 object-cover rounded-xl shrink-0"
-                    />
-                    <div className="flex-1 space-y-1">
-                      <p className="font-bold text-emerald-600 text-xs">✓ Đã tải ảnh lên</p>
-                      <button
-                        type="button"
-                        onClick={() => addFileInputRef.current?.click()}
-                        className="text-[11px] text-[#5850EC] font-bold hover:underline block"
-                      >
-                        Đổi ảnh khác
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setNewImage('')}
-                      className="p-1.5 rounded-full hover:bg-slate-200 text-slate-400"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
+              {/* TẢI NHIỀU ẢNH LÊN */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-[#5850EC]" />
+                    <span>Bộ sưu tập hình ảnh ({newGalleryImages.length} ảnh)</span>
+                  </label>
+                  <button
+                    type="button"
                     onClick={() => addFileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-300 hover:border-[#5850EC] rounded-2xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-[#5850EC]/5 transition-all group"
+                    className="px-3 py-1 bg-[#5850EC] text-white rounded-lg text-[10px] font-bold"
                   >
-                    <Upload className="w-8 h-8 text-slate-400 group-hover:text-[#5850EC] mx-auto mb-1 transition-colors" />
-                    <p className="font-bold text-slate-700 text-xs">Nhấn để tải ảnh từ máy / điện thoại</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WEBP (tối đa 5MB)</p>
-                  </div>
-                )}
+                    + Thêm ảnh
+                  </button>
+                </div>
 
                 <input
                   type="file"
                   ref={addFileInputRef}
                   accept="image/*"
+                  multiple
                   className="hidden"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageFile(file, setNewImage);
+                    handleMultipleFiles(e.target.files, (newUrls) => {
+                      setNewGalleryImages((prev) => [...prev, ...newUrls]);
+                    });
                   }}
                 />
 
-                {/* Hoặc nhập link ảnh */}
-                <input
-                  type="text"
-                  value={newImage}
-                  onChange={(e) => setNewImage(e.target.value)}
-                  placeholder="Hoặc dán URL link ảnh..."
-                  className="w-full mt-1.5 h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-[#5850EC]"
-                />
+                {newGalleryImages.length === 0 ? (
+                  <div
+                    onClick={() => addFileInputRef.current?.click()}
+                    className="border-2 border-dashed border-slate-300 hover:border-[#5850EC] rounded-2xl p-5 text-center cursor-pointer bg-white hover:bg-[#5850EC]/5 transition-all group"
+                  >
+                    <Upload className="w-8 h-8 text-slate-400 group-hover:text-[#5850EC] mx-auto mb-1 transition-colors" />
+                    <p className="font-bold text-slate-700 text-xs">Nhấn để chọn một hoặc nhiều ảnh cùng lúc</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WEBP từ máy tính hoặc điện thoại</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {newGalleryImages.map((img, i) => (
+                      <div key={i} className="relative aspect-[3/4] rounded-xl overflow-hidden border border-slate-200 bg-white">
+                        <img src={img} alt="Thumb" className="w-full h-full object-cover" />
+                        {i === 0 && (
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-[#5850EC] text-white">
+                            Ảnh Bìa
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setNewGalleryImages((prev) => prev.filter((_, idx) => idx !== i))}
+                          className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-rose-600 rounded-full text-white"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <div
+                      onClick={() => addFileInputRef.current?.click()}
+                      className="aspect-[3/4] rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 text-slate-400"
+                    >
+                      <Plus className="w-5 h-5 mb-0.5" />
+                      <span className="text-[9px] font-bold">Thêm ảnh</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hoặc thêm bằng đường link */}
+                <div className="flex gap-1.5 pt-1">
+                  <input
+                    type="text"
+                    value={addUrlInput}
+                    onChange={(e) => setAddUrlInput(e.target.value)}
+                    placeholder="Dán link ảnh URL..."
+                    className="flex-1 h-8 px-2.5 bg-white border border-slate-200 rounded-lg text-[11px] focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!addUrlInput.trim()) return;
+                      setNewGalleryImages((prev) => [...prev, addUrlInput.trim()]);
+                      setAddUrlInput('');
+                      showToast('✓ Đã thêm ảnh từ link!');
+                    }}
+                    className="px-2.5 h-8 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg text-[10px]"
+                  >
+                    + Thêm
+                  </button>
+                </div>
               </div>
 
               {/* Tên mẫu */}
