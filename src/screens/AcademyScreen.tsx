@@ -546,44 +546,49 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
       />
 
       <div className="px-4 pt-1 space-y-3.5">
-        {/* === GIỚI THIỆU CELLA MAKEUP ACADEMY HERO BANNER === */}
-        <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#0A0A0C] via-[#1E1B4B] to-[#16161A] text-white p-5 space-y-3 relative shadow-xl">
+        {/* === BANNER CHƯƠNG TRÌNH ĐÀO TẠO & TUYỂN SINH ACADEMY === */}
+        <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#312E81] to-[#0F172A] text-white p-5 space-y-3 relative shadow-xl">
           <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{ background: 'radial-gradient(ellipse at 80% 20%, #C9A24B 0%, transparent 60%)' }}
           />
           <div className="relative z-10">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">
-                Hệ thống Học viện & Studio Cao cấp · TP. Hồ Chí Minh
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                Tuyển Sinh Khóa Mới K25
               </span>
-              <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-medium">
-                Viện trưởng: Master Đặng Thuỳ Tiên
-              </span>
+              <button
+                onClick={() => onNavigate('about')}
+                className="text-[10px] bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded-full text-amber-300 font-bold border border-white/10 flex items-center gap-1 transition-colors"
+                title="Xem hồ sơ thương hiệu và viện trưởng"
+              >
+                <span>Về CELLA</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
 
-            <h2 className="text-xl font-black mt-1 leading-tight">
-              CELLA MAKEUP <span className="text-amber-400">ACADEMY</span>
+            <h2 className="text-xl font-black mt-2 leading-tight">
+              DANH SÁCH <span className="text-amber-400">KHÓA HỌC MAKEUP</span>
             </h2>
-            <p className="text-[12px] text-amber-300/90 mt-1 italic font-semibold">
-              "Better People, Better Beauty, A Brighter Tomorrow"
+            <p className="text-[12px] text-amber-200 mt-0.5 font-medium">
+              Chương trình đào tạo nghề trang điểm thực chiến 85% trên mẫu thật
             </p>
-            <p className="text-[12px] text-slate-300 mt-1.5 leading-relaxed">
-              Đào tạo nghề trang điểm chuyên nghiệp, cô dâu VIP, editorial & cá nhân. Thực hành 85% trên mẫu thật, tài trợ 100% mỹ phẩm High-End tại lớp, bảo trợ việc làm toàn diện.
+            <p className="text-[12px] text-slate-300 mt-1 leading-relaxed">
+              Tài trợ 100% mỹ phẩm High-End tại lớp, tặng bộ cọ Master 3.5 triệu, cấp bằng Tổng cục GDNN và bảo trợ việc làm toàn diện.
             </p>
 
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
               <div>
-                <div className="text-sm font-black text-amber-400">4,95 ★</div>
-                <div className="text-[9px] text-slate-400">15.000+ Khách hàng</div>
+                <div className="text-sm font-black text-amber-400">85%</div>
+                <div className="text-[9px] text-slate-300">Thực hành mẫu thật</div>
               </div>
               <div>
                 <div className="text-sm font-black text-amber-400">1.200+</div>
-                <div className="text-[9px] text-slate-400">Học viên tốt nghiệp Pro</div>
+                <div className="text-[9px] text-slate-300">Học viên ra nghề</div>
               </div>
               <div>
-                <div className="text-sm font-black text-amber-400">10+ Năm</div>
-                <div className="text-[9px] text-slate-400">Uy tín kiến tạo sắc đẹp</div>
+                <div className="text-sm font-black text-amber-400">100%</div>
+                <div className="text-[9px] text-slate-300">Bảo trợ việc làm</div>
               </div>
             </div>
           </div>
