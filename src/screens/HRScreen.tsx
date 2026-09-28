@@ -148,14 +148,19 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
           kpi: Math.floor(Math.random() * (100 - 80 + 1)) + 80, // Mock KPI for now
           avatar: profile.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
           status: 'active',
-        }));
-        setTeamMembers(formatted);
+        const localStaffStr = localStorage.getItem('cella_local_staff');
+        const localStaff = localStaffStr ? JSON.parse(localStaffStr) : [];
+        setTeamMembers([...formatted, ...localStaff]);
       } else {
-        setTeamMembers(INITIAL_TEAM_MEMBERS);
+        const localStaffStr = localStorage.getItem('cella_local_staff');
+        const localStaff = localStaffStr ? JSON.parse(localStaffStr) : [];
+        setTeamMembers([...INITIAL_TEAM_MEMBERS, ...localStaff]);
       }
     } catch (err) {
       console.error('Error fetching staff:', err);
-      setTeamMembers(INITIAL_TEAM_MEMBERS);
+      const localStaffStr = localStorage.getItem('cella_local_staff');
+      const localStaff = localStaffStr ? JSON.parse(localStaffStr) : [];
+      setTeamMembers([...INITIAL_TEAM_MEMBERS, ...localStaff]);
     } finally {
       setIsLoading(false);
     }
@@ -202,6 +207,12 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
       status: 'active',
     };
+    
+    // Save to localStorage so it persists
+    const localStaffStr = localStorage.getItem('cella_local_staff');
+    const localStaff = localStaffStr ? JSON.parse(localStaffStr) : [];
+    localStorage.setItem('cella_local_staff', JSON.stringify([...localStaff, staffToAdd]));
+    
     setTeamMembers([...teamMembers, staffToAdd]);
     setIsAddStaffModalOpen(false);
     setNewStaff({ name: '', phone: '', email: '', role: 'ARTIST', branch: 'Quận 1 (Trụ sở)' });
