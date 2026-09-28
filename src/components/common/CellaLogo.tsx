@@ -24,9 +24,10 @@ export const CellaLogo: React.FC<CellaLogoProps> = ({
         <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-60 animate-pulse pointer-events-none" />
       )}
       <img
-        src="/cella-logo.png"
+        src="https://cellamakeup.vn/images/logo-white.png"
         alt="CELLA MAKEUP ACADEMY"
-        className={`relative z-10 object-contain drop-shadow-md rounded-2xl bg-white ${sizeMap[size]}`}
+        className={`relative z-10 object-contain drop-shadow-md ${sizeMap[size]}`}
+        onError={(e) => { (e.target as HTMLImageElement).src = '/cella-logo.png'; }}
       />
     </div>
   );
