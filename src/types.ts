@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CELLA Core Database & Application Interfaces (PHASE 1 - MINIMAL SCHEMA)
  */
 
@@ -128,6 +128,7 @@ export type ScreenId =
   | 'hr'
   | 'roles'
   | 'makeup_lookbook'
+  | 'instructors'
   | 'more';
 
 export interface NewsfeedPost {
@@ -169,4 +170,24 @@ export interface MakeupLook {
   cosmetic_products?: string[];
   is_featured?: boolean;
   created_at?: string;
+}
+
+// 7. Instructor / Trainer (Đội ngũ giảng viên Học viện CELLA)
+export interface Instructor {
+  id: string;
+  name: string;
+  title: string;
+  role: 'MASTER' | 'TRAINER' | 'ASSISTANT' | string;
+  avatar: string;
+  coverImage?: string;
+  phone?: string;
+  email?: string;
+  experienceYears: number;
+  studentsCount: number;
+  rating: number;
+  specialties: string[];
+  achievements?: string[];
+  bio?: string;
+  coursesTeaching?: string[];
+  zaloPhone?: string;
 }

@@ -36,6 +36,7 @@ import { ProfileScreen } from './screens/ProfileScreen';
 import { MoreMenuScreen } from './screens/MoreMenuScreen';
 import { AuthScreen } from './screens/AuthScreen';
 import { MakeupLookbookScreen } from './screens/MakeupLookbookScreen';
+import { InstructorsScreen } from './screens/InstructorsScreen';
 
 // Common Components
 import { BottomNavBar } from './components/common/BottomNavBar';
@@ -703,6 +704,14 @@ export default function App() {
                 onBack={handleBack}
                 currentUser={currentUser}
                 onSaveBooking={handleCreateBooking}
+              />
+            )}
+
+            {currentScreen === 'instructors' && (
+              <InstructorsScreen
+                onNavigate={navigateTo}
+                onBack={handleBack}
+                currentUser={currentUser}
               />
             )}
 

@@ -289,6 +289,30 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
           </div>
         </div>
 
+        {/* Nút Xem Danh sách Giảng viên CELLA */}
+        <div
+          onClick={() => onNavigate('instructors')}
+          className="bg-white rounded-2xl p-3.5 border border-indigo-100 shadow-sm flex items-center justify-between cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all active:scale-[0.99] group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#544CDE] to-[#7B73F0] flex items-center justify-center text-white shadow-md shadow-indigo-200 shrink-0">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-bold text-slate-800 group-hover:text-[#544CDE] transition-colors">
+                  Đội ngũ Giảng viên CELLA
+                </span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Master & Faculty</span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">5+ Master & Chuyên gia trực tiếp đào tạo · Xem danh sách</p>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#544CDE] group-hover:text-white transition-all shrink-0">
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        </div>
+
         {/* Search bar */}
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
