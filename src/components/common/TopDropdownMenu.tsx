@@ -85,7 +85,7 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
           iconBg: 'bg-amber-50 text-amber-600 border border-amber-200/80',
         },
         {
-          id: 'customers' as ScreenId,
+          id: 'students' as ScreenId,
           title: 'Danh sách học viên',
           desc: 'Quản lý học viên các khóa',
           icon: Users,

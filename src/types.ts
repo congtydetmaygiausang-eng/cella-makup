@@ -129,6 +129,7 @@ export type ScreenId =
   | 'roles'
   | 'makeup_lookbook'
   | 'instructors'
+  | 'students'
   | 'more';
 
 export interface NewsfeedPost {
@@ -190,4 +191,31 @@ export interface Instructor {
   bio?: string;
   coursesTeaching?: string[];
   zaloPhone?: string;
+}
+
+// 8. Student / Học viên Học viện CELLA (Hồ sơ học viên)
+export interface Student {
+  id: string;
+  studentCode: string; // ví dụ: HV-2025-01
+  name: string;
+  avatar: string;
+  phone: string;
+  zaloPhone?: string;
+  email?: string;
+  birthday?: string;
+  hometown?: string; // Tỉnh / Thành phố
+  courseName: string; // Tên khóa học
+  classCode: string; // Mã lớp học: K28-PRO, K15-BRIDAL...
+  instructorName: string; // Giảng viên hướng dẫn chính
+  enrollmentDate: string; // Ngày nhập học: dd/mm/yyyy
+  graduationDate?: string; // Ngày tốt nghiệp hoặc dự kiến
+  status: 'STUDYING' | 'GRADUATED' | 'RESERVED' | 'DROPOUT';
+  tuitionFee: number; // Tổng học phí (VNĐ)
+  paidAmount: number; // Đã đóng (VNĐ)
+  paymentStatus: 'PAID' | 'PARTIAL' | 'UNPAID';
+  attendanceRate?: number; // Tỉ lệ chuyên cần (%) ví dụ 96
+  skillLevel?: 'XUAT_SAC' | 'GIOI' | 'KHA' | 'TRUNG_BINH'; // Đánh giá tay nghề
+  certStatus?: 'CERTIFIED' | 'PENDING' | 'NONE'; // Chứng chỉ tốt nghiệp
+  notes?: string; // Đánh giá của giảng viên
+  portfolioImages?: string[]; // Ảnh bài thực hành / tốt nghiệp
 }
