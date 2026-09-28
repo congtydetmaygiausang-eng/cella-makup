@@ -91,8 +91,14 @@ export interface Course {
   maxStudents: number;
   price: number;
   originalPrice?: number;
+  depositAmount?: number;
   isHot?: boolean;
   syllabus: any[];
+  videoUrl?: string;
+  videoTitle?: string;
+  videoDuration?: string;
+  coverImage?: string;
+  description?: string;
 }
 
 export interface NotificationItem {

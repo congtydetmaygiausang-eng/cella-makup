@@ -20,7 +20,8 @@ import {
   ShieldCheck,
   Building2,
   Users2,
-  UserCheck
+  UserCheck,
+  BookOpen
 } from 'lucide-react';
 
 interface TopDropdownMenuProps {
@@ -90,6 +91,13 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
           desc: 'Quản lý học viên các khóa',
           icon: Users,
           iconBg: 'bg-rose-50 text-rose-600 border border-rose-200/80',
+        },
+        {
+          id: 'academy' as ScreenId,
+          title: 'Danh sách khóa học',
+          desc: 'Khóa học, giá, video demo & đăng ký',
+          icon: BookOpen,
+          iconBg: 'bg-purple-50 text-purple-600 border border-purple-200/80',
         },
       ],
     },
