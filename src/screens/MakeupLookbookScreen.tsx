@@ -29,7 +29,11 @@ import {
   Image as ImageIcon,
   Check,
   DollarSign,
-  Layers
+  Layers,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  RotateCcw
 } from 'lucide-react';
 
 interface MakeupLookbookScreenProps {
@@ -205,7 +209,7 @@ const TIME_SLOTS = [
   '19:30 - 21:00',
 ];
 
-const LOCAL_STORAGE_KEY = 'cella_makeup_looks_v3';
+const LOCAL_STORAGE_KEY = 'cella_makeup_looks_v4';
 
 // ---------- MAIN COMPONENT ----------
 export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
@@ -289,6 +293,94 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
   const [detailActiveImgIndex, setDetailActiveImgIndex] = useState(0);
   const [editLook, setEditLook] = useState<MakeupLook | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // ZOOM LIGHTBOX STATE
+  const [zoomModal, setZoomModal] = useState<{
+    isOpen: boolean;
+    images: string[];
+    currentIndex: number;
+    title?: string;
+  }>({
+    isOpen: false,
+    images: [],
+    currentIndex: 0,
+    title: '',
+  });
+
+  const [zoomScale, setZoomScale] = useState(1);
+  const [panPos, setPanPos] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStartRef = useRef({ x: 0, y: 0 });
+
+  // Open Zoom Viewer
+  const openZoomViewer = (images: string[], index: number = 0, title?: string) => {
+    setZoomModal({
+      isOpen: true,
+      images: images.length > 0 ? images : ['https://cellamakeup.vn/images/og-share.jpg'],
+      currentIndex: index,
+      title: title || 'Mẫu Makeup CELLA',
+    });
+    setZoomScale(1);
+    setPanPos({ x: 0, y: 0 });
+  };
+
+  // Zoom controls
+  const handleZoomIn = () => setZoomScale((prev) => Math.min(prev + 0.5, 4));
+  const handleZoomOut = () => {
+    setZoomScale((prev) => {
+      const next = Math.max(prev - 0.5, 1);
+      if (next === 1) setPanPos({ x: 0, y: 0 });
+      return next;
+    });
+  };
+  const handleResetZoom = () => {
+    setZoomScale(1);
+    setPanPos({ x: 0, y: 0 });
+  };
+
+  const handleDoubleTap = () => {
+    if (zoomScale > 1) {
+      handleResetZoom();
+    } else {
+      setZoomScale(2.5);
+    }
+  };
+
+  // Pan handlers for Zoom Viewer
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoomScale <= 1) return;
+    setIsPanning(true);
+    panStartRef.current = { x: e.clientX - panPos.x, y: e.clientY - panPos.y };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isPanning || zoomScale <= 1) return;
+    setPanPos({
+      x: e.clientX - panStartRef.current.x,
+      y: e.clientY - panStartRef.current.y,
+    });
+  };
+
+  const handleMouseUp = () => setIsPanning(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (zoomScale <= 1 || e.touches.length !== 1) return;
+    setIsPanning(true);
+    panStartRef.current = {
+      x: e.touches[0].clientX - panPos.x,
+      y: e.touches[0].clientY - panPos.y,
+    };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isPanning || zoomScale <= 1 || e.touches.length !== 1) return;
+    setPanPos({
+      x: e.touches[0].clientX - panStartRef.current.x,
+      y: e.touches[0].clientY - panStartRef.current.y,
+    });
+  };
+
+  const handleTouchEnd = () => setIsPanning(false);
 
   // File upload refs
   const addFileInputRef = useRef<HTMLInputElement>(null);
@@ -681,7 +773,11 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
             ) : (
               <div className="grid grid-cols-2 gap-2.5">
                 {filtered.map((sample) => {
-                  const galleryCount = sample.gallery_images?.length || 1;
+                  const gallery = (sample.gallery_images && sample.gallery_images.length > 0)
+                    ? sample.gallery_images
+                    : [sample.hero_image_url];
+                  const galleryCount = gallery.length;
+
                   return (
                     <div
                       key={sample.id}
@@ -723,8 +819,21 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
                           )}
                         </div>
 
+                        {/* Zoom button on card */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openZoomViewer(gallery, 0, sample.title);
+                          }}
+                          className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-[#5850EC] text-white backdrop-blur-sm shadow-md transition-colors z-10 active:scale-90"
+                          title="Phóng to ảnh (Zoom)"
+                        >
+                          <ZoomIn className="w-3.5 h-3.5" />
+                        </button>
+
                         {/* View Detail overlay hint */}
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-[11px] font-bold">
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-[11px] font-bold pointer-events-none">
                           <Eye className="w-4 h-4" />
                           <span>Xem chi tiết</span>
                         </div>
@@ -1252,11 +1361,12 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
               const currentImg = gallery[detailActiveImgIndex] || detailLook.hero_image_url;
 
               return (
-                <div className="relative aspect-[16/11] bg-slate-900 overflow-hidden shrink-0">
+                <div className="relative aspect-[16/11] bg-slate-900 overflow-hidden shrink-0 group">
                   <img
                     src={currentImg}
                     alt={detailLook.title}
-                    className="w-full h-full object-cover transition-all duration-300"
+                    onClick={() => openZoomViewer(gallery, detailActiveImgIndex, detailLook.title)}
+                    className="w-full h-full object-cover transition-all duration-300 cursor-zoom-in"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://cellamakeup.vn/images/og-share.jpg';
                     }}
@@ -1269,6 +1379,16 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors backdrop-blur-sm z-10"
                   >
                     <X className="w-4 h-4" />
+                  </button>
+
+                  {/* Zoom full button */}
+                  <button
+                    onClick={() => openZoomViewer(gallery, detailActiveImgIndex, detailLook.title)}
+                    className="absolute top-3 right-12 px-2.5 py-1 rounded-full bg-black/50 hover:bg-black/70 text-white text-[10px] font-bold flex items-center gap-1 backdrop-blur-sm z-10 shadow-sm"
+                    title="Phóng to ảnh (Zoom)"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Zoom</span>
                   </button>
 
                   {/* Badges on hero */}
@@ -1286,22 +1406,24 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
                   {gallery.length > 1 && (
                     <>
                       <button
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setDetailActiveImgIndex((prev) =>
                             prev === 0 ? gallery.length - 1 : prev - 1
-                          )
-                        }
-                        className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
+                          );
+                        }}
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90 z-10"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setDetailActiveImgIndex((prev) =>
                             prev === gallery.length - 1 ? 0 : prev + 1
-                          )
-                        }
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
+                          );
+                        }}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90 z-10"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
@@ -1597,7 +1719,17 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
 
                         {/* Actions overlay */}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
-                          <div className="flex justify-end">
+                          <div className="flex justify-between items-center">
+                            {/* Zoom preview button */}
+                            <button
+                              type="button"
+                              onClick={() => openZoomViewer(editLook.gallery_images || [imgUrl], idx, editLook.title)}
+                              className="p-1 rounded-full bg-black/60 text-white hover:bg-[#5850EC] transition-colors"
+                              title="Xem phóng to ảnh này"
+                            >
+                              <ZoomIn className="w-3 h-3" />
+                            </button>
+
                             {/* Delete photo button */}
                             <button
                               type="button"
@@ -2256,6 +2388,170 @@ export const MakeupLookbookScreen: React.FC<MakeupLookbookScreenProps> = ({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 5: FULLSCREEN ZOOM & PAN LIGHTBOX (XEM ZOOM TO / NHỎ)   */}
+      {/* ============================================================ */}
+      {zoomModal.isOpen && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex flex-col justify-between backdrop-blur-md select-none touch-none animate-in fade-in duration-200"
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Top Control Bar */}
+          <div className="px-4 py-3 bg-black/60 border-b border-white/10 flex items-center justify-between text-white z-20">
+            <div className="min-w-0 pr-2">
+              <p className="text-xs font-bold truncate text-slate-200">{zoomModal.title}</p>
+              <p className="text-[10px] text-amber-400 font-semibold">
+                Ảnh {zoomModal.currentIndex + 1} / {zoomModal.images.length}
+              </p>
+            </div>
+
+            {/* Zoom Tool Buttons */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Zoom Out (-) */}
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                disabled={zoomScale <= 1}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-40 flex items-center justify-center transition-colors active:scale-90"
+                title="Thu nhỏ (-)"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+
+              {/* Reset Zoom / Current Scale */}
+              <button
+                type="button"
+                onClick={handleResetZoom}
+                className="px-2 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center gap-1 text-[11px] font-bold tracking-tight transition-colors active:scale-90"
+                title="Đặt lại kích thước gốc"
+              >
+                <RotateCcw className="w-3 h-3 text-slate-300" />
+                <span>{Math.round(zoomScale * 100)}%</span>
+              </button>
+
+              {/* Zoom In (+) */}
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                disabled={zoomScale >= 4}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-40 flex items-center justify-center transition-colors active:scale-90"
+                title="Phóng to (+)"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setZoomModal({ isOpen: false, images: [], currentIndex: 0 })}
+                className="w-8 h-8 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center ml-1.5 transition-colors active:scale-90"
+                title="Đóng (X)"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Main Zoom Display Area */}
+          <div
+            className="flex-1 relative overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onDoubleClick={handleDoubleTap}
+            onWheel={(e) => {
+              e.preventDefault();
+              if (e.deltaY < 0) handleZoomIn();
+              else handleZoomOut();
+            }}
+          >
+            {/* Image with Dynamic Scale & Translation */}
+            <img
+              src={zoomModal.images[zoomModal.currentIndex]}
+              alt="Zoomed Makeup"
+              className="max-w-full max-h-full object-contain pointer-events-none transition-transform select-none"
+              style={{
+                transform: `translate3d(${panPos.x}px, ${panPos.y}px, 0) scale(${zoomScale})`,
+                transition: isPanning ? 'none' : 'transform 0.2s ease-out',
+              }}
+              draggable={false}
+            />
+
+            {/* Gallery Left Arrow */}
+            {zoomModal.images.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setZoomModal((prev) => ({
+                    ...prev,
+                    currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length,
+                  }));
+                  handleResetZoom();
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm z-20 active:scale-90 transition-transform shadow-lg"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Gallery Right Arrow */}
+            {zoomModal.images.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setZoomModal((prev) => ({
+                    ...prev,
+                    currentIndex: (prev.currentIndex + 1) % prev.images.length,
+                  }));
+                  handleResetZoom();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm z-20 active:scale-90 transition-transform shadow-lg"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+          </div>
+
+          {/* Bottom Thumbnail Strip & Tip */}
+          <div className="p-3 bg-black/60 border-t border-white/10 z-20 space-y-2">
+            {/* Thumbnails if > 1 photo */}
+            {zoomModal.images.length > 1 && (
+              <div className="flex gap-2 justify-center overflow-x-auto no-scrollbar py-1">
+                {zoomModal.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setZoomModal((prev) => ({ ...prev, currentIndex: idx }));
+                      handleResetZoom();
+                    }}
+                    className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
+                      zoomModal.currentIndex === idx
+                        ? 'border-amber-400 scale-105 shadow-md ring-2 ring-amber-400/40'
+                        : 'border-white/20 opacity-50 hover:opacity-90'
+                    }`}
+                  >
+                    <img src={img} alt="Thumb" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center text-[10px] text-slate-400 flex items-center justify-center gap-1">
+              <span>💡 Chạm 2 lần / cuộn chuột để zoom</span>
+              <span>•</span>
+              <span>Kéo để soi chi tiết nét makeup</span>
+              <span>•</span>
+              <span className="text-amber-300 font-bold">{Math.round(zoomScale * 100)}%</span>
+            </div>
           </div>
         </div>
       )}
