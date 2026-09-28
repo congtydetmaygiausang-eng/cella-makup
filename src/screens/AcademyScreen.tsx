@@ -82,29 +82,49 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
           </div>
 
           {/* Nhà sáng lập */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3">
-            <div className="flex items-center gap-3">
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <div className="w-full aspect-[4/3] bg-slate-100 overflow-hidden">
               <img
-                src="https://cellamakeup.vn/images/chan-dung-cella.jpg"
+                src="https://cellamakeup.vn/blog/images/founder.jpg"
                 alt="Cella Hương Phượng"
-                className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-200"
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=80'; }}
+                className="w-full h-full object-cover object-top"
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://cellamakeup.vn/images/chan-dung-cella.jpg'; }}
               />
+            </div>
+            <div className="p-4 space-y-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Nhà sáng lập</p>
-                <h3 className="text-[15px] font-black text-slate-900">Cella Hương Phượng</h3>
-                <p className="text-[11px] text-slate-500">Trần Thị Hương Phượng · sinh 11/06/1994</p>
+                <h3 className="text-[16px] font-black text-slate-900 mt-0.5">Cella Hương Phượng</h3>
+                <p className="text-[11px] text-slate-500">Trần Thị Hương Phượng · Makeup Artist 9 năm · Sinh 11/06/1994</p>
+              </div>
+              <p className="text-[12px] text-slate-600 leading-relaxed">
+                Tôi không sinh ra trong một gia đình làm nghề đẹp. Tôi đến với cây cọ vì một lý do rất đời:
+                <strong className="text-slate-800"> cần một cái nghề nuôi được mình</strong> và thích nhìn thấy một người phụ nữ sáng lên khi soi gương.
+              </p>
+              <p className="text-[12px] text-slate-600 leading-relaxed">
+                Ở tuổi 26, chị quyết định theo học Quản trị Kinh doanh tại ĐH Thái Bình, tốt nghiệp <strong className="text-slate-800">2024</strong>.
+                Nhiều năm sau, cái nghề ấy trở thành <strong className="text-slate-800">CELLA MAKEUP ACADEMY</strong> — nơi dạy lại đúng những gì mình đã đi qua.
+              </p>
+              <div className="border-l-4 border-amber-400 pl-3 py-1 bg-amber-50 rounded-r-xl">
+                <p className="text-[12px] text-slate-700 italic leading-relaxed">
+                  "Makeup không sửa được cuộc đời ai. Nhưng người phụ nữ biết mình đẹp thì dám sống khác đi."
+                </p>
+                <p className="text-[10px] text-amber-600 font-bold mt-1">— Cella Hương Phượng</p>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Thành tích</p>
+                {[
+                  '🏆 Bàn Tay Vàng Makeup Châu Á 2025 — Asia Beauty Festival',
+                  '⭐ 5,0★ Google Maps · 32 đánh giá · #1 Google Thái Bình',
+                  '🎓 Tốt nghiệp QTKD — Đại học Thái Bình 2024',
+                  '📜 Chứng chỉ Nghiệp vụ Sư Phạm — CĐ Nghề số 1, Bộ Quốc Phòng',
+                  '👩‍🏫 Đào tạo hàng trăm học viên bước vào nghề makeup',
+                  '🌏 Hợp tác cùng nhiều ca sĩ, diễn viên nổi tiếng',
+                ].map((item, i) => (
+                  <p key={i} className="text-[12px] text-slate-600 flex gap-2 leading-snug">{item}</p>
+                ))}
               </div>
             </div>
-            <p className="text-[12px] text-slate-600 leading-relaxed">
-              Sau <strong className="text-slate-800">9 năm</strong> gắn bó với nghề makeup, chị đã từ người thợ trực tiếp phục vụ khách,
-              đến người cô đào tạo hàng trăm học viên. Ở tuổi 26 chị theo học Quản trị Kinh doanh tại ĐH Thái Bình,
-              tốt nghiệp <strong className="text-slate-800">2024</strong>.
-            </p>
-            <p className="text-[12px] text-slate-600 leading-relaxed">
-              CELLA được sáng lập với mong muốn giúp học viên không chỉ biết trang điểm mà còn
-              <strong className="text-slate-800"> tạo ra thu nhập, xây dựng thương hiệu và làm chủ sự nghiệp</strong>.
-            </p>
           </div>
 
           {/* Triết lý 4 trụ cột */}
@@ -148,14 +168,83 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
             </div>
           </div>
 
-          {/* Liên hệ */}
+          {/* Dịch vụ studio */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Studio trang điểm — Dịch vụ</p>
+            <div className="w-full aspect-video mb-3 rounded-xl overflow-hidden bg-slate-100">
+              <img src="https://cellamakeup.vn/images/gt-doi-ngu.jpg" alt="Đội ngũ Cella Makeup Studio" className="w-full h-full object-cover" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { icon: '💍', label: 'Makeup cô dâu' },
+                { icon: '🎉', label: 'Dự tiệc & sự kiện' },
+                { icon: '📸', label: 'Kỷ yếu' },
+                { icon: '💄', label: 'Makeup cá nhân' },
+                { icon: '🎓', label: 'Đào tạo chuyên nghiệp' },
+                { icon: '🏢', label: 'Workshop doanh nghiệp' },
+              ].map(s => (
+                <div key={s.label} className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2 border border-amber-100">
+                  <span className="text-base">{s.icon}</span>
+                  <p className="text-[11px] font-semibold text-slate-700">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Gallery ảnh */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Hình ảnh hoạt động</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { src: 'https://cellamakeup.vn/images/hero-workshop.jpg', caption: 'Workshop makeup' },
+                { src: 'https://cellamakeup.vn/images/gt-doi-ngu.jpg', caption: 'Đội ngũ studio' },
+                { src: 'https://cellamakeup.vn/blog/images/gt-2.jpg', caption: 'Makeup cá nhân' },
+                { src: 'https://cellamakeup.vn/blog/images/gt-3.jpg', caption: 'Đào tạo chuyên nghiệp' },
+              ].map((img, i) => (
+                <div key={i} className="aspect-square rounded-xl overflow-hidden bg-slate-100 relative">
+                  <img src={img.src} alt={img.caption} className="w-full h-full object-cover" />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/40 px-2 py-1">
+                    <p className="text-[10px] text-white font-medium">{img.caption}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Blog nổi bật */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Bài viết nổi bật</p>
+            <div className="space-y-3">
+              {[
+                { cat: 'Nghề Makeup', title: 'Tay nghề không nằm ở cây cọ đắt tiền', img: 'https://cellamakeup.vn/blog/images/gt-1.jpg', link: 'https://cellamakeup.vn/blog/bai-viet/tay-nghe-khong-nam-o-cay-co-dat-tien' },
+                { cat: 'Kinh Doanh', title: 'Định giá thấp không giúp bạn có nhiều khách hơn', img: 'https://cellamakeup.vn/blog/images/gt-2.jpg', link: 'https://cellamakeup.vn/blog/bai-viet/dinh-gia-thap-khong-giup-ban-co-nhieu-khach-hon' },
+                { cat: 'Phong Thái', title: 'Phong thái không phải dáng đi, mà là cách bạn phản ứng', img: 'https://cellamakeup.vn/blog/images/gt-4.jpg', link: 'https://cellamakeup.vn/blog/bai-viet/phong-thai-la-cach-ban-phan-ung' },
+              ].map((post, i) => (
+                <a key={i} href={post.link} target="_blank" rel="noreferrer" className="flex gap-3 items-start">
+                  <div className="w-16 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">
+                    <img src={post.img} alt={post.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-amber-500 mb-0.5">{post.cat}</p>
+                    <p className="text-[12px] font-semibold text-slate-800 leading-snug line-clamp-2">{post.title}</p>
+                    <p className="text-[10px] text-blue-500 mt-1">Đọc tiếp →</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Liên hệ đầy đủ */}
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-4 space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Liên hệ</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Liên hệ & Kênh chính thức</p>
             <div className="space-y-1.5 text-[12px]">
               <p className="flex gap-2"><span>📍</span><span className="text-slate-700">37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình</span></p>
               <p className="flex gap-2"><span>📞</span><a href="tel:0961161994" className="text-amber-700 font-bold">096 116 1994</a><span className="text-slate-400">·</span><a href="tel:0766311313" className="text-amber-700 font-bold">0766 311 313</a></p>
               <p className="flex gap-2"><span>🌐</span><a href="https://cellamakeup.vn" target="_blank" rel="noreferrer" className="text-blue-600 underline">cellamakeup.vn</a></p>
-              <p className="flex gap-2"><span>📘</span><a href="https://facebook.com/makeupthaibinh" target="_blank" rel="noreferrer" className="text-blue-600 underline">facebook.com/makeupthaibinh</a></p>
+              <p className="flex gap-2"><span>📘</span><a href="https://facebook.com/makeupthaibinh" target="_blank" rel="noreferrer" className="text-blue-600 underline">@makeupthaibinh</a></p>
+              <p className="flex gap-2"><span>🎵</span><a href="https://tiktok.com/@makeupthaibinh" target="_blank" rel="noreferrer" className="text-blue-600 underline">TikTok @makeupthaibinh</a></p>
+              <p className="flex gap-2"><span>💬</span><a href="https://zalo.me/g/ofmzpu576" target="_blank" rel="noreferrer" className="text-blue-600 underline">Cộng đồng Zalo học viên CELLA</a></p>
+              <p className="flex gap-2"><span>📺</span><a href="https://youtube.com/@makeupthaibinh" target="_blank" rel="noreferrer" className="text-blue-600 underline">YouTube @makeupthaibinh</a></p>
             </div>
           </div>
         </div>
