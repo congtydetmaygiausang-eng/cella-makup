@@ -2,10 +2,37 @@
  * MiniMax AI & CELLA Master Knowledge Service
  * Tích hợp MiniMax API để kích hoạt trí tuệ nhân tạo CELLA AI,
  * đào tạo kiến thức chuyên sâu về hệ thống Studio, Học viện và quy trình vận hành.
+ * Đặc biệt: Huấn luyện cách hỏi - đáp tự nhiên, thấu cảm, duyên dáng và tâm lý như người thật.
  */
 
 export const CELLA_SYSTEM_PROMPT = `Bạn là CELLA AI - Trợ lý Trí tuệ Nhân tạo Độc quyền của Hệ thống CELLA MAKEUP & ACADEMY (CELLA BEAUTÉ).
 Slogan CELLA: "Better People, Better Beauty, A Brighter Tomorrow".
+
+=======================================================
+🗣️ NGHỆ THUẬT HỎI ĐÁP TỰ NHIÊN, DUYÊN DÁNG & TÂM LÝ (HUMAN-LIKE CONVERSATIONAL EXCELLENCE)
+=======================================================
+Bạn KHÔNG PHẢI robot trả lời máy móc. Bạn trò chuyện như một Chuyên gia Tư vấn Cao cấp & Trợ lý điều hành CELLA cực kỳ thấu cảm, tinh tế, ấm áp và duyên dáng:
+
+1. XƯNG HÔ & VĂN PHONG TỰ NHIÊN:
+- Xưng "em", gọi khách là "chị" (hoặc "anh"), giữ tinh thần tôn trọng, thân tình.
+- Dùng các ngữ điệu mềm mại tự nhiên trong tiếng Việt: "Dạ em chào chị nè...", "Dạ chị ơi...", "Chị yên tâm nha...", "Em chia sẻ với chị điều này nhé ạ...", "Thật ra thì...".
+- Tránh tuyệt đối văn mẫu robot, hành chính cộc lốc hay liệt kê khô khan vô cảm.
+
+2. NGUYÊN TẮC VÀNG "TRẢ LỜI ĐẦY ĐỦ + HỎI MỞ GỢI CHUYỆN":
+Sau khi giải đáp chính xác câu hỏi của khách, LUÔN LUÔN kết thúc bằng 1 câu hỏi mở nhẹ nhàng, chân thành để tiếp nối cuộc trò chuyện:
+- Khi khách hỏi Bảng giá Makeup:
+  + Trả lời giá kèm quyền lợi nổi bật (mỹ phẩm High-End Tom Ford/Dior, làm tóc nghệ thuật, dặm phấn son).
+  + Câu hỏi mở tự nhiên: "Dạ chị ơi, ngày cưới/ngày tiệc của mình dự kiến là ngày nào thế ạ? Chị đã ưng tone makeup nào (như Tone Thái sang chảnh, Hàn Quốc trong veo hay Douyin cuốn hút) chưa để em tư vấn layout tôn nét chị nhất nhé ạ? 🥰"
+- Khi khách hỏi Khóa học:
+  + Nêu lộ trình đào tạo, quyền lợi 85% thực hành trên mẫu thật, tặng cọ Master, cấp bằng toàn quốc.
+  + Câu hỏi mở tự nhiên: "Dạ chị ơi, chị đang muốn học để tự trang điểm cho bản thân hay định hướng học nghề bài bản để mở Studio riêng thế ạ? Chị chia sẻ với em để em tư vấn đúng lộ trình nha!"
+- Khi khách chê giá cao hoặc đang đắn đo:
+  + Đồng cảm chân thành trước: "Dạ em rất hiểu nè chị, chuẩn bị cho ngày trọng đại hay học nghề là việc rất quan trọng nên ai cũng cân nhắc kỹ đúng không ạ..."
+  + Nhấn mạnh giá trị an tâm: Mỹ phẩm High-End 100% không kích ứng da, bảo hành dặm son phấn, tay nghề Master không rủi ro.
+  + Gợi mở nhẹ nhàng: "Hay là chị ghé Studio bên em trải nghiệm thử gói Makeup Thử (Trial) trước nha, ưng ý layout rồi mình chốt gói cưới sau cũng được nè chị!"
+- Khi khách hỏi kỹ thuật (lớp nền cakey mốc, da mụn, kẻ mắt...):
+  + Chia sẻ mẹo thực chiến của Master CELLA.
+  + Câu hỏi mở tự nhiên: "Da của chị thường là da khô hay da thiên dầu ở vùng chữ T thế ạ, để em hướng dẫn thêm mẹo chọn kem lót hợp nhất với da của chị nha?"
 
 =======================================================
 🏛️ THÔNG TIN HỆ THỐNG CELLA MAKEUP & ACADEMY
@@ -66,16 +93,7 @@ Slogan CELLA: "Better People, Better Beauty, A Brighter Tomorrow".
 - TRAINER / MASTER: Xem và quản lý học viên lớp mình dạy, quản lý video khóa học, chấm điểm, xem lịch làm việc.
 - ARTIST (Nghệ nhân makeup): Tiếp nhận lịch hẹn, check-in đón khách, cập nhật trạng thái làm dịch vụ.
 - STAFF / SALES: Quản lý khách hàng, tạo đơn booking, theo dõi phễu CRM (COLD, WARM, HOT, WON).
-- STUDENT / CUSTOMER: Xem lịch học/hẹn của cá nhân, xem video khóa học đã mua, kiểm tra điểm tích lũy và ưu đãi.
-
-=======================================================
-💡 NGUYÊN TẮC HÀNH VI CỦA CELLA AI:
-=======================================================
-1. Tác phong: Thân thiện, trang nhã, lễ phép, nhiệt huyết, chuyên môn cao trong ngành làm đẹp.
-2. Trả lời: Luôn sử dụng Tiếng Việt chuẩn mực, xưng hô lịch sự ("Em chào anh/chị", "Dạ em xin phép hỗ trợ...").
-3. Định dạng: Sử dụng gạch đầu dòng, emoji tinh tế, in đậm các điểm cốt lõi để người đọc dễ nắm bắt.
-4. Chốt sales thông minh: Khi nhận diện câu hỏi về giá hoặc dịch vụ, hãy phân tích nhanh tâm lý khách (COLD/WARM/HOT), đưa ra lời khuyên chân thành và gợi ý bước tiếp theo (hẹn lịch thử makeup, gửi bảng màu, giữ slot giờ đẹp).
-5. Kỹ thuật makeup: Hướng dẫn chi tiết, chuẩn xác từ khâu dưỡng ẩm, kem lót kiềm dầu, triệt sắc, chọn tone kem nền, kỹ thuật tán phấn nén đến phủ xịt khóa nền (setting spray).`;
+- STUDENT / CUSTOMER: Xem lịch học/hẹn của cá nhân, xem video khóa học đã mua, kiểm tra điểm tích lũy và ưu đãi.`;
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -326,25 +344,28 @@ export function generateOfflineDomainResponse(
     query.includes('dịch vụ') ||
     category === 'Hỗ trợ bán hàng'
   ) {
-    return `🌸 **BẢNG GIÁ DỊCH VỤ MAKEUP CHUYÊN NGHIỆP CELLA STUDIO:**
+    return `Dạ em chào chị nè! Em xin phép gửi chị bảng giá các dịch vụ makeup cao cấp tại Studio CELLA để chị tham khảo nha:
+
+🌸 **BẢNG GIÁ DỊCH VỤ STUDIO CELLA MAKEUP:**
 
 1. 👰 **Makeup Cô dâu Ngày cưới VIP**: **2.500.000đ** (120 phút)
-   - 100% mỹ phẩm High-End (Dior, Tom Ford, Charlotte Tilbury).
-   - Đã bao gồm làm tóc cô dâu nghệ thuật, dán mi gân tơ, phụ kiện và tặng set dặm phấn son mini.
+   - 100% mỹ phẩm High-End (Dior, Tom Ford, Charlotte Tilbury) an toàn cho da.
+   - Trọn gói đã gồm làm tóc nghệ thuật, dán mi gân tơ, phụ kiện và tặng set dặm phấn son mini mang theo.
 
 2. 💐 **Makeup Cô dâu Ăn hỏi / Dạm ngõ**: **1.800.000đ** (90 phút)
-   - Tone thanh lịch, tôn nét tự nhiên theo trang phục áo dài.
+   - Tone thanh lịch, trong trẻo, kết hợp hoàn hảo cùng tà áo dài.
 
 3. 🪞 **Makeup Thử cô dâu (Bridal Trial)**: **1.200.000đ** (90 phút)
-   - Thử nghiệm 2 tone layout (Tone Thái / Hàn Quốc) để chọn phong cách đẹp nhất.
+   - Test trực tiếp 2 layout makeup khác nhau (Tone Thái / Hàn Quốc) để chị an tâm chọn phong cách đẹp nhất trước ngày cưới.
 
 4. ✨ **Makeup & Làm tóc Dự tiệc cao cấp**: **800.000đ** (60 phút)
-   - Tone Douyin, Clean Girl, Glowy căng bóng.
+   - Tone Douyin, Clean Girl, Glowy căng bóng chuẩn xu hướng.
 
-5. 📸 **Makeup Kỷ yếu / Profile doanh nhân**: **600.000đ** (60 phút)
-   - Lớp nền mịn màng, kiềm dầu chuẩn ánh sáng đèn chụp.
+5. 📸 **Makeup Chụp ảnh Kỷ yếu / Profile doanh nhân**: **600.000đ** (60 phút)
+   - Lớp nền mỏng mịn, kiềm dầu chuẩn ánh sáng đèn studio.
 
-👉 *Đặt lịch giữ slot đẹp: Khách hàng đặt cọc trước 30% - 50% qua chuyển khoản VietQR tự động hoặc thanh toán tại quầy.*`;
+---
+💕 *Chị ơi, mình đang chuẩn bị cho ngày cưới hay sắp đi sự kiện tiệc cưới thế ạ? Chị đã chọn được váy hay có ưng tone makeup nào (như Tone Thái sang chảnh, Hàn Quốc trong veo hay Douyin cuốn hút) chưa nè, để em tư vấn kiểu hợp với gương mặt của chị nhất nhé ạ? 🥰*`;
   }
 
   // 2. Hỏi về Khóa học tại CELLA Academy
@@ -356,21 +377,26 @@ export function generateOfflineDomainResponse(
     query.includes('master trainer') ||
     category === 'Hỗ trợ đào tạo'
   ) {
-    return `🎓 **HỆ THỐNG KHÓA HỌC CHUYÊN NGHIỆP TẠI CELLA ACADEMY:**
+    return `Dạ chị ơi, em xin gửi chị thông tin chi tiết các khóa học chuyên nghiệp tại CELLA Academy nè:
+
+🎓 **CÁC KHÓA HỌC TẠI HỌC VIỆN CELLA:**
 
 1. 👑 **Khóa Pro Artist - Makeup Chuyên Nghiệp Toàn Diện:**
    - **Học phí:** 28.500.000đ (Thời lượng: 3 tháng).
-   - **Điểm nổi bật:** Thực hành 85% trên người mẫu thật; Tài trợ toàn bộ mỹ phẩm tại lớp; Tặng bộ cọ Master CELLA 3.5 triệu; Cấp chứng chỉ nghề có giá trị toàn quốc.
+   - **Quyền lợi nổi bật:** Thực hành 85% trên mẫu thật; Tài trợ toàn bộ mỹ phẩm cao cấp tại lớp; Tặng bộ cọ Master CELLA 3.5 triệu; Cấp chứng chỉ nghề có giá trị toàn quốc và bảo trợ việc làm sau tốt nghiệp.
 
 2. 🌟 **Khóa Master Trainer & Sư Phạm Makeup:**
    - **Học phí:** 45.000.000đ (Thời lượng: 6 tháng).
-   - **Đào tạo:** Nâng cao tay nghề Master, kỹ năng sư phạm đứng lớp, soạn giáo trình chuẩn, xây dựng thương hiệu cá nhân trên TikTok/Reels. Cấp chứng chỉ Sư phạm dạy nghề của Tổng cục GDNN.
+   - **Dành cho:** Các bạn muốn làm Giảng viên đào tạo hoặc tự mở Studio riêng. Đào tạo chuyên sâu kỹ năng sư phạm, soạn giáo trình, chụp lookbook và xây kênh TikTok/Reels triệu view. Cấp chứng chỉ Sư phạm dạy nghề chuẩn Tổng cục GDNN.
 
 3. 💄 **Khóa Makeup Cá Nhân (Personal Beauty):**
    - **Học phí:** 3.500.000đ (6 buổi).
-   - Giúp học viên tự làm đẹp mỗi ngày, nhận biết dáng mặt, loại da và phong cách thời trang phù hợp.
+   - Dành cho các bạn muốn tự làm đẹp mỗi ngày, nhận biết dáng mặt, loại da và tự tin tỏa sáng khi đi làm hay đi tiệc.
 
-🎁 *Ưu đãi tháng này: Tặng học bổng 2.000.000đ khi học viên hoàn tất ghi danh trước ngày khai giảng.*`;
+🎁 *Đặc biệt: Tháng này Viện trưởng Đặng Thuỳ Tiên đang có suất học bổng 2.000.000đ cho học viên ghi danh sớm ạ!*
+
+---
+✨ *Chị ơi, chị đang muốn học để tự làm đẹp cho bản thân hay định hướng học nghề bài bản để mở Studio riêng thế ạ? Chị chia sẻ với em để em định hướng lộ trình phù hợp nhất cho chị nha!*`;
   }
 
   // 3. Hỏi về Quy trình Đặt lịch & Đổi hủy lịch (Booking & Schedule)
@@ -381,18 +407,23 @@ export function generateOfflineDomainResponse(
     query.includes('hủy') ||
     query.includes('cọc')
   ) {
-    return `📅 **QUY TRÌNH ĐẶT LỊCH & CHÍNH SÁCH BOOKING CELLA:**
+    return `Dạ chị yên tâm nha, quy trình đặt lịch và chính sách giữ chỗ tại CELLA cực kỳ linh hoạt và thuận tiện cho khách hàng nè:
 
-1. **Khung giờ phục vụ:** 07:00 đến 19:30 mỗi ngày.
+📅 **QUY TRÌNH ĐẶT LỊCH & CHÍNH SÁCH BOOKING:**
+
+1. **Khung giờ phục vụ:** Từ 07:00 đến 19:30 mỗi ngày (kể cả Thứ 7, Chủ Nhật và ngày lễ).
 2. **Quy định đặt cọc:**
-   - Đặt cọc tối thiểu **30% - 50%** tổng hóa đơn để hệ thống khóa lịch và phân công Artist phục vụ riêng.
-   - Quét mã **VietQR** trên màn hình để chuyển khoản tự động chính xác từng đồng kèm nội dung.
+   - Khách đặt cọc trước **30% - 50%** để hệ thống khóa slot giờ đẹp và phân công riêng Artist phục vụ chị.
+   - Thanh toán cực nhanh qua quét mã **VietQR** tự động hoặc tại quầy lễ tân.
 3. **Chính sách Đổi & Dời lịch:**
-   - Báo trước tối thiểu **24 giờ**: Hỗ trợ dời lịch miễn phí sang bất kỳ ngày nào còn trống trong tháng.
-   - Báo gấp dưới 12 giờ: Hệ thống hỗ trợ sắp xếp theo khung giờ linh hoạt của nghệ nhân.
+   - Chị chỉ cần báo trước tối thiểu **24 giờ** là bên em hỗ trợ dời lịch hoàn toàn miễn phí sang bất kỳ ngày nào còn trống trong tháng ạ.
+   - Nếu có việc đột xuất dưới 12 giờ, bên em sẽ linh hoạt sắp xếp khung giờ nghệ nhân còn trống hỗ trợ chị hết mình.
 4. **Địa chỉ phục vụ:**
    - Cơ sở 1: 18A Ngô Thời Nhiệm, Phường Võ Thị Sáu, Quận 3, TP.HCM.
-   - Có phục vụ tận nơi tại tư gia hoặc khách sạn (phụ phí 300k - 500k).`;
+   - Bên em cũng có dịch vụ tận nơi tại nhà hoặc khách sạn (phụ phí di chuyển 300k - 500k).
+
+---
+🗓️ *Chị ơi, mình đang dự định đặt lịch vào ngày nào và khung giờ nào thế ạ? Chị nhắn em kiểm tra xem slot của Artist Lan hay Artist Minh hôm đó còn trống để em giữ chỗ đẹp cho chị nha!*`;
   }
 
   // 4. Kỹ thuật Makeup (Kinh nghiệm chuyên môn)
@@ -403,31 +434,36 @@ export function generateOfflineDomainResponse(
     query.includes('kỹ thuật') ||
     query.includes('nền')
   ) {
-    return `✨ **BÍ QUYẾT XỬ LÝ LỚP NỀN MỎNG MỊN KHÔNG MỐC (CAKEY) TỪ MASTER CELLA:**
+    return `Dạ chị ơi, hiện tượng lớp nền bị cakey hay mốc phấn rất nhiều bạn gặp phải luôn á, đặc biệt là khi ngồi phòng máy lạnh lâu. Em mách chị bí quyết 4 bước chuẩn Master CELLA nha:
 
-1. **Chuẩn bị nền da (Skin Prep quan trọng 70%):**
-   - Làm sạch da bằng nước hoa hồng dịu nhẹ, đắp mặt nạ cấp ẩm 10 phút.
-   - Thoa kem dưỡng dạng gel lỏng, vỗ đều cho thẩm thấu hoàn toàn trước khi đánh nền.
-2. **Sử dụng Kem lót (Primer) đúng vùng:**
-   - Vùng chữ T: Thoa primer kiềm dầu và làm mờ lỗ chân lông.
-   - Vùng chữ U / Má: Thoa primer bắt sáng (Glow Primer).
+✨ **4 BƯỚC KHÓA NỀN CĂNG MỊN KHÔNG MỐC PHẤN:**
+
+1. **Chuẩn bị nền da (Skin Prep chiếm 70% độ đẹp):**
+   - Làm sạch da dịu nhẹ, đắp mặt nạ cấp ẩm 10 phút trước khi makeup.
+   - Thoa kem dưỡng dạng gel lỏng, vỗ đều cho dưỡng chất thấm hoàn toàn vào da rồi mới đánh nền.
+2. **Sử dụng Kem lót (Primer) đúng vị trí:**
+   - Vùng chữ T: Dùng primer kiềm dầu và làm mờ lỗ chân lông.
+   - Hai bên má / vùng khô: Dùng primer cấp ẩm bắt sáng (Glowy Primer).
 3. **Kỹ thuật dặm mút ẩm (Damp Sponge):**
-   - Xịt khoáng làm ẩm bông mút, dặm nền dứt khoát theo từng lớp mỏng, tránh miết kéo da.
-4. **Khóa nền thông minh:**
-   - Phủ phấn bột hạt siêu mịn ở vùng da đổ dầu bằng cọ bung tròn.
-   - Xịt khóa nền Setting Spray ở khoảng cách 20cm tạo màng sương bảo vệ suốt 12 tiếng.`;
+   - Làm ẩm bông mút bằng xịt khoáng, dặm nền dứt khoát theo từng lớp mỏng, tuyệt đối không miết kéo làm trượt nền.
+4. **Khóa nền 2 lớp thông minh:**
+   - Phủ phấn bột hạt siêu mịn (translucent powder) nhẹ ở vùng dễ đổ dầu.
+   - Xịt khóa nền Setting Spray ở khoảng cách 20cm tạo màng sương bảo vệ nền suốt 12 tiếng không xê dịch.
+
+---
+💧 *Da của chị thường là da khô hay da thiên dầu ở vùng chữ T thế ạ, để em hướng dẫn chị mẹo chọn loại kem nền phù hợp nhất với da của chị nha?*`;
   }
 
-  // 5. Tư vấn kịch bản Chốt Sales chung
-  return `🌿 **CELLA AI - TRỢ LÝ THÔNG MINH SẴN SÀNG HỖ TRỢ BẠN:**
+  // 5. Tư vấn chung / Kịch bản chốt Sale
+  return `Dạ em chào chị nè! Em là CELLA AI - Trợ lý thông minh của Học viện & Studio CELLA. 🌿
 
-Dạ em đã nắm được yêu cầu của bạn. Đối với hệ thống CELLA MAKEUP & ACADEMY, em có thể hỗ trợ bạn các nội dung:
+Em luôn ở đây để đồng hành và hỗ trợ chị mọi việc:
+- 💄 **Tư vấn Bảng giá & Dịch vụ**: Makeup cô dâu VIP, ăn hỏi, dạ tiệc, kỷ yếu.
+- 🎓 **Thông tin Khóa học Academy**: Pro Artist chuyên nghiệp, Master Trainer, Makeup cá nhân.
+- 📅 **Lịch hẹn & Booking**: Kiểm tra slot nghệ nhân, tính cọc và thanh toán VietQR.
+- 💬 **Kịch bản tư vấn khách hàng**: Cách phân loại khách COLD/WARM/HOT và gợi ý câu chốt hẹn tự nhiên, duyên dáng.
+- 🎨 **Bí quyết Kỹ thuật Makeup**: Xử lý da mốc, che khuyết điểm, chọn layout Douyin / Thái / Hàn Quốc.
 
-- 💄 **Bảng giá & Tư vấn gói dịch vụ**: Makeup cô dâu VIP, dự tiệc, ăn hỏi, chụp ảnh.
-- 🎓 **Thông tin tuyển sinh khóa học**: Lịch khai giảng, học phí khóa Pro Artist, Master Trainer.
-- 📅 **Quản lý lịch hẹn & Booking**: Kiểm tra slot nghệ nhân, tính tiền cọc, xuất mã VietQR.
-- 💬 **Kịch bản chốt Sale & Chăm sóc khách hàng**: Phân loại khách COLD/WARM/HOT và gợi ý câu nói tự nhiên.
-- 🎨 **Kiến thức chuyên môn & Kỹ thuật Makeup**: Xử lý nền, triệt sắc, chọn tone Douyin / Thái / Hàn.
-
-*Bạn hãy đặt câu hỏi cụ thể hoặc chọn một chủ đề bên dưới để em giải đáp chi tiết nhất nhé!*`;
+---
+🌸 *Hôm nay chị cần em hỗ trợ giải đáp về dịch vụ nào hay đang có tình huống khách hàng nào cần em gợi ý kịch bản trả lời không ạ? Chị cứ nhắn em nhé!*`;
 }
