@@ -52,7 +52,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       {/* Images */}
       {post.images && post.images.length > 0 && (
-        <div className="mt-2 w-full max-h-[400px] bg-slate-100 overflow-hidden">
+        <div className="mt-2 w-full aspect-[4/5] bg-slate-100 overflow-hidden">
           <img
             src={post.images[0]}
             alt="Post content"

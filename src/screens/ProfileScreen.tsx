@@ -478,9 +478,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </div>
                 
                 {post.images.length > 0 && (
-                  <div className={`grid gap-1 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                  <div className={`grid gap-1 ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                     {post.images.map((img, idx) => (
-                      <img key={idx} src={img} className={`w-full object-cover ${post.images.length === 1 ? 'h-72' : 'h-48'}`} alt="Post img" />
+                      <div key={idx} className={`w-full bg-slate-100 overflow-hidden ${post.images.length === 1 ? 'aspect-[4/5]' : 'aspect-square'}`}>
+                        <img src={img} className="w-full h-full object-cover" alt="Post img" />
+                      </div>
                     ))}
                   </div>
                 )}
