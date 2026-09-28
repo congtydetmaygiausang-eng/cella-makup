@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ScreenId, Staff } from '../types';
-import { CURRENT_USER, SAMPLE_ACCOUNTS } from '../data/mockData';
+import { ScreenId, Staff, UserAccount } from '../types';
+import { CURRENT_USER } from '../data/mockData';
 import {
-  LogOut, ChevronRight, Shield, Lock, Camera,
-  Phone, Mail, Calendar, Building2, Briefcase,
-  CheckCircle2, Edit3, X, Check, Bell, QrCode,
-  Users, Star, Clock, Image as ImageIcon, Video,
-  MessageCircle, Heart, Share2, MoreHorizontal,
-  Send, UserPlus, Smile, Search, HelpCircle, Edit2, Plus, ChevronLeft
+  ChevronLeft, Camera, Phone, Mail, MapPin, Building2, Briefcase,
+  Calendar, Shield, Award, Star, CheckCircle2, QrCode, Edit3, X,
+  Save, Check, Lock, LogOut, Share2, Sparkles, DollarSign,
+  TrendingUp, Clock, FileText, AlertCircle, Heart, Eye, Users,
+  ExternalLink, Key, Smartphone, MessageCircle, ChevronRight, Copy
 } from 'lucide-react';
-import { supabase } from '../config/supabase';
-import Cropper from 'react-easy-crop';
-import { getCroppedImg } from '../utils/cropImage';
 
 interface ProfileScreenProps {
-  currentUser?: Staff;
+  currentUser?: Staff | UserAccount;
   onNavigate: (screen: ScreenId) => void;
   onBack?: () => void;
   onLogout?: () => void;
@@ -23,1006 +19,1224 @@ interface ProfileScreenProps {
   bookings?: any[];
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  SUPER_ADMIN: 'Super Admin',
-  ADMIN: 'Admin',
-  MASTER_ARTIST: 'Master Trainer',
-  MASTER: 'Master Trainer',
-  ARTIST: 'Makeup Artist',
-  SALES_CONSULTANT: 'Sales & CRM',
-  SALES: 'Sales Specialist',
-  ACADEMY_TRAINER: 'Giảng viên Academy',
-  CUSTOMER: 'Khách hàng',
-  TRAINER: 'Giảng viên',
-  STUDENT: 'Học viên',
+const STORAGE_KEY = 'cella_staff_profile_data_v2';
+
+const ROLE_DISPLAY_NAMES: Record<string, { label: string; badgeBg: string; textColor: string }> = {
+  SUPER_ADMIN: { label: 'Super Admin • Ban Quản Trị', badgeBg: 'bg-red-50 border-red-200', textColor: 'text-red-700' },
+  ADMIN: { label: 'Admin • Quản lý Hệ thống', badgeBg: 'bg-orange-50 border-orange-200', textColor: 'text-orange-700' },
+  MASTER_ARTIST: { label: 'Master Trainer • Nghệ nhân trưởng', badgeBg: 'bg-purple-50 border-purple-200', textColor: 'text-purple-700' },
+  MASTER: { label: 'Master Trainer • Nghệ nhân trưởng', badgeBg: 'bg-purple-50 border-purple-200', textColor: 'text-purple-700' },
+  ARTIST: { label: 'Senior Artist • Nghệ nhân Makeup', badgeBg: 'bg-pink-50 border-pink-200', textColor: 'text-pink-700' },
+  SALES_CONSULTANT: { label: 'Senior Consultant • Chuyên viên CRM', badgeBg: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700' },
+  SALES: { label: 'Sales Specialist • Chuyên viên Tư vấn', badgeBg: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700' },
+  ACADEMY_TRAINER: { label: 'Giảng viên Đào tạo Chuyên sâu', badgeBg: 'bg-teal-50 border-teal-200', textColor: 'text-teal-700' },
+  CUSTOMER: { label: 'Khách hàng Thành viên', badgeBg: 'bg-slate-50 border-slate-200', textColor: 'text-slate-700' },
 };
-
-const MOCK_REVIEWS = [
-  { id: 1, customerName: 'Chị Lan Trương', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80', rating: 5, date: '10/09/2026', content: 'Bạn makeup rất ưng ý, lớp nền mỏng nhẹ và tự nhiên đúng style mình thích. Tư vấn nhiệt tình nữa!' },
-  { id: 2, customerName: 'Nguyễn Ngọc Diệp', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&auto=format&fit=crop&q=80', rating: 5, date: '02/09/2026', content: 'Dịch vụ tuyệt vời. Mình đặt lịch chụp ảnh cưới mà được team support hết mình từ 5h sáng.' }
-];
-
-const COMMON_EMOJIS = ['😀','😂','🥰','😍','😎','😢','😡','👍','🙏','❤️','✨','🎉','💄','🌸','🔥'];
-
-const MOCK_FRIENDS = [
-  { id: 'f1', name: 'Nguyễn Thị Mai', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' },
-  { id: 'f2', name: 'Hoàng Bảo Châu', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-  { id: 'f3', name: 'Trần Minh Phúc', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&auto=format&fit=crop&q=80' },
-  { id: 'f4', name: 'Lê Yến Nhi', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80' }
-];
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   currentUser,
   onNavigate,
   onBack,
   onLogout,
-  onBookPost,
-  bookings = [],
+  onSwitchAccount,
 }) => {
-  const user = currentUser || CURRENT_USER;
-  const [twoFA, setTwoFA] = useState(true);
-  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [editName, setEditName] = useState(user.fullName);
-  const [editPhone, setEditPhone] = useState(user.phone);
-  const [editEmail, setEditEmail] = useState(user.email || '');
+  const baseUser = currentUser || CURRENT_USER;
 
-  // Profile Image state
-  const [coverImg, setCoverImg] = useState<string | null>(null);
-  const [avatarImg, setAvatarImg] = useState<string | null>(user.avatarUrl || null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+  // Profile data with local persistence
+  const [profile, setProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_${baseUser.id || 'default'}`);
+      if (saved) return JSON.parse(saved);
+    } catch {}
 
-  // Zalo Tabs State
-  const [activeTab, setActiveTab] = useState<'feed' | 'reviews'>('feed');
-
-  // Cropper State
-  const [cropSrc, setCropSrc] = useState<string | null>(null);
-  const [cropField, setCropField] = useState<'avatar_url' | 'cover_url' | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-
-  // Posts Feed State
-  const [posts, setPosts] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (activeTab === 'feed') {
-      fetchPosts();
-    }
-  }, [activeTab]);
-
-  const fetchPosts = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    const { data, error } = await supabase
-      .from('posts')
-      .select(`
-        id,
-        content,
-        image_url,
-        created_at,
-        profiles(full_name, avatar_url),
-        post_likes(id)
-      `)
-      .order('created_at', { ascending: false });
-
-    if (data) {
-      const mapped = data.map(p => ({
-        id: p.id,
-        time: new Date(p.created_at).toLocaleString('vi-VN'),
-        content: p.content,
-        images: p.image_url ? [p.image_url] : [],
-        likes: p.post_likes?.length || 0,
-        isLiked: p.post_likes?.some((l: any) => l.user_id === session?.user?.id),
-        comments: [],
-        tagged: [],
-        authorName: p.profiles?.full_name || 'Người dùng',
-        authorAvatar: p.profiles?.avatar_url || ''
-      }));
-      setPosts(mapped);
-    }
-  };
-
-  // Dummy initial state to keep types happy before fetch
-  // End Fetch Posts
-  // Post Creation & Editing State
-  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
-  const [editingPostId, setEditingPostId] = useState<number | null>(null);
-  const [newPostText, setNewPostText] = useState('');
-  const [newPostImages, setNewPostImages] = useState<string[]>([]);
-  const [newPostTagged, setNewPostTagged] = useState<string[]>([]);
-  
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showTagModal, setShowTagModal] = useState(false);
-  const [tagSearch, setTagSearch] = useState('');
-  const postImageInputRef = useRef<HTMLInputElement>(null);
-  
-  // Commenting State
-  const [commentingPostId, setCommentingPostId] = useState<number | null>(null);
-  const [commentText, setCommentText] = useState('');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [postMenuOpenId, setPostMenuOpenId] = useState<number | null>(null);
-
-  // Chat State
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessage, setChatMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<{sender: string, text?: string, image?: string, booking?: any, time: string}[]>([
-    { sender: 'them', text: 'Chào bạn, mình có thể tư vấn gì cho bạn về mẫu này?', time: 'Vừa xong' }
-  ]);
-  const chatImageInputRef = useRef<HTMLInputElement>(null);
-
-  // Create Booking Modal State
-  const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
-  const [bookingForm, setBookingForm] = useState({
-    customerName: '',
-    service: 'Makeup dự tiệc',
-    date: '',
-    time: ''
+    return {
+      id: baseUser.id || 'NV-8826',
+      employeeCode: baseUser.employeeCode || 'CELLA-8826',
+      fullName: baseUser.fullName || 'HƯƠNG PHƯỢNG CELLA',
+      role: baseUser.role || 'SUPER_ADMIN',
+      title: 'Giám đốc Điều hành & Quản lý Nghệ thuật',
+      phone: baseUser.phone || '0908 654 321',
+      email: baseUser.email || 'lan.nguyen@cellabeaute.vn',
+      avatarUrl: baseUser.avatarUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      coverUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&auto=format&fit=crop&q=80',
+      department: baseUser.department || 'Ban Điều Hành & Khối Dịch vụ',
+      branch: baseUser.branch || 'Cơ sở Quận 1 - Trụ sở chính CELLA',
+      joinedDate: baseUser.joinedDate || '15/03/2022',
+      birthday: '18/06/1994',
+      gender: 'Nữ',
+      idCard: '079194008826',
+      idCardDate: '20/08/2021',
+      idCardPlace: 'Cục Cảnh sát QLHC về TTXH',
+      address: '18A Ngô Thời Nhiệm, Phường Võ Thị Sáu, Quận 3, TP.HCM',
+      emergencyContact: '0912 345 678 (Chị ruột)',
+      bankName: 'Techcombank - CN Sài Gòn',
+      bankAccount: '1903 8888 6666 99',
+      bankHolder: (baseUser.fullName || 'HƯƠNG PHƯỢNG CELLA').toUpperCase(),
+      contractType: 'Hợp đồng lao động không thời hạn',
+      contractNumber: 'HĐLĐ-CELLA/2022-08',
+      socialInsurance: 'Đã tham gia BHXH / BHYT đầy đủ',
+      // Professional skills
+      skills: [
+        'Makeup Cô dâu Ngày cưới VIP',
+        'Tone Thái sang chảnh & sắc nét',
+        'Tone Hàn Quốc Glowy căng bóng',
+        'Tone Douyin mắt ướt tự nhiên',
+        'Tạo kiểu tóc cô dâu nghệ thuật',
+        'Dán mi gân tơ & uốn mi Collagen',
+        'Điêu khắc sợi mày 9D phong thủy',
+        'Kỹ năng sư phạm & Đào tạo Pro',
+      ],
+      // Performance
+      kpiScore: 118,
+      rating: 4.95,
+      totalServices: 348,
+      totalStudents: 120,
+      monthlyRevenue: 85000000,
+      baseSalary: 15000000,
+      commissionRate: 15,
+      bonusAmount: 3500000,
+      workDays: '26/26',
+    };
   });
 
-  // Post Menu State
+  const [activeTab, setActiveTab] = useState<'info' | 'skills' | 'payroll' | 'security'>('info');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
 
-  // Handle Profile Image Changes (Open Cropper)
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (v: string) => void, field: 'avatar_url' | 'cover_url') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64Str = ev.target?.result as string;
-      setCropSrc(base64Str);
-      setCropField(field);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+  // Form edit state
+  const [editForm, setEditForm] = useState({ ...profile });
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
-
-  const handleSaveCrop = async () => {
-    if (!cropSrc || !croppedAreaPixels || !cropField) return;
+  const handleSaveProfile = () => {
+    setProfile(editForm);
     try {
-      const croppedImage = await getCroppedImg(cropSrc, croppedAreaPixels);
-      
-      // Update Local State
-      if (cropField === 'avatar_url') setAvatarImg(croppedImage);
-      if (cropField === 'cover_url') setCoverImg(croppedImage);
-
-      // Save to Supabase
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await supabase.from('profiles').update({ [cropField]: croppedImage }).eq('id', session.user.id);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCropSrc(null);
-      setCropField(null);
-    }
+      localStorage.setItem(`${STORAGE_KEY}_${baseUser.id || 'default'}`, JSON.stringify(editForm));
+    } catch {}
+    setIsEditModalOpen(false);
+    showToast('Đã lưu thông tin hồ sơ nhân viên thành công!');
   };
 
-  // Handle Post Images
-  const handlePostImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    
-    Array.from(files).forEach(file => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setNewPostImages(prev => [...prev, ev.target?.result as string]);
+      reader.onload = (event) => {
+        const url = event.target?.result as string;
+        const updated = { ...profile, avatarUrl: url };
+        setProfile(updated);
+        try {
+          localStorage.setItem(`${STORAGE_KEY}_${baseUser.id || 'default'}`, JSON.stringify(updated));
+        } catch {}
+        showToast('Đã cập nhật ảnh đại diện nhân viên!');
       };
       reader.readAsDataURL(file);
-    });
-    e.target.value = '';
+    }
   };
 
-  const removePostImage = (index: number) => {
-    setNewPostImages(prev => prev.filter((_, i) => i !== index));
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const url = event.target?.result as string;
+        const updated = { ...profile, coverUrl: url };
+        setProfile(updated);
+        try {
+          localStorage.setItem(`${STORAGE_KEY}_${baseUser.id || 'default'}`, JSON.stringify(updated));
+        } catch {}
+        showToast('Đã cập nhật ảnh bìa mới!');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  // Handle Tags
-  const toggleTag = (name: string) => {
-    setNewPostTagged(prev => 
-      prev.includes(name) ? prev.filter(t => t !== name) : [...prev, name]
-    );
-  };
-
-  // Open Edit Post Modal
-  const handleEditClick = (post: any) => {
-    setEditingPostId(post.id);
-    setNewPostText(post.content);
-    setNewPostImages([...post.images]);
-    setNewPostTagged([...post.tagged]);
-    setPostMenuOpenId(null);
-    setIsCreatePostOpen(true);
-  };
-
-  // Open Create Post Modal
-  const handleCreateClick = () => {
-    setEditingPostId(null);
-    setNewPostText('');
-    setNewPostImages([]);
-    setNewPostTagged([]);
-    setIsCreatePostOpen(true);
-  };
-
-  // Handle Post Submit (Create or Update)
-  const handleSubmitPost = async () => {
-    if (!newPostText.trim() && newPostImages.length === 0) return;
-    
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      alert('Vui lòng đăng nhập để đăng bài!');
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordForm.newPassword || passwordForm.newPassword.length < 6) {
+      alert('Mật khẩu mới phải từ 6 ký tự trở lên!');
       return;
     }
-
-    if (editingPostId) {
-      // Update existing (mocking update here for simplicity)
-      await supabase.from('posts').update({
-        content: newPostText,
-        image_url: newPostImages[0] || null
-      }).eq('id', editingPostId);
-    } else {
-      // Create new
-      await supabase.from('posts').insert({
-        author_id: session.user.id,
-        content: newPostText,
-        image_url: newPostImages[0] || null
-      });
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert('Xác nhận mật khẩu mới không trùng khớp!');
+      return;
     }
-    
-    fetchPosts(); // Reload
-    
-    // Reset state
-    setNewPostText('');
-    setNewPostImages([]);
-    setNewPostTagged([]);
-    setEditingPostId(null);
-    setIsCreatePostOpen(false);
-    setShowEmojiPicker(false);
+    setIsPasswordModalOpen(false);
+    setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    showToast('Đổi mật khẩu tài khoản thành công!');
   };
 
-  const handleLike = (postId: number) => {
-    setPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 };
-      }
-      return p;
-    }));
+  // Mock certifications
+  const certifications = [
+    {
+      id: 'cert_1',
+      title: 'Chứng chỉ Master Artist Quốc tế',
+      issuer: 'Hiệp hội Làm đẹp Quốc tế Hàn Quốc - K-Beauty Assc.',
+      year: '2023',
+      grade: 'Hạng Xuất Sắc',
+      badge: 'Master Quốc Tế',
+    },
+    {
+      id: 'cert_2',
+      title: 'Chứng chỉ Nghiệp vụ Sư phạm Dạy nghề Thẩm mỹ',
+      issuer: 'Tổng cục Giáo dục Nghề nghiệp - Bộ LĐ-TB&XH',
+      year: '2022',
+      grade: 'Giảng viên Bậc 1',
+      badge: 'Chuẩn Tổng Cục',
+    },
+    {
+      id: 'cert_3',
+      title: 'Giải Vàng Nghệ Thuật Trang Điểm Cô Dâu Toàn Quốc',
+      issuer: 'Vietnam Makeup Championship',
+      year: '2023',
+      grade: 'Huy chương Vàng',
+      badge: 'Giải Vàng 2023',
+    },
+  ];
+
+  // Mock Portfolio Lookbook
+  const portfolioItems = [
+    {
+      id: 'pf_1',
+      title: 'Cô dâu Tone Thái Sang Chảnh',
+      category: 'Bridal VIP',
+      imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
+      likes: 184,
+      date: 'Tháng 09/2026',
+    },
+    {
+      id: 'pf_2',
+      title: 'Layout Trong Veo Glowy Hàn Quốc',
+      category: 'Clean Girl',
+      imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80',
+      likes: 246,
+      date: 'Tháng 08/2026',
+    },
+    {
+      id: 'pf_3',
+      title: 'Dạ Tiệc Thảm Đỏ Douyin Sexy',
+      category: 'Event Red Carpet',
+      imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80',
+      likes: 312,
+      date: 'Tháng 08/2026',
+    },
+    {
+      id: 'pf_4',
+      title: 'Áo Dài Ăn Hỏi Cổ Điển Truyền Thống',
+      category: 'Dạm Ngõ & Ăn Hỏi',
+      imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=500&auto=format&fit=crop&q=80',
+      likes: 198,
+      date: 'Tháng 07/2026',
+    },
+  ];
+
+  // Mock Customer Reviews
+  const reviews = [
+    {
+      id: 'rev_1',
+      customer: 'Chị Mai Lan (Cô dâu tháng 9)',
+      service: 'Gói Cô Dâu Ngày Cưới VIP',
+      rating: 5,
+      date: '15/09/2026',
+      content: 'Chị makeup siêu có tâm, lớp nền mỏng mịn căng bóng suốt 14 tiếng từ sáng đến tối không mốc phấn chút nào. Khách dự tiệc ai cũng khen!',
+    },
+    {
+      id: 'rev_2',
+      customer: 'Học viên Thu Thảo (Khóa Pro Artist K24)',
+      service: 'Khóa Đào Tạo Pro 3 Tháng',
+      rating: 5,
+      date: '02/09/2026',
+      content: 'Giảng viên kèm 1:1 siêu nhiệt tình, chỉnh từng nét cọ và góc cầm mút. Học xong em tự tin mở tiệm riêng ngay tại quê luôn ạ.',
+    },
+    {
+      id: 'rev_3',
+      customer: 'Chị Doanh nhân Phương Thảo',
+      service: 'Makeup Profile & Dạ Hội',
+      rating: 5,
+      date: '28/08/2026',
+      content: 'Rất chuyên nghiệp và đúng giờ. Layout sang trọng, lên hình flash studio cực kỳ nổi bật và thanh lịch.',
+    },
+  ];
+
+  const roleMeta = ROLE_DISPLAY_NAMES[profile.role] || {
+    label: profile.role,
+    badgeBg: 'bg-indigo-50 border-indigo-200',
+    textColor: 'text-[#544CDE]',
   };
 
-  const handleConsultClick = (postId: number) => {
-    setIsChatOpen(true);
-  };
-
-  const handleBookingClick = (postId: number) => {
-    const post = posts.find(p => p.id === postId);
-    if (onBookPost && post) {
-      onBookPost(post);
-    }
-    setToastMessage('Đã tạo lịch Booking mẫu này thành công! Lịch hẹn nằm trong Danh sách Booking.');
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
-  const handleSubmitComment = (postId: number) => {
-    if (!commentText.trim()) return;
-    setPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return {
-          ...p,
-          comments: [...p.comments, { 
-            id: Date.now(), 
-            author: user.fullName, 
-            text: commentText,
-            avatar: avatarImg || user.avatarUrl
-          }]
-        };
-      }
-      return p;
-    }));
-    setCommentText('');
-    setCommentingPostId(null);
-  };
-
-  const roleLabel = ROLE_LABEL[user.role] || user.role;
-  const filteredFriends = MOCK_FRIENDS.filter(f => f.name.toLowerCase().includes(tagSearch.toLowerCase()));
+  const calculatedCommission = Math.round(profile.monthlyRevenue * (profile.commissionRate / 100));
+  const estimatedTotalSalary = profile.baseSalary + calculatedCommission + profile.bonusAmount;
 
   return (
-    <div className="min-h-full bg-[#F0F2F5] pb-28 text-slate-900 animate-in fade-in duration-300">
-      
-      {/* Toast Notification */}
+    <div className="min-h-screen bg-[#F8F9FC] pb-28 text-slate-800 animate-in fade-in duration-300 select-none">
+      {/* ── TOAST NOTIFICATION ── */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-500/30 text-xs font-bold w-[90%] max-w-sm text-center animate-in slide-in-from-top duration-300">
-          ✨ {toastMessage}
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-sm font-semibold border border-white/10 animate-in slide-in-from-top-4">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
-      <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setCoverImg, 'cover_url')} />
-      <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleProfileImageChange(e, setAvatarImg, 'avatar_url')} />
-
-      {/* ── COVER + AVATAR ── */}
-      <div className="relative bg-white pb-4 border-b border-slate-200">
-        <div className="w-full h-56 relative overflow-hidden">
-          {coverImg ? (
-            <img src={coverImg} alt="Ảnh bìa" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #544CDE 0%, #7C3AED 40%, #EC4899 100%)' }} />
-          )}
-
-          <button onClick={onBack || (() => onNavigate('home'))} className="absolute top-10 left-4 w-9 h-9 rounded-full bg-black/25 backdrop-blur-sm text-white flex items-center justify-center active:scale-90 transition-all">
-            <X className="w-4 h-4 stroke-[2.5]" />
+      {/* ── TOP NAV HEADER ── */}
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack || (() => onNavigate('home'))}
+            className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center transition-colors active:scale-95"
+            title="Quay lại"
+          >
+            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
           </button>
+          <div>
+            <h1 className="text-base font-black text-slate-900 leading-tight">Hồ Sơ Nhân Viên</h1>
+            <p className="text-[11px] font-medium text-slate-400">Thông tin cá nhân, chuyên môn & đãi ngộ</p>
+          </div>
+        </div>
 
-          <button onClick={() => coverInputRef.current?.click()} className="absolute top-10 right-4 flex items-center gap-1.5 bg-black/30 backdrop-blur-sm text-white text-xs font-semibold px-3 py-2 rounded-full hover:bg-black/40">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="w-9 h-9 rounded-full bg-indigo-50 text-[#544CDE] border border-indigo-100 hover:bg-indigo-100 flex items-center justify-center transition-colors active:scale-95"
+            title="Mã thẻ nhân viên"
+          >
+            <QrCode className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              setEditForm({ ...profile });
+              setIsEditModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#544CDE] text-white hover:bg-[#433bc7] transition-all shadow-xs text-xs font-bold active:scale-95"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Sửa hồ sơ</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── HERO BANNER & AVATAR CARD ── */}
+      <div className="relative bg-white border-b border-slate-200 shadow-xs">
+        {/* Cover Photo */}
+        <div className="relative h-44 sm:h-52 w-full bg-slate-800 overflow-hidden">
+          <img
+            src={profile.coverUrl}
+            alt="Cover"
+            className="w-full h-full object-cover opacity-85"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+          {/* Change cover button */}
+          <button
+            onClick={() => coverInputRef.current?.click()}
+            className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/20 transition-all active:scale-95"
+          >
             <Camera className="w-3.5 h-3.5" />
-            Đổi ảnh bìa
+            <span>Đổi ảnh bìa</span>
           </button>
+          <input
+            type="file"
+            ref={coverInputRef}
+            onChange={handleCoverChange}
+            accept="image/*"
+            className="hidden"
+          />
 
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent" />
-        </div>
-
-        <div className="relative -mt-14 flex justify-center z-10">
-          <div className="relative">
-            <img src={avatarImg || user.avatarUrl} alt={user.fullName} className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg" />
-            <button onClick={() => avatarInputRef.current?.click()} className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center border-2 border-white shadow-md hover:bg-slate-200">
-              <Camera className="w-4 h-4" />
-            </button>
+          {/* Branch badge on top of cover */}
+          <div className="absolute bottom-3 left-4 flex items-center gap-1.5 text-white/90 text-[11px] font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
+            <Building2 className="w-3 h-3 text-amber-300" />
+            <span>{profile.branch}</span>
           </div>
         </div>
 
-        {/* ── NAME + ROLE ── */}
-        <div className="pt-3 pb-4 text-center px-4">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <h1 className="text-2xl font-black text-slate-900">{editName}</h1>
-            <CheckCircle2 className="w-5 h-5 text-[#544CDE] shrink-0" />
+        {/* Avatar & Main Info */}
+        <div className="px-5 pt-0 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-14 mb-4 gap-3">
+            <div className="relative inline-block w-28 h-28 shrink-0">
+              <img
+                src={profile.avatarUrl}
+                alt={profile.fullName}
+                className="w-28 h-28 rounded-full object-cover ring-4 ring-white shadow-xl bg-white"
+              />
+              {/* Online pulse status */}
+              <span className="absolute bottom-1 right-2 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full ring-2 ring-emerald-400/30 animate-pulse" title="Đang trong ca trực" />
+
+              {/* Change Avatar Button */}
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center border-2 border-white shadow-md hover:bg-indigo-600 transition-colors"
+                title="Đổi ảnh đại diện"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+              <input
+                type="file"
+                ref={avatarInputRef}
+                onChange={handleAvatarChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+
+            {/* Quick Action Contact Pills */}
+            <div className="flex items-center gap-2 mt-2 sm:mt-0 flex-wrap">
+              <a
+                href={`tel:${profile.phone}`}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Gọi điện</span>
+              </a>
+              <a
+                href={`https://zalo.me/${profile.phone.replace(/\s+/g, '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs transition-colors border border-blue-200/60"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-blue-600" />
+                <span>Zalo</span>
+              </a>
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors border border-purple-200/60"
+              >
+                <QrCode className="w-3.5 h-3.5 text-purple-600" />
+                <span>Thẻ số</span>
+              </button>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <span className="px-3 py-1 rounded-full bg-indigo-50 text-[#544CDE] font-bold text-xs">{roleLabel}</span>
-            <span className="text-slate-400 text-xs font-medium">{user.employeeCode || user.id}</span>
+
+          {/* Name & Title */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{profile.fullName}</h2>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+                <CheckCircle2 className="w-3 h-3 text-amber-600" />
+                <span>Verified Specialist</span>
+              </span>
+            </div>
+
+            <p className="text-sm font-semibold text-slate-600 flex items-center gap-1.5 flex-wrap">
+              <Briefcase className="w-4 h-4 text-[#544CDE]" />
+              <span>{profile.title}</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-slate-500 font-normal">{profile.department}</span>
+            </p>
+
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-black border ${roleMeta.badgeBg} ${roleMeta.textColor}`}>
+                {roleMeta.label}
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                Mã NV: <strong>{profile.employeeCode}</strong>
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Chính thức ({profile.joinedDate})</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── METRIC STATS BAR ── */}
+        <div className="grid grid-cols-4 border-t border-slate-100 divide-x divide-slate-100 bg-slate-50/60 py-3 text-center">
+          <div>
+            <div className="flex items-center justify-center gap-1 text-amber-500 font-black text-base sm:text-lg">
+              <Star className="w-4 h-4 fill-amber-400" />
+              <span>{profile.rating}</span>
+            </div>
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Đánh giá</div>
+          </div>
+          <div>
+            <div className="text-base sm:text-lg font-black text-[#544CDE]">{profile.totalServices}+</div>
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Dịch vụ</div>
+          </div>
+          <div>
+            <div className="text-base sm:text-lg font-black text-emerald-600">{profile.kpiScore}%</div>
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">KPI Tháng</div>
+          </div>
+          <div>
+            <div className="text-base sm:text-lg font-black text-purple-600">{profile.workDays}</div>
+            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Ngày công</div>
           </div>
         </div>
       </div>
 
-      {/* ── TABS ── */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="flex">
-          <button onClick={() => setActiveTab('feed')} className={`flex-1 py-3 text-[14px] font-bold border-b-2 transition-all ${activeTab === 'feed' ? 'border-[#544CDE] text-[#544CDE]' : 'border-transparent text-slate-500'}`}>
-            Nhật ký
+      {/* ── 4 TABS NAVIGATION ── */}
+      <div className="sticky top-[61px] z-20 bg-white border-b border-slate-200 shadow-xs">
+        <div className="flex px-2 overflow-x-auto scrollbar-none">
+          <button
+            onClick={() => setActiveTab('info')}
+            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'info'
+                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Lý lịch & HĐ</span>
           </button>
-          <button onClick={() => setActiveTab('reviews')} className={`flex-1 py-3 text-[14px] font-bold border-b-2 transition-all ${activeTab === 'reviews' ? 'border-[#544CDE] text-[#544CDE]' : 'border-transparent text-slate-500'}`}>
-            Đánh giá & Review
+
+          <button
+            onClick={() => setActiveTab('skills')}
+            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'skills'
+                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            <span>Năng lực & Tác phẩm</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('payroll')}
+            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'payroll'
+                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Lương & Hoa hồng</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('security')}
+            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'security'
+                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            <span>Bảo mật & Cài đặt</span>
           </button>
         </div>
       </div>
 
-      {/* ── FEED TAB ── */}
-      {activeTab === 'feed' && (
-        <>
-          {/* Action Cards (Edit Profile) */}
-          <div className="mx-4 mt-4 flex gap-2">
-            <button onClick={() => setIsEditSheetOpen(true)} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 shadow-sm border border-slate-200 transition-colors">
-              <Edit3 className="w-4 h-4" /> Chỉnh sửa
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-slate-700 font-bold text-sm hover:bg-slate-50 shadow-sm border border-slate-200 transition-colors">
-              <QrCode className="w-4 h-4" /> Mã QR
-            </button>
-          </div>
-
-          {/* Create Post Input Row */}
-          <div className="mt-4 bg-white border-y border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 p-4">
-              <img src={avatarImg || user.avatarUrl} className="w-10 h-10 rounded-full object-cover" alt="Avatar" />
-              <button 
-                onClick={handleCreateClick}
-                className="flex-1 bg-[#F0F2F5] hover:bg-slate-200 rounded-full px-4 py-2.5 text-left transition-colors"
-              >
-                <span className="text-[14px] text-slate-500 font-medium">Bạn đang nghĩ gì?</span>
-              </button>
-            </div>
-            <div className="flex items-center divide-x divide-slate-100 border-t border-slate-100">
-              <button onClick={() => { handleCreateClick(); setTimeout(() => postImageInputRef.current?.click(), 300); }} className="flex-1 flex items-center justify-center gap-2 py-3 hover:bg-slate-50">
-                <ImageIcon className="w-5 h-5 text-emerald-500" />
-                <span className="text-[13px] font-bold text-slate-600">Ảnh</span>
-              </button>
-              <button onClick={() => { handleCreateClick(); setShowTagModal(true); }} className="flex-1 flex items-center justify-center gap-2 py-3 hover:bg-slate-50">
-                <UserPlus className="w-5 h-5 text-blue-500" />
-                <span className="text-[13px] font-bold text-slate-600">Gắn thẻ</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Posts List */}
-          <div className="space-y-3 mt-3">
-            {posts.map(post => (
-              <div key={post.id} className="bg-white border-y border-slate-200 shadow-sm">
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <img src={avatarImg || user.avatarUrl} className="w-10 h-10 rounded-full object-cover" alt="Avatar" />
-                      <div>
-                        <h4 className="text-[14px] font-bold text-slate-900 leading-tight">
-                          {editName}
-                          {post.tagged && post.tagged.length > 0 && (
-                            <span className="font-normal text-slate-600">
-                              {' cùng với '}
-                              <strong className="text-slate-900 font-bold">{post.tagged.join(', ')}</strong>
-                            </span>
-                          )}
-                        </h4>
-                        <p className="text-[11px] text-slate-400 font-medium mt-0.5">{post.time}</p>
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <button 
-                        onClick={() => setPostMenuOpenId(postMenuOpenId === post.id ? null : post.id)} 
-                        className="text-slate-400 p-1 hover:bg-slate-100 rounded-full"
-                      >
-                        <MoreHorizontal className="w-5 h-5" />
-                      </button>
-                      
-                      {/* Dropdown Menu for Post */}
-                      {postMenuOpenId === post.id && (
-                        <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-10 animate-in fade-in duration-200">
-                          <button 
-                            onClick={() => handleEditClick(post)} 
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold text-slate-700 hover:bg-slate-50 text-left"
-                          >
-                            <Edit2 className="w-4 h-4" /> Chỉnh sửa bài viết
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {post.content && <p className="text-[14px] text-slate-800 leading-relaxed mb-3 whitespace-pre-wrap">{post.content}</p>}
-                </div>
-                
-                {post.images.length > 0 && (
-                  <div className={`grid gap-1 ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                    {post.images.map((img, idx) => (
-                      <div key={idx} className={`w-full bg-slate-100 overflow-hidden ${post.images.length === 1 ? 'aspect-[4/5]' : 'aspect-square'}`}>
-                        <img src={img} className="w-full h-full object-cover" alt="Post img" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Likes/Comments count */}
-                <div className="px-4 py-3 flex items-center justify-between border-b border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center shadow-sm">
-                      <Heart className="w-3 h-3 text-white fill-white" />
-                    </div>
-                    <span className="text-[12px] font-medium text-slate-500">{post.likes}</span>
-                  </div>
-                  <span className="text-[12px] font-medium text-slate-500">{post.comments.length} bình luận</span>
-                </div>
-                
-                {/* Actions */}
-                <div className="flex items-center px-1 py-1 divide-x divide-slate-100">
-                  <button onClick={() => handleLike(post.id)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-colors ${post.isLiked ? 'text-red-500' : 'text-slate-600 hover:bg-slate-50'}`}>
-                    <Heart className={`w-[16px] h-[16px] ${post.isLiked ? 'fill-red-500' : ''}`} />
-                    <span className="text-[11px] font-bold">Thích</span>
-                  </button>
-                  <button onClick={() => setCommentingPostId(commentingPostId === post.id ? null : post.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl">
-                    <MessageCircle className="w-[16px] h-[16px]" />
-                    <span className="text-[11px] font-bold">Bình luận</span>
-                  </button>
-                  <button onClick={() => handleConsultClick(post.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[#544CDE] hover:bg-indigo-50 rounded-xl">
-                    <HelpCircle className="w-[16px] h-[16px]" />
-                    <span className="text-[11px] font-bold">Tư vấn</span>
-                  </button>
-                  <button onClick={() => handleBookingClick(post.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl">
-                    <Calendar className="w-[16px] h-[16px]" />
-                    <span className="text-[11px] font-bold">Booking</span>
-                  </button>
-                </div>
-
-                {/* Comments Section */}
-                {(post.comments.length > 0 || commentingPostId === post.id) && (
-                  <div className="px-4 pb-4 pt-2 border-t border-slate-50 bg-slate-50/50">
-                    {post.comments.map(c => (
-                      <div key={c.id} className="flex gap-2 mb-3">
-                        <img src={c.avatar} className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200" alt={c.author} />
-                        <div className="bg-white border border-slate-100 px-3 py-2 rounded-2xl rounded-tl-sm shadow-sm">
-                          <p className="text-[12px] font-bold text-slate-900">{c.author}</p>
-                          <p className="text-[13px] text-slate-800 leading-snug">{c.text}</p>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {commentingPostId === post.id && (
-                      <div className="flex gap-2 items-center mt-3">
-                        <img src={avatarImg || user.avatarUrl} className="w-8 h-8 rounded-full object-cover shrink-0" alt="Avatar" />
-                        <div className="flex-1 relative">
-                          <input
-                            autoFocus
-                            type="text"
-                            value={commentText}
-                            onChange={e => setCommentText(e.target.value)}
-                            placeholder="Viết bình luận..."
-                            className="w-full bg-white border border-slate-200 rounded-full pl-4 pr-10 py-2.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#544CDE]"
-                            onKeyDown={(e) => {
-                              if(e.key === 'Enter') handleSubmitComment(post.id);
-                            }}
-                          />
-                          <button onClick={() => handleSubmitComment(post.id)} className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full ${commentText.trim() ? 'text-white bg-[#544CDE]' : 'text-slate-400 bg-slate-100'}`}>
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* ── REVIEWS TAB ── */}
-      {activeTab === 'reviews' && (
-        <div className="mt-4 bg-white border-y border-slate-200 shadow-sm">
-          <div className="p-4 flex items-center justify-between border-b border-slate-100 bg-slate-50/50">
-            <div>
-              <h3 className="text-2xl font-black text-slate-900 flex items-center gap-1">4.9 <Star className="w-6 h-6 text-amber-400 fill-amber-400" /></h3>
-              <p className="text-[12px] text-slate-500 font-medium">Dựa trên 45 đánh giá</p>
-            </div>
-            <div className="flex gap-1 text-amber-400">
-              {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-current" />)}
-            </div>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {MOCK_REVIEWS.map(review => (
-              <div key={review.id} className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <img src={review.avatar} alt={review.customerName} className="w-10 h-10 rounded-full object-cover" />
-                    <div>
-                      <h4 className="text-[14px] font-bold text-slate-900">{review.customerName}</h4>
-                      <p className="text-[11px] text-slate-400">{review.date}</p>
-                    </div>
-                  </div>
-                  <div className="flex text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-current' : 'text-slate-200'}`} />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-[14px] text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl">{review.content}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── SETTINGS (Always below tabs) ── */}
-      <div className="mt-4 mx-4 mb-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-          <h3 className="text-[13px] font-black text-slate-800">Cài đặt & Quản lý</h3>
-        </div>
-        <button onClick={() => onNavigate('roles')} className="w-full flex items-center gap-3 px-4 py-4 border-b border-slate-100 hover:bg-slate-50">
-          <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center shrink-0"><Shield className="w-4 h-4 text-violet-500" /></div>
-          <div className="flex-1 text-left"><p className="text-[14px] font-bold text-slate-900">Phân quyền & Vai trò</p></div>
-          <ChevronRight className="w-4 h-4 text-slate-300" />
-        </button>
-        <button onClick={() => { if (onLogout) onLogout(); else onNavigate('auth'); }} className="w-full flex items-center justify-center gap-2 px-4 py-4 text-rose-500 hover:bg-rose-50 transition-colors">
-          <LogOut className="w-5 h-5" />
-          <span className="text-[14px] font-bold">Đăng xuất tài khoản</span>
-        </button>
-      </div>
-
-      <p className="text-center text-[10px] text-slate-300 font-medium pb-4 pt-2">
-        CELLA Beauty & Academy v2.5 · ISO Certified
-      </p>
-
-      {/* ── CREATE/EDIT POST MODAL ── */}
-      {isCreatePostOpen && (
-        <div className="fixed inset-0 z-[100] bg-white animate-in slide-in-from-bottom duration-300 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white">
-            <button onClick={() => {setIsCreatePostOpen(false); setEditingPostId(null);}} className="text-[15px] text-slate-500 font-medium">Hủy</button>
-            <h3 className="text-[16px] font-black text-slate-900">{editingPostId ? 'Sửa bài viết' : 'Tạo bài viết'}</h3>
-            <button 
-              onClick={handleSubmitPost}
-              className={`text-[15px] font-bold px-3 py-1 rounded-full ${(newPostText.trim() || newPostImages.length > 0) ? 'bg-[#544CDE] text-white' : 'bg-slate-100 text-slate-400 pointer-events-none'}`}
-            >
-              {editingPostId ? 'Lưu' : 'Đăng'}
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
-            <div className="flex items-center gap-3 p-4">
-              <img src={avatarImg || user.avatarUrl} className="w-11 h-11 rounded-full object-cover" alt="Avatar" />
-              <div>
-                <p className="text-[15px] font-bold text-slate-900">
-                  {editName}
-                  {newPostTagged.length > 0 && (
-                    <span className="font-normal text-slate-600">
-                      {' cùng với '}
-                      <strong className="text-slate-900 font-bold" onClick={() => setShowTagModal(true)}>{newPostTagged.length} người khác</strong>
-                    </span>
-                  )}
-                </p>
-                <div className="flex items-center gap-1 mt-0.5 px-2 py-0.5 bg-slate-100 rounded-md w-max border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-600">🌍 Công khai</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="px-4">
-              <textarea
-                autoFocus
-                value={newPostText}
-                onChange={e => setNewPostText(e.target.value)}
-                placeholder="Bạn đang nghĩ gì?"
-                className="w-full min-h-[120px] resize-none text-[16px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
-              />
-            </div>
-
-            {/* Selected Images Preview */}
-            {newPostImages.length > 0 && (
-              <div className="px-4 grid grid-cols-2 gap-2 mt-2">
-                {newPostImages.map((img, i) => (
-                  <div key={i} className="relative group rounded-xl overflow-hidden border border-slate-200">
-                    <img src={img} className="w-full h-32 object-cover" alt="preview" />
-                    <button onClick={() => removePostImage(i)} className="absolute top-2 right-2 w-7 h-7 bg-black/50 text-white rounded-full flex items-center justify-center">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Emoji Picker Popover */}
-            {showEmojiPicker && (
-              <div className="px-4 py-3 mt-4 border-t border-slate-100 bg-slate-50">
-                <div className="flex flex-wrap gap-3">
-                  {COMMON_EMOJIS.map(emoji => (
-                    <button 
-                      key={emoji} 
-                      onClick={() => setNewPostText(prev => prev + emoji)}
-                      className="text-2xl hover:scale-110 transition-transform active:scale-95"
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Bottom Toolbar for Create Post */}
-          <div className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white shadow-lg">
-            <input 
-              ref={postImageInputRef} 
-              type="file" 
-              multiple 
-              accept="image/*" 
-              className="hidden" 
-              onChange={handlePostImageChange} 
-            />
-            <div className="flex items-center p-3 gap-2">
-              <button onClick={() => postImageInputRef.current?.click()} className="flex-1 py-3 rounded-xl bg-[#F0F2F5] flex items-center justify-center gap-2 text-slate-700 font-bold text-[13px] hover:bg-slate-200 transition-colors">
-                <ImageIcon className="w-5 h-5 text-emerald-500" /> Ảnh/Video
-              </button>
-              <button onClick={() => setShowTagModal(true)} className="flex-1 py-3 rounded-xl bg-[#F0F2F5] flex items-center justify-center gap-2 text-slate-700 font-bold text-[13px] hover:bg-slate-200 transition-colors">
-                <UserPlus className="w-5 h-5 text-blue-500" /> Gắn thẻ
-              </button>
-              <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="w-12 h-12 rounded-xl bg-[#F0F2F5] flex items-center justify-center hover:bg-slate-200 transition-colors shrink-0">
-                <Smile className="w-6 h-6 text-amber-500" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAG FRIEND MODAL ── */}
-      {showTagModal && (
-        <div className="fixed inset-0 z-[110] bg-white animate-in slide-in-from-right duration-300 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white">
-            <button onClick={() => setShowTagModal(false)} className="text-[14px] text-slate-500 font-medium flex items-center"><ChevronRight className="w-5 h-5 rotate-180" /> Trở lại</button>
-            <h3 className="text-[16px] font-black text-slate-900">Gắn thẻ bạn bè</h3>
-            <button onClick={() => setShowTagModal(false)} className="text-[15px] font-bold text-[#544CDE]">Xong</button>
-          </div>
-          <div className="p-4 border-b border-slate-100">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm bạn bè..." 
-                value={tagSearch}
-                onChange={(e) => setTagSearch(e.target.value)}
-                className="w-full bg-[#F0F2F5] rounded-xl pl-10 pr-4 py-3 text-[14px] font-medium focus:outline-none" 
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {filteredFriends.map(friend => {
-              const isSelected = newPostTagged.includes(friend.name);
-              return (
-                <div key={friend.id} onClick={() => toggleTag(friend.name)} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 active:bg-slate-100 transition-colors border-b border-slate-50">
-                  <img src={friend.avatar} className="w-10 h-10 rounded-full object-cover" alt={friend.name} />
-                  <span className="flex-1 text-[15px] font-bold text-slate-900">{friend.name}</span>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${isSelected ? 'bg-[#544CDE] border-[#544CDE]' : 'border-slate-300'}`}>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── CHAT MODAL ── */}
-      {isChatOpen && (
-        <div className="fixed inset-0 z-[200] bg-[#e5e7eb] flex flex-col animate-in slide-in-from-bottom-full duration-300">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#544CDE] to-[#7C3AED] px-4 py-3 flex items-center gap-3 text-white sticky top-0 z-10">
-            <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 flex items-center justify-center -ml-2">
-              <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
-            </button>
-            <img src={avatarImg || user.avatarUrl} alt="avatar" className="w-9 h-9 rounded-full border border-white/50 object-cover" />
-            <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-bold truncate">{user.fullName}</h3>
-              <p className="text-[11px] opacity-80">Vừa mới truy cập</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setIsCreateBookingModalOpen(true)}
-                className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full text-[12px] font-bold transition-colors"
-              >
-                <Calendar className="w-4 h-4" />
-                Booking
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center">
-                <Phone className="w-5 h-5 fill-white" />
-              </button>
-            </div>
-          </div>
-
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {chatHistory.map((msg, idx) => {
-              const isMe = msg.sender === 'me';
-              return (
-                <div key={idx} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                  {msg.booking ? (
-                    <div className="w-[85%] bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mt-2 mb-1">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                          <Calendar className="w-4 h-4 stroke-[2.5]" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-[14px] font-black text-slate-900">Xác nhận Lịch Hẹn</h4>
-                          <p className="text-[11px] text-emerald-600 font-bold">Đã lưu vào hệ thống</p>
-                          {msg.booking.conflict && (
-                            <p className="text-[11px] text-rose-500 font-bold mt-1 bg-rose-50 px-2 py-0.5 rounded w-max">
-                              ⚠️ Đã trùng ngày với lịch booking khác
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <div className="flex justify-between text-[13px]">
-                          <span className="text-slate-500 font-medium">Khách hàng:</span>
-                          <span className="font-bold text-slate-800">{msg.booking.customerName}</span>
-                        </div>
-                        <div className="flex justify-between text-[13px]">
-                          <span className="text-slate-500 font-medium">Dịch vụ:</span>
-                          <span className="font-bold text-slate-800">{msg.booking.serviceTitle}</span>
-                        </div>
-                        <div className="flex justify-between text-[13px]">
-                          <span className="text-slate-500 font-medium">Thời gian:</span>
-                          <span className="font-bold text-[#544CDE]">{msg.booking.appointmentTime} - {msg.booking.appointmentDate}</span>
-                        </div>
-                      </div>
-                      <button className="w-full mt-3 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[13px] font-bold hover:bg-emerald-100 transition-colors">
-                        Xem chi tiết lịch
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={`max-w-[80%] ${msg.image ? 'p-1 rounded-2xl bg-white shadow-sm' : `px-4 py-2.5 rounded-2xl ${isMe ? 'bg-[#544CDE] text-white rounded-tr-sm' : 'bg-white text-slate-800 rounded-tl-sm shadow-sm'}`}`}>
-                      {msg.image ? (
-                        <img src={msg.image} alt="Chat img" className="w-full max-w-[200px] rounded-xl object-cover" />
-                      ) : (
-                        <p className="text-[14px]">{msg.text}</p>
-                      )}
-                    </div>
-                  )}
-                  <span className="text-[10px] text-slate-400 mt-1 mx-1">{msg.time}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Input Area */}
-          <div className="bg-white px-3 py-3 border-t border-slate-200 flex items-center gap-2">
-            <input 
-              type="file"
-              accept="image/*"
-              ref={chatImageInputRef}
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (ev) => {
-                    setChatHistory(prev => [...prev, { sender: 'me', image: ev.target?.result as string, time: 'Vừa xong' }]);
-                  };
-                  reader.readAsDataURL(file);
-                }
-                e.target.value = '';
-              }}
-            />
-            <button 
-              onClick={() => chatImageInputRef.current?.click()}
-              className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <Plus className="w-6 h-6" />
-            </button>
-            <div className="flex-1 relative">
-              <input 
-                type="text"
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                placeholder="Tin nhắn..."
-                className="w-full bg-slate-100 rounded-full pl-4 pr-10 py-2.5 text-[14px] focus:outline-none"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && chatMessage.trim()) {
-                    setChatHistory(prev => [...prev, { sender: 'me', text: chatMessage.trim(), time: 'Vừa xong' }]);
-                    setChatMessage('');
-                  }
-                }}
-              />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400">
-                <Smile className="w-5 h-5" />
-              </button>
-            </div>
-            <button 
-              onClick={() => {
-                if (chatMessage.trim()) {
-                  setChatHistory(prev => [...prev, { sender: 'me', text: chatMessage.trim(), time: 'Vừa xong' }]);
-                  setChatMessage('');
-                }
-              }}
-              className="w-9 h-9 flex items-center justify-center text-[#544CDE]"
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── CREATE BOOKING MODAL (MANUAL INPUT) ── */}
-      {isCreateBookingModalOpen && (
-        <div className="fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex flex-col justify-end animate-in fade-in">
-          <div className="bg-white rounded-t-3xl min-h-[50vh] flex flex-col animate-in slide-in-from-bottom duration-300">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <h3 className="text-[16px] font-black text-slate-900">Tạo lịch Booking</h3>
-              <button 
-                onClick={() => setIsCreateBookingModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"
-              >
-                <Plus className="w-5 h-5 rotate-45" />
-              </button>
-            </div>
-            <div className="p-5 flex-1 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-700">Tên khách hàng</label>
-                <input 
-                  type="text"
-                  value={bookingForm.customerName}
-                  onChange={e => setBookingForm({...bookingForm, customerName: e.target.value})}
-                  placeholder="Nhập tên khách hàng..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#544CDE]/50"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-700">Dịch vụ</label>
-                <input 
-                  type="text"
-                  value={bookingForm.service}
-                  onChange={e => setBookingForm({...bookingForm, service: e.target.value})}
-                  placeholder="Ví dụ: Makeup cô dâu"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#544CDE]/50"
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1 space-y-1.5">
-                  <label className="text-[13px] font-bold text-slate-700">Ngày</label>
-                  <input 
-                    type="date"
-                    value={bookingForm.date}
-                    onChange={e => setBookingForm({...bookingForm, date: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#544CDE]/50"
-                  />
-                </div>
-                <div className="flex-1 space-y-1.5">
-                  <label className="text-[13px] font-bold text-slate-700">Giờ</label>
-                  <input 
-                    type="time"
-                    value={bookingForm.time}
-                    onChange={e => setBookingForm({...bookingForm, time: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#544CDE]/50"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="p-5 border-t border-slate-100">
-              <button 
+      {/* ── TAB 1: LÝ LỊCH & HỢP ĐỒNG ── */}
+      {activeTab === 'info' && (
+        <div className="p-4 sm:p-5 space-y-4 max-w-4xl mx-auto">
+          {/* Card: Thông tin định danh cá nhân */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Users className="w-4 h-4 text-[#544CDE]" />
+                <span>Thông tin cá nhân & Liên lạc</span>
+              </h3>
+              <button
                 onClick={() => {
-                  const formatDate = (dateString: string) => {
-                    if (!dateString) return 'Hôm nay';
-                    const parts = dateString.split('-');
-                    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                    return dateString;
-                  };
-                  const formattedDate = formatDate(bookingForm.date);
-                  const isConflict = bookings.some(b => b.appointmentDate === formattedDate);
-
-                  if (onBookPost) {
-                    onBookPost({
-                      customerName: bookingForm.customerName || 'Khách hàng ẩn danh',
-                      serviceTitle: bookingForm.service || 'Makeup',
-                      appointmentDate: formattedDate,
-                      appointmentTime: bookingForm.time || 'Chưa rõ',
-                      artistName: user.fullName,
-                      status: 'PENDING'
-                    });
-                  }
-                  setChatHistory(prev => [...prev, {
-                    sender: 'me',
-                    text: `Dạ em đã tạo lịch booking ${bookingForm.service} cho chị lúc ${bookingForm.time} ngày ${formattedDate} rồi ạ.`,
-                    time: 'Vừa xong',
-                    booking: {
-                      customerName: bookingForm.customerName || 'Khách hàng ẩn danh',
-                      serviceTitle: bookingForm.service || 'Makeup',
-                      appointmentDate: formattedDate,
-                      appointmentTime: bookingForm.time || 'Chưa rõ',
-                      conflict: isConflict
-                    }
-                  }]);
-                  setIsCreateBookingModalOpen(false);
-                  setToastMessage('Đã tạo lịch Booking thành công!');
-                  setTimeout(() => setToastMessage(null), 3500);
+                  setEditForm({ ...profile });
+                  setIsEditModalOpen(true);
                 }}
-                className="w-full py-3.5 bg-gradient-to-r from-[#544CDE] to-[#7C3AED] text-white rounded-xl text-[15px] font-bold shadow-md shadow-indigo-500/30 active:scale-95 transition-all"
+                className="text-xs font-bold text-[#544CDE] hover:underline flex items-center gap-1"
               >
-                Xác nhận tạo Booking
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Chỉnh sửa</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Họ và tên đầy đủ:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.fullName}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Số điện thoại liên lạc:</span>
+                <span className="font-bold text-slate-800 text-sm text-[#544CDE]">{profile.phone}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Email công vụ:</span>
+                <span className="font-bold text-slate-800 text-sm break-all">{profile.email}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Ngày sinh & Giới tính:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.birthday} • {profile.gender}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Số CCCD / CMND:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.idCard} (Cấp: {profile.idCardDate})</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Liên hệ khẩn cấp:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.emergencyContact}</span>
+              </div>
+              <div className="sm:col-span-2 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Địa chỉ thường trú / Chỗ ở hiện tại:</span>
+                <span className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                  {profile.address}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Thông tin công tác & Hợp đồng */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Briefcase className="w-4 h-4 text-emerald-600" />
+              <span>Hợp đồng lao động & Cơ cấu tổ chức</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Mã nhân sự CELLA:</span>
+                <span className="font-black text-indigo-700 text-sm">{profile.employeeCode}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Loại hợp đồng:</span>
+                <span className="font-bold text-emerald-700 text-sm">{profile.contractType}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Số hợp đồng:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.contractNumber}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Ngày gia nhập chính thức:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.joinedDate}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Cơ sở công tác chính:</span>
+                <span className="font-bold text-slate-800 text-sm">{profile.branch}</span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-0.5">Bảo hiểm xã hội / Y tế:</span>
+                <span className="font-bold text-teal-700 text-sm flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                  {profile.socialInsurance}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Tài khoản ngân hàng nhận lương */}
+          <div className="bg-linear-to-br from-indigo-900 to-slate-900 rounded-3xl p-5 text-white shadow-md relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-36 h-36 bg-white/5 rounded-full -mr-10 -mt-10 pointer-events-none" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-amber-400" />
+                <span className="text-sm font-black text-amber-300">Tài khoản Ngân hàng nhận lương</span>
+              </div>
+              <span className="text-[11px] font-bold bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20">
+                Chính thức
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-xs text-white/70">Số tài khoản Techcombank:</div>
+              <div className="text-xl sm:text-2xl font-mono font-black tracking-wider text-white flex items-center gap-2">
+                <span>{profile.bankAccount}</span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(profile.bankAccount);
+                    showToast('Đã sao chép số tài khoản!');
+                  }}
+                  className="p-1 hover:bg-white/20 rounded-lg transition-colors text-white/70 hover:text-white"
+                  title="Sao chép"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="pt-2 flex justify-between items-center text-xs text-white/80 border-t border-white/10">
+                <div>
+                  <span className="text-white/50 block text-[10px]">CHỦ TÀI KHOẢN:</span>
+                  <span className="font-bold">{profile.bankHolder}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-white/50 block text-[10px]">NGÂN HÀNG:</span>
+                  <span className="font-bold">{profile.bankName}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 2: NĂNG LỰC & TÁC PHẨM ── */}
+      {activeTab === 'skills' && (
+        <div className="p-4 sm:p-5 space-y-4 max-w-4xl mx-auto">
+          {/* Card: Kỹ năng chuyên môn */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span>Kỹ thuật chuyên môn sở trường</span>
+            </h3>
+            <p className="text-xs text-slate-500">Các layout và kỹ thuật chuyên môn do Master Đặng Thuỳ Tiên sát hạch và chứng nhận:</p>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              {profile.skills.map((skill: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 font-bold text-xs border border-purple-100 shadow-2xs flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Card: Bằng cấp & Chứng chỉ */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+              <Award className="w-4 h-4 text-amber-500" />
+              <span>Bằng cấp & Chứng chỉ Nghề nghiệp</span>
+            </h3>
+
+            <div className="space-y-2.5">
+              {certifications.map((cert) => (
+                <div key={cert.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0 font-bold">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">{cert.title}</h4>
+                      <p className="text-[11px] text-slate-500 font-medium mt-0.5">{cert.issuer}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-bold text-slate-400">Năm: {cert.year}</span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                          {cert.grade}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="hidden sm:inline-block text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 shrink-0">
+                    Đã xác minh
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card: Lookbook Tác phẩm */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Camera className="w-4 h-4 text-pink-600" />
+                <span>Lookbook tác phẩm makeup nổi bật</span>
+              </h3>
+              <span className="text-xs font-bold text-slate-400">{portfolioItems.length} tác phẩm</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {portfolioItems.map((item) => (
+                <div key={item.id} className="group relative rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs aspect-3/4">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-2.5 text-white">
+                    <span className="text-[9px] font-bold bg-[#544CDE] px-1.5 py-0.5 rounded-md w-max mb-1">
+                      {item.category}
+                    </span>
+                    <h5 className="text-xs font-bold leading-tight line-clamp-1">{item.title}</h5>
+                    <div className="flex items-center justify-between text-[10px] text-white/80 mt-1">
+                      <span className="flex items-center gap-1 text-rose-400">
+                        <Heart className="w-2.5 h-2.5 fill-rose-400" />
+                        {item.likes}
+                      </span>
+                      <span>{item.date}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 3: HIỆU SUẤT & LƯƠNG THƯỞNG ── */}
+      {activeTab === 'payroll' && (
+        <div className="p-4 sm:p-5 space-y-4 max-w-4xl mx-auto">
+          {/* Card: Bảng tính thu nhập tháng */}
+          <div className="bg-linear-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-5 text-white shadow-lg space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div>
+                <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider block">Ước tính thu nhập</span>
+                <h3 className="text-xl sm:text-2xl font-black text-amber-300 mt-0.5">
+                  {estimatedTotalSalary.toLocaleString('vi-VN')} VNĐ
+                </h3>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                Tháng hiện tại
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-white/60 block text-[11px]">Lương cơ bản:</span>
+                <span className="text-sm font-bold text-white mt-1 block">
+                  {profile.baseSalary.toLocaleString('vi-VN')} đ
+                </span>
+              </div>
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-white/60 block text-[11px]">Hoa hồng doanh thu ({profile.commissionRate}%):</span>
+                <span className="text-sm font-bold text-emerald-400 mt-1 block">
+                  +{calculatedCommission.toLocaleString('vi-VN')} đ
+                </span>
+              </div>
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-white/60 block text-[11px]">Thưởng nóng & KPI 5 sao:</span>
+                <span className="text-sm font-bold text-amber-400 mt-1 block">
+                  +{profile.bonusAmount.toLocaleString('vi-VN')} đ
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-between text-xs text-white/80">
+              <span className="flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span>Doanh số dịch vụ mang về tháng này:</span>
+              </span>
+              <strong className="text-white font-mono text-sm">{profile.monthlyRevenue.toLocaleString('vi-VN')} đ</strong>
+            </div>
+          </div>
+
+          {/* Card: Chỉ số KPI & Chấm công */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Clock className="w-4 h-4 text-indigo-600" />
+              <span>Chỉ số Chấm công & Tác phong làm việc</span>
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+                <div className="text-lg font-black text-emerald-700">26 / 26</div>
+                <div className="text-[11px] font-bold text-emerald-600 mt-0.5">Ngày công chuẩn</div>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-2xl border border-blue-100">
+                <div className="text-lg font-black text-blue-700">0 Lần</div>
+                <div className="text-[11px] font-bold text-blue-600 mt-0.5">Đi trễ / Về sớm</div>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100">
+                <div className="text-lg font-black text-purple-700">12 Ca</div>
+                <div className="text-[11px] font-bold text-purple-600 mt-0.5">Ca trực cuối tuần VIP</div>
+              </div>
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-100">
+                <div className="text-lg font-black text-amber-700">100%</div>
+                <div className="text-[11px] font-bold text-amber-600 mt-0.5">Đánh giá 5 sao</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Đánh giá gần nhất của khách hàng */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+                <span>Nhận xét thực tế từ khách hàng</span>
+              </h3>
+              <span className="text-xs font-bold text-emerald-600">Điểm TB: 4.95 / 5.0</span>
+            </div>
+
+            <div className="space-y-3">
+              {reviews.map((rev) => (
+                <div key={rev.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900">{rev.customer}</h4>
+                      <span className="text-[10px] text-[#544CDE] font-semibold">{rev.service}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-500 font-bold text-xs">
+                      <span>{'★'.repeat(rev.rating)}</span>
+                      <span className="text-[10px] text-slate-400 ml-1">{rev.date}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed italic">"{rev.content}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 4: BẢO MẬT & CÀI ĐẶT ── */}
+      {activeTab === 'security' && (
+        <div className="p-4 sm:p-5 space-y-4 max-w-4xl mx-auto">
+          {/* Card: Bảo mật tài khoản */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Lock className="w-4 h-4 text-indigo-600" />
+              <span>Bảo mật đăng nhập & Tài khoản</span>
+            </h3>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                    <Key className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900">Mật khẩu đăng nhập</h4>
+                    <p className="text-[11px] text-slate-400">Đổi định kỳ 90 ngày để bảo vệ dữ liệu khách hàng</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsPasswordModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-bold text-xs text-slate-700 shadow-2xs transition-colors"
+                >
+                  Đổi mật khẩu
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900">Xác thực 2 bước (2FA OTP)</h4>
+                    <p className="text-[11px] text-slate-400">Bảo vệ phiên làm việc qua SMS OTP</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setTwoFactorEnabled(!twoFactorEnabled);
+                    showToast(!twoFactorEnabled ? 'Đã kích hoạt xác thực 2 bước!' : 'Đã tắt xác thực 2 bước');
+                  }}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${twoFactorEnabled ? 'bg-[#544CDE]' : 'bg-slate-300'}`}
+                >
+                  <span className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow-sm ${twoFactorEnabled ? 'right-0.5' : 'left-0.5'}`} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Thẻ nhân viên số */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                <QrCode className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">Thẻ Nhân Viên Kỹ Thuật Số (Digital ID)</h4>
+                <p className="text-[11px] text-slate-400">Dùng quét chấm công và check-in đón khách tại chi nhánh</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsQrModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-[#544CDE] text-white font-bold text-xs hover:bg-[#433bc7] transition-colors shadow-xs"
+            >
+              Mở thẻ
+            </button>
+          </div>
+
+          {/* Card: Đăng xuất & Chuyển tài khoản */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-2.5">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Quản lý phiên làm việc</h4>
+            <button
+              onClick={onSwitchAccount || (() => onNavigate('auth'))}
+              className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-indigo-600" />
+                <span>Chuyển đổi tài khoản khác</span>
+              </span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </button>
+
+            <button
+              onClick={onLogout || (() => onNavigate('auth'))}
+              className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors border border-rose-100"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Đăng xuất khỏi hệ thống</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: CHỈNH SỬA HỒ SƠ ── */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-[#544CDE]" />
+                <span>Chỉnh Sửa Hồ Sơ Nhân Viên</span>
+              </h3>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Họ và tên nhân viên *</label>
+                <input
+                  type="text"
+                  value={editForm.fullName}
+                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-semibold text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Số điện thoại *</label>
+                  <input
+                    type="text"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Email công vụ</label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Ngày sinh</label>
+                  <input
+                    type="text"
+                    value={editForm.birthday}
+                    onChange={(e) => setEditForm({ ...editForm, birthday: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Số CCCD / CMND</label>
+                  <input
+                    type="text"
+                    value={editForm.idCard}
+                    onChange={(e) => setEditForm({ ...editForm, idCard: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Chức danh chuyên môn</label>
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Cơ sở / Chi nhánh làm việc</label>
+                <input
+                  type="text"
+                  value={editForm.branch}
+                  onChange={(e) => setEditForm({ ...editForm, branch: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Địa chỉ thường trú</label>
+                <input
+                  type="text"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Số tài khoản nhận lương</label>
+                  <input
+                    type="text"
+                    value={editForm.bankAccount}
+                    onChange={(e) => setEditForm({ ...editForm, bankAccount: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Tên ngân hàng</label>
+                  <input
+                    type="text"
+                    value={editForm.bankName}
+                    onChange={(e) => setEditForm({ ...editForm, bankName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE] font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/60">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 font-bold text-xs text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={handleSaveProfile}
+                className="px-5 py-2.5 rounded-xl bg-[#544CDE] hover:bg-[#433bc7] text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5"
+              >
+                <Save className="w-4 h-4" />
+                <span>Lưu thay đổi</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Crop Modal */}
-      {cropSrc && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
-          <div className="flex items-center justify-between p-4 bg-black/50 text-white z-10">
-            <button 
-              onClick={() => { setCropSrc(null); setCropField(null); }} 
-              className="p-2 hover:bg-white/10 rounded-full"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <h3 className="font-bold">Chỉnh sửa ảnh</h3>
-            <button 
-              onClick={handleSaveCrop}
-              className="px-4 py-1.5 bg-white text-black font-bold rounded-full text-sm"
-            >
-              Lưu
-            </button>
+      {/* ── MODAL: THẺ NHÂN VIÊN SỐ & QR CODE ── */}
+      {isQrModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 p-6 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+            {/* Staff Card Frame */}
+            <div className="w-full bg-linear-to-b from-[#1E1B4B] via-[#312E81] to-[#0F172A] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border border-amber-400/30">
+              <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-900 font-black text-xs flex items-center justify-center shadow-xs">
+                    C
+                  </div>
+                  <div className="text-left leading-tight">
+                    <span className="text-[10px] font-black tracking-widest text-amber-300 block">CELLA BEAUTÉ</span>
+                    <span className="text-[8px] text-white/60">MAKEUP & ACADEMY</span>
+                  </div>
+                </div>
+                <span className="text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
+                  OFFICIAL ID
+                </span>
+              </div>
+
+              {/* Avatar & Info */}
+              <div className="flex flex-col items-center">
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.fullName}
+                  className="w-20 h-20 rounded-full object-cover ring-3 ring-amber-400 shadow-md mb-2"
+                />
+                <h4 className="text-base font-black text-white">{profile.fullName}</h4>
+                <p className="text-[11px] font-semibold text-amber-300">{profile.title}</p>
+                <div className="mt-1 text-[10px] text-white/70 font-mono tracking-wider">
+                  MÃ NV: <strong className="text-white">{profile.employeeCode}</strong>
+                </div>
+              </div>
+
+              {/* QR Code Canvas Mock */}
+              <div className="mt-4 bg-white p-3 rounded-xl mx-auto inline-block shadow-md">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=CELLA-STAFF-${profile.employeeCode}`}
+                  alt="Staff QR"
+                  className="w-28 h-28 mx-auto"
+                />
+              </div>
+              <p className="text-[9px] text-white/50 mt-2 font-medium">Quét để chấm công & xác thực nhân sự</p>
+            </div>
+
+            <div className="mt-5 flex items-center gap-2 w-full">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`CELLA-STAFF-${profile.employeeCode}`);
+                  showToast('Đã sao chép mã thẻ nhân viên!');
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+              >
+                Sao chép mã
+              </button>
+              <button
+                onClick={() => setIsQrModalOpen(false)}
+                className="flex-1 py-2.5 rounded-xl bg-[#544CDE] hover:bg-[#433bc7] text-white font-bold text-xs transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
           </div>
-          <div className="relative flex-1">
-            <Cropper
-              image={cropSrc}
-              crop={crop}
-              zoom={zoom}
-              aspect={cropField === 'avatar_url' ? 1 : 16/9}
-              onCropChange={setCrop}
-              onCropComplete={onCropComplete}
-              onZoomChange={setZoom}
-            />
+        </div>
+      )}
+
+      {/* ── MODAL: ĐỔI MẬT KHẨU ── */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 p-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Key className="w-4 h-4 text-indigo-600" />
+                <span>Đổi Mật Khẩu Đăng Nhập</span>
+              </h3>
+              <button
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Mật khẩu hiện tại</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Nhập mật khẩu cũ..."
+                  value={passwordForm.oldPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE]"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Mật khẩu mới (ít nhất 6 ký tự)</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Nhập mật khẩu mới..."
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE]"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Xác nhận mật khẩu mới</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Nhập lại mật khẩu mới..."
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#544CDE]"
+                />
+              </div>
+
+              <div className="pt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#544CDE] hover:bg-[#433bc7] text-white font-bold transition-colors shadow-xs"
+                >
+                  Cập nhật
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

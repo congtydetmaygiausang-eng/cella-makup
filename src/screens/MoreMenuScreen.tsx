@@ -265,8 +265,8 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
                   <User className="w-5 h-5 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[14px] font-bold text-slate-800 block">Hồ sơ chuyên viên</span>
-                  <span className="text-[12px] font-medium text-slate-400">Thông tin cá nhân & cài đặt</span>
+                  <span className="text-[14px] font-bold text-slate-800 block">Hồ sơ nhân viên</span>
+                  <span className="text-[12px] font-medium text-slate-400">Thông tin cá nhân, năng lực & đãi ngộ</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />

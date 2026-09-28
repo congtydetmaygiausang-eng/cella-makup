@@ -113,10 +113,10 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
         },
         {
           id: 'profile' as ScreenId,
-          title: 'Hồ sơ chuyên viên',
-          desc: 'Thông tin cá nhân & cài đặt',
-          icon: User,
-          iconBg: 'bg-slate-100 text-slate-700 border border-slate-200/80',
+          title: 'Hồ sơ nhân viên',
+          desc: 'Thông tin cá nhân, năng lực & đãi ngộ',
+          icon: UserCheck,
+          iconBg: 'bg-indigo-50 text-[#544CDE] border border-indigo-200/80',
         },
         {
           id: 'auth' as ScreenId,
