@@ -13,6 +13,11 @@ import {
   CheckCircle2,
   ChevronRight,
   Sparkles,
+  QrCode,
+  DollarSign,
+  Phone,
+  ShieldCheck,
+  CreditCard
 } from 'lucide-react';
 
 interface CreateBookingScreenProps {
@@ -22,39 +27,145 @@ interface CreateBookingScreenProps {
   onNavigate: (screen: ScreenId) => void;
 }
 
+interface ServiceItem {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  deposit: number;
+  duration: string;
+}
+
+const CELLA_SERVICES: ServiceItem[] = [
+  {
+    id: 's1',
+    name: 'Makeup Cô Dâu VIP (Lễ Cưới Trọn Gói)',
+    category: 'Cô dâu',
+    price: 2500000,
+    deposit: 1000000,
+    duration: '90 - 120 phút',
+  },
+  {
+    id: 's2',
+    name: 'Makeup Cô Dâu Ăn Hỏi & Áo Dài Truyền Thống',
+    category: 'Cô dâu',
+    price: 1800000,
+    deposit: 800000,
+    duration: '90 phút',
+  },
+  {
+    id: 's3',
+    name: 'Thử Makeup & Làm Tóc Cô Dâu (Trial Bridal)',
+    category: 'Cô dâu',
+    price: 1200000,
+    deposit: 500000,
+    duration: '90 phút',
+  },
+  {
+    id: 's4',
+    name: 'Makeup Dự Tiệc & Dạ Hội Sang Trọng',
+    category: 'Dự tiệc',
+    price: 800000,
+    deposit: 300000,
+    duration: '60 phút',
+  },
+  {
+    id: 's5',
+    name: 'Makeup Kỷ Yếu & Học Sinh / Sinh Viên',
+    category: 'Kỷ yếu',
+    price: 600000,
+    deposit: 200000,
+    duration: '45 - 60 phút',
+  },
+  {
+    id: 's6',
+    name: 'Makeup Sự Kiện & Chụp Ảnh Lookbook Ngoài Trời',
+    category: 'Sự kiện',
+    price: 1500000,
+    deposit: 500000,
+    duration: '90 phút',
+  },
+  {
+    id: 's7',
+    name: 'Makeup Tận Nơi / Tại Nhà (Thái Bình & lân cận)',
+    category: 'Tận nơi',
+    price: 1500000,
+    deposit: 500000,
+    duration: '90 phút',
+  },
+];
+
+const ARTISTS_LIST = [
+  {
+    id: 'ins-1',
+    name: 'Master Cella Hương Phượng',
+    role: 'Nhà sáng lập · Master Trainer',
+    rating: 5.0,
+    avatar: 'https://cellamakeup.vn/blog/images/founder.jpg',
+  },
+  {
+    id: 'ins-2',
+    name: 'Trần Thị Lan Anh',
+    role: 'Chuyên gia Makeup Cô Dâu',
+    rating: 4.9,
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'ins-3',
+    name: 'Nguyễn Thu Trang',
+    role: 'Chuyên gia High Fashion & Editorial',
+    rating: 4.9,
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'ins-4',
+    name: 'Hoàng Minh Anh',
+    role: 'Chuyên gia Makeup Cá Nhân & Tiệc',
+    rating: 4.8,
+    avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'ins-5',
+    name: 'Lê Mai Phương',
+    role: 'Trợ giảng cao cấp',
+    rating: 5.0,
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400',
+  },
+];
+
 export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
   customers,
   onBack,
   onSaveBooking,
   onNavigate,
 }) => {
+  const [useExistingCustomer, setUseExistingCustomer] = useState(true);
   const [selectedCustomerId, setSelectedCustomerId] = useState(customers[0]?.id || 'CUST-001');
-  const [selectedService, setSelectedService] = useState('Makeup cô dâu cao cấp');
-  const [selectedBranch, setSelectedBranch] = useState('CELLA Studio Thái Bình (37–39 Phan Bội Châu, TP. Thái Bình)');
+  const [customName, setCustomName] = useState('');
+  const [customPhone, setCustomPhone] = useState('');
+
+  const [selectedService, setSelectedService] = useState<ServiceItem>(CELLA_SERVICES[0]);
+  const [selectedArtist, setSelectedArtist] = useState(ARTISTS_LIST[0]);
+  const [selectedBranch, setSelectedBranch] = useState('CELLA Studio (37–39 Phan Bội Châu, TP. Thái Bình)');
   const [selectedDay, setSelectedDay] = useState(25);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('08:00 – 09:30 (Sáng)');
-  const [meetingType, setMeetingType] = useState<'STUDIO' | 'ONLINE'>('STUDIO');
-  const [notes, setNotes] = useState('Khách đặt lịch trang điểm.');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('09:00 – 10:30 (Sáng)');
+  const [notes, setNotes] = useState('');
   const [smsReminder, setSmsReminder] = useState(true);
 
-  const selectedCustomer = customers.find((c) => c.id === selectedCustomerId) || customers[0];
-
-  const services = [
-    'Makeup cô dâu cao cấp (Bao gồm cả ngày)',
-    'Makeup dự tiệc & dạ hội sang trọng',
-    'Makeup kỷ yếu & nhóm học sinh',
-    'Makeup sự kiện & biểu diễn',
-    'Makeup cá nhân tự nhiên hàng ngày',
-    'Makeup tận nơi / Tại nhà',
-    'Khóa học Makeup Chuyên Nghiệp',
-    'Dự Án 0 Đồng - Khóa Nền Tảng',
-  ];
+  const selectedCustomer = customers.find((c) => c.id === selectedCustomerId) || customers[0] || {
+    id: 'CUST-TEMP',
+    name: customName || 'Khách hàng',
+    phone: customPhone || '0988 123 456',
+  };
 
   const timeSlots = [
-    '09:00 – 10:30 (Sáng)',
-    '10:30 – 12:00',
-    '14:00 – 15:30 (Chiều)',
-    '16:00 – 17:30',
+    '07:00 – 08:30 (Sớm)',
+    '08:30 – 10:00 (Sáng)',
+    '10:00 – 11:30 (Sáng)',
+    '13:30 – 15:00 (Chiều)',
+    '15:00 – 16:30 (Chiều)',
+    '17:00 – 18:30 (Tối)',
+    '19:00 – 20:30 (Tối)',
   ];
 
   const days = [
@@ -68,27 +179,34 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
   ];
 
   const handleConfirm = () => {
+    const custName = useExistingCustomer ? selectedCustomer.name : customName.trim();
+    const custPhone = useExistingCustomer ? selectedCustomer.phone : customPhone.trim();
+
+    if (!custName || !custPhone) {
+      alert('Vui lòng nhập tên và số điện thoại khách hàng!');
+      return;
+    }
+
     const newBk: Partial<Booking> = {
-      bookingCode: `#BK-${Date.now().toString().slice(-8)}`,
-      customerId: selectedCustomer.id,
-      customerName: selectedCustomer.name,
-      customerPhone: selectedCustomer.phone,
-      customerVip: selectedCustomer.vipTier,
-      serviceTitle: selectedService,
-      artistId: 'NV-CELLA',
-      artistName: 'Cella Hương Phượng',
+      bookingCode: `#BK-202504${selectedDay}-${Date.now().toString().slice(-4)}`,
+      customerId: useExistingCustomer ? selectedCustomer.id : `CUST-${Date.now().toString().slice(-4)}`,
+      customerName: custName,
+      customerPhone: custPhone,
+      customerVip: useExistingCustomer ? selectedCustomer.vipTier : 'Khách mới',
+      serviceTitle: selectedService.name,
+      artistId: selectedArtist.id,
+      artistName: selectedArtist.name,
       appointmentDate: `2025-04-${selectedDay}`,
       appointmentTime: selectedTimeSlot,
       branchName: selectedBranch,
-      locationAddress:
-        selectedBranch.includes('Thái Bình')
-          ? '37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình'
-          : 'Trang điểm tận nơi theo yêu cầu của khách hàng',
-      locationType: 'STUDIO',
+      locationAddress: selectedBranch.includes('Thái Bình')
+        ? '37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình'
+        : 'Trang điểm tận nơi theo địa chỉ khách yêu cầu',
+      locationType: selectedBranch.includes('tận nơi') ? 'HOME' : 'STUDIO',
       status: 'CONFIRMED',
-      totalAmount: 800000,
-      depositAmount: 300000,
-      notes,
+      totalAmount: selectedService.price,
+      depositAmount: selectedService.deposit,
+      notes: notes || 'Đặt lịch qua ứng dụng CELLA',
       smsReminder,
     };
 
@@ -96,12 +214,12 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#F8F9FF] pb-24 text-slate-900">
+    <div className="min-h-full bg-[#F8F9FF] pb-24 text-slate-900 animate-in fade-in duration-200">
       <MobileHeader
         showBack
         onBack={onBack}
         title="Đặt lịch hẹn mới"
-        subtitle="Hệ thống Booking CELLA"
+        subtitle="Hệ thống Booking CELLA Makeup"
         rightAction={
           <button
             onClick={onBack}
@@ -113,100 +231,153 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
       />
 
       <div className="px-4 pt-2 space-y-3.5">
-        {/* KHÁCH HÀNG (Matching screenshot 12) */}
-        <GlassCard className="p-3.5 bg-white space-y-2">
+        {/* 1. KHÁCH HÀNG */}
+        <GlassCard className="p-4 bg-white space-y-3 rounded-2xl shadow-xs border border-slate-100">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Khách hàng
+            <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
+              1. Khách hàng đặt lịch
             </h4>
-            <select
-              value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
-              className="text-xs font-bold text-[#5850EC] bg-[#EFF4FF] px-2 py-1 rounded-lg border border-[#5850EC]/20 focus:outline-none"
-            >
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.phone})
-                </option>
-              ))}
-            </select>
+            <div className="flex bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
+              <button
+                type="button"
+                onClick={() => setUseExistingCustomer(true)}
+                className={`px-2 py-1 rounded-md transition-all ${
+                  useExistingCustomer ? 'bg-white text-[#544CDE] shadow-xs' : 'text-slate-500'
+                }`}
+              >
+                Chọn có sẵn
+              </button>
+              <button
+                type="button"
+                onClick={() => setUseExistingCustomer(false)}
+                className={`px-2 py-1 rounded-md transition-all ${
+                  !useExistingCustomer ? 'bg-white text-[#544CDE] shadow-xs' : 'text-slate-500'
+                }`}
+              >
+                Khách mới
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full bg-[#5850EC] text-white font-bold text-xs flex items-center justify-center">
-                {selectedCustomer.name
-                  .split(' ')
-                  .map((n) => n[0])
-                  .slice(-2)
-                  .join('')}
+          {useExistingCustomer ? (
+            <div className="space-y-2">
+              <select
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
+                className="w-full text-xs font-bold text-slate-800 bg-[#F8F9FF] p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#544CDE]/30"
+              >
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} — {c.phone} {c.vipTier ? `(${c.vipTier})` : ''}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/50 border border-indigo-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-full bg-[#544CDE] text-white font-black text-xs flex items-center justify-center">
+                    {selectedCustomer.name
+                      ? selectedCustomer.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .slice(-2)
+                          .join('')
+                      : 'KH'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-slate-900">
+                        {selectedCustomer.name}
+                      </span>
+                      {selectedCustomer.vipTier && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900">
+                          {selectedCustomer.vipTier}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500">{selectedCustomer.phone}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Họ tên khách *</label>
+                <input
+                  type="text"
+                  placeholder="Nguyễn Thị Lan"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 font-bold"
+                />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-bold text-slate-900">
-                    {selectedCustomer.name}
-                  </span>
-                  {selectedCustomer.vipTier && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900">
-                      {selectedCustomer.vipTier}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500">{selectedCustomer.phone}</p>
+                <label className="block font-bold text-slate-700 mb-1">Số điện thoại *</label>
+                <input
+                  type="tel"
+                  placeholder="0988 123 456"
+                  value={customPhone}
+                  onChange={(e) => setCustomPhone(e.target.value)}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 font-bold"
+                />
               </div>
             </div>
-
-            <button
-              onClick={() => onNavigate('create_customer')}
-              className="text-xs font-semibold text-[#5850EC] hover:underline"
-            >
-              + Thêm mới
-            </button>
-          </div>
+          )}
         </GlassCard>
 
-        {/* DỊCH VỤ & CHUYÊN GIA (Matching screenshot 12) */}
-        <GlassCard className="p-3.5 bg-white space-y-3">
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Dịch vụ & Chuyên gia
+        {/* 2. CHỌN DỊCH VỤ MAKEUP */}
+        <GlassCard className="p-4 bg-white space-y-3 rounded-2xl shadow-xs border border-slate-100">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
+            2. Dịch vụ Trang điểm CELLA
           </h4>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Loại dịch vụ / Khóa học
-            </label>
-            <div className="space-y-1.5">
-              {services.map((svc) => {
-                const isSelected = selectedService === svc;
-                return (
-                  <button
-                    type="button"
-                    key={svc}
-                    onClick={() => setSelectedService(svc)}
-                    className={`w-full p-2.5 rounded-xl text-left text-xs font-semibold flex items-center justify-between transition-all ${
-                      isSelected
-                        ? 'bg-[#EFF4FF] text-[#5850EC] border-2 border-[#5850EC]'
-                        : 'bg-[#F8F9FF] text-slate-700 border border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span>{svc}</span>
-                    {isSelected && <CheckCircle2 className="w-4 h-4 text-[#5850EC] shrink-0 ml-1" />}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="space-y-1.5">
+            {CELLA_SERVICES.map((svc) => {
+              const isSelected = selectedService.id === svc.id;
+              return (
+                <div
+                  key={svc.id}
+                  onClick={() => setSelectedService(svc)}
+                  className={`p-3 rounded-xl cursor-pointer flex items-center justify-between transition-all ${
+                    isSelected
+                      ? 'bg-indigo-50/70 border-2 border-[#544CDE] text-slate-900'
+                      : 'bg-slate-50/80 border border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold">{svc.name}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Thời lượng: {svc.duration} · Cọc: {svc.deposit.toLocaleString('vi-VN')} đ
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-black text-[#544CDE] block">
+                      {svc.price.toLocaleString('vi-VN')} đ
+                    </span>
+                    {isSelected && (
+                      <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 justify-end mt-0.5">
+                        <CheckCircle2 className="w-3 h-3" /> Đã chọn
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Cơ sở thực hiện
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Địa điểm thực hiện
             </label>
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl bg-[#F8F9FF] border border-slate-200 text-xs font-semibold text-slate-800"
+              className="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800"
             >
-              <option value="CELLA Studio Thái Bình (37–39 Phan Bội Châu, TP. Thái Bình)">
+              <option value="CELLA Studio (37–39 Phan Bội Châu, TP. Thái Bình)">
                 CELLA Studio (37–39 Phan Bội Châu, TP. Thái Bình)
               </option>
               <option value="Trang điểm tận nơi / Tại nhà (TP. Thái Bình & huyện lân cận)">
@@ -214,37 +385,58 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
               </option>
             </select>
           </div>
+        </GlassCard>
 
-          {/* Chuyên gia phụ trách */}
-          <div className="p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <img
-                src="https://cellamakeup.vn/blog/images/founder.jpg"
-                alt="Cella Hương Phượng"
-                className="w-10 h-10 rounded-full object-cover border border-[#5850EC]/30"
-              />
-              <div>
-                <p className="text-xs font-bold text-slate-900">Cella Hương Phượng</p>
-                <div className="flex items-center gap-1 text-[11px] text-slate-500">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span>5.0 (Bàn Tay Vàng Makeup Châu Á 2025)</span>
+        {/* 3. NGHỆ NHÂN MAKEUP (ARTIST) */}
+        <GlassCard className="p-4 bg-white space-y-3 rounded-2xl shadow-xs border border-slate-100">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
+            3. Nghệ nhân thực hiện (Artist)
+          </h4>
+
+          <div className="grid grid-cols-1 gap-2">
+            {ARTISTS_LIST.map((art) => {
+              const isSelected = selectedArtist.id === art.id;
+              return (
+                <div
+                  key={art.id}
+                  onClick={() => setSelectedArtist(art)}
+                  className={`p-2.5 rounded-xl cursor-pointer flex items-center justify-between transition-all ${
+                    isSelected
+                      ? 'bg-purple-50/70 border-2 border-purple-600 text-slate-900'
+                      : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={art.avatar}
+                      alt={art.name}
+                      className="w-10 h-10 rounded-full object-cover border border-purple-200"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">{art.name}</p>
+                      <p className="text-[10px] text-slate-500">{art.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-slate-700">{art.rating}</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <span className="text-xs text-[#5850EC] font-semibold">Master Artist</span>
+              );
+            })}
           </div>
         </GlassCard>
 
-        {/* THỜI GIAN HẸN (Matching screenshot 12) */}
-        <GlassCard className="p-3.5 bg-white space-y-3">
+        {/* 4. THỜI GIAN HẸN */}
+        <GlassCard className="p-4 bg-white space-y-3 rounded-2xl shadow-xs border border-slate-100">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Thời gian hẹn
+            <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">
+              4. Thời gian hẹn
             </h4>
-            <span className="text-xs font-semibold text-[#5850EC]">Tháng 4, 2025</span>
+            <span className="text-xs font-bold text-[#544CDE]">Tháng 4, 2025</span>
           </div>
 
-          {/* Week days */}
+          {/* Week days selector */}
           <div className="grid grid-cols-7 gap-1">
             {days.map((d) => {
               const isSelected = selectedDay === d.num;
@@ -255,8 +447,8 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
                   onClick={() => setSelectedDay(d.num)}
                   className={`py-2 rounded-xl flex flex-col items-center justify-center transition-all ${
                     isSelected
-                      ? 'bg-[#5850EC] text-white shadow-sm'
-                      : 'bg-[#F8F9FF] text-slate-700 hover:bg-slate-100'
+                      ? 'bg-[#544CDE] text-white shadow-sm font-bold'
+                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
                   <span className="text-[10px] opacity-80">{d.name}</span>
@@ -266,12 +458,12 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
             })}
           </div>
 
-          {/* Time Slots Grid */}
+          {/* Time Slots */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Khung giờ còn trống
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              Khung giờ slot hẹn
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
               {timeSlots.map((slot) => {
                 const isSelected = selectedTimeSlot === slot;
                 return (
@@ -279,10 +471,10 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
                     type="button"
                     key={slot}
                     onClick={() => setSelectedTimeSlot(slot)}
-                    className={`p-2.5 rounded-xl text-xs font-semibold text-center transition-all ${
+                    className={`py-2 px-2.5 rounded-xl text-left text-xs font-bold transition-all ${
                       isSelected
-                        ? 'bg-[#5850EC] text-white shadow-sm'
-                        : 'bg-[#F8F9FF] text-slate-700 border border-slate-200 hover:bg-slate-100'
+                        ? 'bg-[#544CDE] text-white shadow-xs'
+                        : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {slot}
@@ -292,74 +484,48 @@ export const CreateBookingScreen: React.FC<CreateBookingScreenProps> = ({
             </div>
           </div>
 
-          {/* Hình thức gặp gỡ */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Hình thức gặp gỡ
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Ghi chú yêu cầu đặc biệt
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setMeetingType('STUDIO')}
-                className={`p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  meetingType === 'STUDIO'
-                    ? 'bg-[#5850EC] text-white'
-                    : 'bg-[#F8F9FF] text-slate-700 border border-slate-200'
-                }`}
-              >
-                Trực tiếp tại cơ sở
-              </button>
-              <button
-                type="button"
-                onClick={() => setMeetingType('ONLINE')}
-                className={`p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  meetingType === 'ONLINE'
-                    ? 'bg-[#5850EC] text-white'
-                    : 'bg-[#F8F9FF] text-slate-700 border border-slate-200'
-                }`}
-              >
-                Tư vấn Online (Video Call)
-              </button>
-            </div>
+            <input
+              type="text"
+              placeholder="VD: Da mụn, cần trang điểm tone Thái, đến trước 15 phút..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs"
+            />
           </div>
         </GlassCard>
 
-        {/* GHI CHÚ & NHẮC LỊCH (Matching screenshot 12) */}
-        <GlassCard className="p-3.5 bg-white space-y-3">
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Ghi chú & Nhắc lịch
-          </h4>
+        {/* TỔNG KẾT CHI PHÍ & NÚT XÁC NHẬN */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 shadow-md">
+          <div className="space-y-1.5 text-xs">
+            <div className="flex justify-between text-slate-600">
+              <span>Giá dịch vụ:</span>
+              <strong className="text-slate-900">{selectedService.price.toLocaleString('vi-VN')} đ</strong>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Tiền đặt cọc giữ chỗ:</span>
+              <strong className="text-emerald-600">{selectedService.deposit.toLocaleString('vi-VN')} đ</strong>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-slate-100 text-sm font-black">
+              <span>Còn lại thanh toán tại tiệm:</span>
+              <span className="text-[#544CDE]">
+                {(selectedService.price - selectedService.deposit).toLocaleString('vi-VN')} đ
+              </span>
+            </div>
+          </div>
 
-          <textarea
-            rows={2}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Nhập ghi chú yêu cầu của khách hàng..."
-            className="w-full p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-200 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30"
-          />
-
-          <label className="flex items-center justify-between cursor-pointer pt-1">
-            <span className="text-xs text-slate-700 font-medium">
-              Gửi nhắc hẹn qua SMS / Zalo (Tự động gửi trước 2 giờ)
-            </span>
-            <input
-              type="checkbox"
-              checked={smsReminder}
-              onChange={(e) => setSmsReminder(e.target.checked)}
-              className="w-5 h-5 accent-[#5850EC] rounded"
-            />
-          </label>
-        </GlassCard>
-
-        {/* Submit */}
-        <PrimaryButton
-          size="lg"
-          fullWidth
-          onClick={handleConfirm}
-          icon={<Check className="w-5 h-5" />}
-        >
-          Xác nhận đặt lịch hẹn
-        </PrimaryButton>
+          <PrimaryButton
+            size="lg"
+            fullWidth
+            onClick={handleConfirm}
+            icon={<CheckCircle2 className="w-5 h-5" />}
+          >
+            Xác nhận tạo Lịch hẹn ({selectedService.deposit.toLocaleString('vi-VN')} đ cọc)
+          </PrimaryButton>
+        </div>
       </div>
     </div>
   );

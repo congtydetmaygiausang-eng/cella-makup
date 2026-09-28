@@ -56,6 +56,10 @@ export interface Booking {
   depositAmount?: number;
   notes?: string;
   locationAddress?: string;
+  branchName?: string;
+  customerVip?: string;
+  locationType?: string;
+  smsReminder?: boolean;
 }
 
 // 4. Tasks (tasks)
