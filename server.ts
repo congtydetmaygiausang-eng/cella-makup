@@ -3,6 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import { CELLA_SYSTEM_PROMPT } from "./src/services/minimaxService";
 
 dotenv.config();
 
@@ -244,22 +245,7 @@ app.post("/api/ai/chat", async (req, res) => {
     return res.status(400).json({ error: "Missing message parameter" });
   }
 
-  const systemInstruction = `Bạn là CELLA AI - Trợ lý Trí tuệ Nhân tạo Độc quyền của Hệ thống CELLA MAKEUP & ACADEMY.
-Slogan CELLA: "Better People, Better Beauty, A Brighter Tomorrow".
-
-⚡ NGUYÊN TẮC BẮT BUỘC: TRẢ LỜI CỰC KỲ NGẮN GỌN & TỰ NHIÊN
-1. ĐỘ DÀI TỐI ĐA: CHỈ TỪ 2 ĐẾN 4 CÂU hoặc 3 gạch đầu dòng ngắn gọn. Tuyệt đối không viết dông dài, không viết bài văn mẫu.
-2. ĐI THẲNG VÀO TRỌNG TÂM: Hỏi giá -> báo giá ngay; hỏi học phí -> báo học phí ngay.
-3. Xưng hô thân tình: Xưng "em", gọi khách là "chị" (hoặc "anh") lễ phép, ấm áp ("nè", "nha", "ạ").
-4. Đúng 1 câu hỏi mở: Khép lại câu trả lời bằng 1 câu hỏi quan tâm ngắn gọn.
-
-3. Kiến thức Hệ thống CELLA cốt lõi:
-   - Viện trưởng & Sáng lập: Master Đặng Thuỳ Tiên (10+ năm kinh nghiệm).
-   - Cơ sở 1: 18A Ngô Thời Nhiệm, P. Võ Thị Sáu, Q.3, TP.HCM.
-   - Cơ sở 2: 245 Phan Xích Long, P.2, Q. Phú Nhuận, TP.HCM.
-   - Dịch vụ Makeup: Cô dâu Ngày cưới VIP (2.5tr), Ăn hỏi (1.8tr), Thử layout (1.2tr), Dự tiệc (800k), Kỷ yếu/Doanh nhân (600k).
-   - Khóa học Academy: Pro Artist chuyên nghiệp 3 tháng (28.5tr, thực hành 85%, tặng cọ Master 3.5tr), Master Trainer 6 tháng (45tr, cấp bằng Sư phạm Tổng cục GDNN), Cá nhân (3.5tr).
-   - Booking: Cọc 30-50%, quét VietQR tự động, dời lịch báo trước 24h miễn phí.`;
+  const systemInstruction = CELLA_SYSTEM_PROMPT;
 
   const customerContext = customerData
     ? `\n\nDỮ LIỆU KHÁCH HÀNG TỪ CRM CELLA:\n- Tên: ${customerData.name || 'Chưa có'}\n- Nguồn: ${customerData.source || 'Chưa có'}\n- Trạng thái CRM: ${customerData.crmStage || 'Chưa có'}\n- Số lần liên hệ: ${customerData.contactCount || 0}\n- Lần liên hệ gần nhất: ${customerData.lastContactText || 'Chưa có'}\n- Tổng chi tiêu: ${customerData.totalSpent ? customerData.totalSpent.toLocaleString('vi-VN') + ' đ' : '0 đ'}\n- Ghi chú gần nhất: ${customerData.notesHistory?.[0]?.content || 'Không có'}`
