@@ -1,22 +1,35 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ScreenId, Staff } from '../types';
 import {
-  Headphones,
-  Lightbulb,
-  MessageSquare,
-  BarChart2,
-  GraduationCap,
-  HelpCircle,
-  Send,
-  ArrowLeft,
   Sparkles,
+  ArrowLeft,
+  Send,
   User,
   RefreshCw,
+  Key,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Settings,
+  BookOpen,
+  CalendarCheck,
+  DollarSign,
+  HeartHandshake,
+  ShieldCheck,
+  Wand2,
   ChevronRight,
+  HelpCircle,
+  ExternalLink,
 } from 'lucide-react';
+import {
+  askCellaAI,
+  getMinimaxApiKey,
+  setMinimaxApiKey,
+  testMinimaxConnection,
+} from '../services/minimaxService';
 
 interface AIAssistantScreenProps {
-  onNavigate: (screen: ScreenId) => void;
+  onNavigate?: (screen: ScreenId) => void;
   onBack: () => void;
   currentUser?: Staff;
   customerContext?: {
@@ -35,84 +48,54 @@ interface Message {
   role: 'user' | 'ai';
   text: string;
   timestamp: string;
-  isFallback?: boolean;
+  provider?: 'minimax' | 'gemini' | 'cella_engine';
+  model?: string;
 }
 
-const QUICK_ACTIONS = [
+const SYSTEM_TOPICS = [
   {
-    text: 'Hỗ trợ bán hàng',
-    icon: Headphones,
-    iconBg: 'bg-blue-50 border border-blue-100',
-    iconColor: 'text-blue-500',
+    title: 'Bảng giá Makeup Cô dâu & Dự tiệc',
     category: 'Hỗ trợ bán hàng',
-    prompt: 'Khách hàng vừa liên hệ hỏi về dịch vụ thẩm mỹ tại CELLA. Hãy phân tích và tư vấn chiến lược tiếp cận phù hợp.',
+    icon: DollarSign,
+    iconBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    prompt: 'Hãy cho tôi biết chi tiết bảng giá các dịch vụ makeup cô dâu ngày cưới VIP, ăn hỏi, thử makeup và dự tiệc tại CELLA Studio?',
   },
   {
-    text: 'Gợi ý chăm sóc khách hàng',
-    icon: Lightbulb,
-    iconBg: 'bg-emerald-50 border border-emerald-100',
-    iconColor: 'text-emerald-500',
-    category: 'Gợi ý chăm sóc khách hàng',
-    prompt: 'Khách vừa hoàn thành liệu trình tại CELLA. Gợi ý cách chăm sóc và re-booking hiệu quả.',
-  },
-  {
-    text: 'Tạo nội dung mạng xã hội',
-    icon: MessageSquare,
-    iconBg: 'bg-sky-50 border border-sky-100',
-    iconColor: 'text-sky-500',
-    category: 'Tạo nội dung mạng xã hội',
-    prompt: 'Tạo kịch bản TikTok 60 giây cho dịch vụ thẩm mỹ CELLA, phong cách thu hút và tự nhiên.',
-  },
-  {
-    text: 'Phân tích báo cáo',
-    icon: BarChart2,
-    iconBg: 'bg-rose-50 border border-rose-100',
-    iconColor: 'text-rose-500',
-    category: 'Phân tích báo cáo',
-    prompt: 'Phân tích hiệu suất KPI tháng này và đề xuất cải thiện tỷ lệ chuyển đổi lead sang booking.',
-  },
-  {
-    text: 'Hỗ trợ đào tạo',
-    icon: GraduationCap,
-    iconBg: 'bg-amber-50 border border-amber-100',
-    iconColor: 'text-amber-500',
+    title: 'Học phí & Khóa học Pro Artist',
     category: 'Hỗ trợ đào tạo',
-    prompt: 'Hỗ trợ kiến thức kỹ thuật điêu khắc 9D và cấy vi chất Meso Extra cho học viên.',
+    icon: BookOpen,
+    iconBg: 'bg-amber-50 text-amber-700 border-amber-200',
+    prompt: 'Khóa học Makeup Chuyên Nghiệp Toàn Diện (Pro Artist) và Master Trainer tại CELLA Academy có học phí bao nhiêu, quyền lợi và bằng cấp thế nào?',
   },
   {
-    text: 'Trả lời câu hỏi',
-    icon: HelpCircle,
-    iconBg: 'bg-purple-50 border border-purple-100',
-    iconColor: 'text-purple-500',
-    category: 'Trả lời câu hỏi',
-    prompt: 'Tôi có một câu hỏi liên quan đến nghiệp vụ tư vấn và vận hành tại CELLA.',
+    title: 'Quy trình Đặt cọc & Dời lịch hẹn',
+    category: 'Quy trình vận hành',
+    icon: CalendarCheck,
+    iconBg: 'bg-blue-50 text-blue-700 border-blue-200',
+    prompt: 'Quy định đặt cọc giữ slot giờ đẹp và chính sách đổi, dời hoặc hủy lịch hẹn makeup tại CELLA như thế nào?',
+  },
+  {
+    title: 'Kịch bản Chốt Sales khách hỏi giá',
+    category: 'Hỗ trợ bán hàng',
+    icon: HeartHandshake,
+    iconBg: 'bg-rose-50 text-rose-700 border-rose-200',
+    prompt: 'Khách hàng vừa nhắn tin hỏi: "Gói cô dâu ngày cưới giá bao nhiêu vậy em?". Hãy phân tích tâm lý và gợi ý câu trả lời chốt hẹn tự nhiên, không ép khách.',
+  },
+  {
+    title: 'Xử lý lớp nền bị mốc (cakey)',
+    category: 'Kiến thức chuyên môn',
+    icon: Wand2,
+    iconBg: 'bg-purple-50 text-purple-700 border-purple-200',
+    prompt: 'Chia sẻ các bước skin-prep và kỹ thuật đánh nền không bị mốc, kiềm dầu bền màu suốt 12 tiếng của Master CELLA?',
+  },
+  {
+    title: 'Phân quyền hệ thống CELLA (RBAC)',
+    category: 'Hệ thống phần mềm',
+    icon: ShieldCheck,
+    iconBg: 'bg-teal-50 text-teal-700 border-teal-200',
+    prompt: 'Phân quyền trong hệ thống CELLA quy định ai được Xem, ai được Thêm, Sửa và Xóa các dữ liệu Khách hàng, Lịch hẹn, Khóa học và Doanh thu?',
   },
 ];
-
-async function callCellaAI(
-  message: string,
-  category: string,
-  customerData?: any
-): Promise<string> {
-  try {
-    const res = await fetch('/api/ai/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        category,
-        context: 'CELLA CRM - Hệ thống quản lý thẩm mỹ & đào tạo',
-        customerData: customerData || null,
-      }),
-    });
-
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    return data.reply || 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.';
-  } catch {
-    return 'Kết nối tạm thời bị gián đoạn. Vui lòng kiểm tra mạng và thử lại nhé!';
-  }
-}
 
 export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   onBack,
@@ -123,48 +106,24 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentCategory, setCurrentCategory] = useState('Chung');
+
+  // MiniMax API Key Settings State
+  const [apiKey, setApiKey] = useState(() => getMinimaxApiKey());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [inputKey, setInputKey] = useState(apiKey);
+  const [testingKey, setTestingKey] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const showChat = messages.length > 0;
 
-  // Personalized greeting based on logged-in user
+  // Name calculation
   const firstName = useMemo(() => {
     if (!currentUser?.fullName) return 'bạn';
     const parts = currentUser.fullName.trim().split(' ');
-    return parts[parts.length - 1]; // Last word = first name in Vietnamese
-  }, [currentUser]);
-
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'Chào buổi sáng';
-    if (hour >= 12 && hour < 18) return 'Chào buổi chiều';
-    return 'Chào buổi tối';
-  }, []);
-
-  const roleLabel = useMemo(() => {
-    switch (currentUser?.role) {
-      case 'SUPER_ADMIN':
-      case 'ADMIN': return 'Quản lý';
-      case 'MASTER_ARTIST': return 'Master Artist';
-      case 'ARTIST': return 'Artist';
-      case 'ACADEMY_TRAINER': return 'Giảng viên';
-      case 'SALES_CONSULTANT': return 'Tư vấn viên';
-      default: return 'chuyên viên';
-    }
-  }, [currentUser]);
-
-  // Smart suggested questions based on role
-  const smartSuggestions = useMemo(() => {
-    const base = [
-      { label: 'Xem lương tháng này', prompt: 'Tính hoa hồng và lương tháng này của tôi dựa trên KPI hiện tại.' },
-      { label: 'Báo cáo doanh thu hôm nay', prompt: 'Tổng hợp doanh thu hôm nay và so sánh với cùng kỳ.' },
-      { label: 'Khách hàng cần follow-up', prompt: 'Liệt kê các khách hàng cần chăm sóc và hành động tiếp theo phù hợp.' },
-    ];
-    if (currentUser?.role === 'ACADEMY_TRAINER') {
-      base[0] = { label: 'Xem học viên mới', prompt: 'Danh sách học viên đăng ký mới nhất và tiến độ khai giảng.' };
-    }
-    return base;
+    return parts[parts.length - 1];
   }, [currentUser]);
 
   const scrollToBottom = () => {
@@ -174,6 +133,28 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Handle Save API Key
+  const handleSaveApiKey = () => {
+    const trimmed = inputKey.trim();
+    setMinimaxApiKey(trimmed);
+    setApiKey(trimmed);
+    setIsSettingsOpen(false);
+    setTestResult(null);
+  };
+
+  // Handle Test Connection
+  const handleTestKey = async () => {
+    if (!inputKey.trim()) {
+      setTestResult({ success: false, message: 'Vui lòng nhập API Key MiniMax trước khi kiểm tra' });
+      return;
+    }
+    setTestingKey(true);
+    setTestResult(null);
+    const res = await testMinimaxConnection(inputKey.trim());
+    setTestingKey(false);
+    setTestResult(res);
+  };
 
   const handleSend = async (text?: string, category?: string) => {
     const msg = (text ?? inputMessage).trim();
@@ -193,17 +174,37 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
     setInputMessage('');
     setIsTyping(true);
 
-    const reply = await callCellaAI(msg, cat, customerContext);
+    try {
+      const response = await askCellaAI({
+        message: msg,
+        category: cat,
+        customerData: customerContext,
+        history: messages.slice(-4).map((m) => ({ role: m.role, text: m.text })),
+      });
 
-    const aiMsg: Message = {
-      id: `ai-${Date.now()}`,
-      role: 'ai',
-      text: reply,
-      timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-    };
+      const aiMsg: Message = {
+        id: `ai-${Date.now()}`,
+        role: 'ai',
+        text: response.reply,
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        provider: response.provider,
+        model: response.model,
+      };
 
-    setMessages((prev) => [...prev, aiMsg]);
-    setIsTyping(false);
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      const fallbackMsg: Message = {
+        id: `ai-err-${Date.now()}`,
+        role: 'ai',
+        text: 'Dạ hiện tại đường truyền đang chậm, em xin gửi thông tin giải đáp trực tiếp từ hệ thống dữ liệu CELLA đến bạn nhé!',
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        provider: 'cella_engine',
+        model: 'CELLA Expert Knowledge 2.0',
+      };
+      setMessages((prev) => [...prev, fallbackMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleReset = () => {
@@ -213,131 +214,156 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#F5F6FF] flex flex-col relative" style={{ height: '100%' }}>
-      {/* ─── Header ─── */}
-      <div className="flex items-center gap-3 px-4 pt-12 pb-4 bg-white border-b border-slate-100">
-        <button
-          onClick={onBack}
-          className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-slate-700" />
-        </button>
+    <div className="min-h-full bg-[#F4F7F4] bg-botanical-mesh flex flex-col relative" style={{ height: '100%' }}>
+      {/* ─── Top Header (Botanical Styling) ─── */}
+      <div className="flex items-center justify-between px-4 pt-12 pb-3.5 bg-white/95 backdrop-blur-xl border-b border-[#264736]/10 shadow-xs z-20">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={onBack}
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#EAF2EC] text-[#264736] transition-colors active:scale-95"
+          >
+            <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
+          </button>
 
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <div className="relative shrink-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
-              <Sparkles className="w-4 h-4 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shadow-md">
+                <Sparkles className="w-4.5 h-4.5 text-emerald-300" />
+              </div>
+              <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${apiKey ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-[15px] font-black text-slate-900 leading-tight">AI – Trợ lý CELLA</h2>
-            <p className="text-[11px] text-emerald-500 font-semibold">● Sales Assistant · Gemini AI</p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-[14.5px] font-bold text-[#1A2820] leading-tight">CELLA AI Assistant</h2>
+                <span className={`text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-full ${apiKey ? 'bg-emerald-100 text-emerald-800' : 'bg-[#EAF2EC] text-[#264736]'}`}>
+                  {apiKey ? 'MiniMax API' : 'Knowledge 2.0'}
+                </span>
+              </div>
+              <p className="text-[10.5px] text-[#426953] font-medium">
+                {apiKey ? '🟢 Đã kích hoạt MiniMax LLM' : '✨ Tri thức Hệ thống & Studio'}
+              </p>
+            </div>
           </div>
         </div>
 
-        {showChat && (
+        <div className="flex items-center gap-1.5">
+          {/* Key Settings Button */}
           <button
-            onClick={handleReset}
-            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-400 transition-colors"
-            title="Cuộc hội thoại mới"
+            onClick={() => {
+              setInputKey(apiKey);
+              setTestResult(null);
+              setIsSettingsOpen(true);
+            }}
+            className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95 ${
+              apiKey
+                ? 'bg-[#EAF2EC] border-[#264736]/20 text-[#1E3A2F] hover:bg-[#DFECE2]'
+                : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
+            }`}
+            title="Cài đặt kết nối MiniMax API"
           >
-            <RefreshCw className="w-4 h-4" />
+            <Key className="w-3.5 h-3.5" />
+            <span>{apiKey ? 'API Key' : 'Nối API'}</span>
           </button>
-        )}
+
+          {showChat && (
+            <button
+              onClick={handleReset}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EAF2EC] text-slate-500 transition-colors"
+              title="Làm mới cuộc trò chuyện"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Context banner when customer is passed */}
       {customerContext?.name && (
-        <div className="px-4 py-2 bg-indigo-50 border-b border-indigo-100 flex items-center gap-2">
-          <User className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-          <p className="text-[11px] text-indigo-600 font-medium">
-            Đang phân tích: <strong>{customerContext.name}</strong>
-            {customerContext.crmStage && ` · ${customerContext.crmStage}`}
+        <div className="px-4 py-2 bg-[#EAF2EC] border-b border-[#264736]/10 flex items-center gap-2">
+          <User className="w-3.5 h-3.5 text-[#264736] shrink-0" />
+          <p className="text-[11px] text-[#1E3A2F] font-medium">
+            Đang tư vấn cho khách: <strong>{customerContext.name}</strong>
+            {customerContext.crmStage && ` · Nhóm: ${customerContext.crmStage}`}
             {customerContext.totalSpent
-              ? ` · Đã chi: ${customerContext.totalSpent.toLocaleString('vi-VN')}đ`
+              ? ` · Đã chi tiêu: ${customerContext.totalSpent.toLocaleString('vi-VN')}đ`
               : ''}
           </p>
         </div>
       )}
 
       {/* ─── Chat / Welcome Area ─── */}
-      <div className="flex-1 overflow-y-auto pb-[100px] no-scrollbar">
+      <div className="flex-1 overflow-y-auto pb-[105px] no-scrollbar px-3.5 pt-4">
         {!showChat ? (
-          /* ── Welcome State ── */
-          <div className="flex flex-col items-center px-5 pt-8 pb-4">
+          /* ── Welcome & System Training Guide ── */
+          <div className="flex flex-col items-center pt-4 pb-4">
             {/* Robot Avatar */}
-            <div className="relative w-[100px] h-[100px] mb-5">
-              <div className="absolute inset-0 rounded-full bg-indigo-100 blur-2xl opacity-80" />
-              <div className="relative z-10 w-full h-full flex items-center justify-center">
-                <svg width="90" height="90" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="20" y="38" width="60" height="44" rx="14" fill="#544CDE" />
-                  <rect x="28" y="14" width="44" height="32" rx="14" fill="#6C63FF" />
-                  <circle cx="50" cy="7" r="5" fill="#A5B4FC" />
-                  <line x1="50" y1="12" x2="50" y2="18" stroke="#A5B4FC" strokeWidth="3" strokeLinecap="round" />
-                  <circle cx="38" cy="28" r="6" fill="white" />
-                  <circle cx="62" cy="28" r="6" fill="white" />
-                  <circle cx="38" cy="29" r="3" fill="#1E1B4B" />
-                  <circle cx="62" cy="29" r="3" fill="#1E1B4B" />
-                  <circle cx="39.5" cy="27.5" r="1.2" fill="white" />
-                  <circle cx="63.5" cy="27.5" r="1.2" fill="white" />
-                  <path d="M40 36 Q50 43 60 36" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                  <rect x="6" y="50" width="14" height="22" rx="7" fill="#544CDE" />
-                  <rect x="80" y="50" width="14" height="22" rx="7" fill="#544CDE" />
-                  <circle cx="40" cy="60" r="4" fill="#A5B4FC" opacity="0.6" />
-                  <circle cx="50" cy="60" r="4" fill="#A5B4FC" opacity="0.6" />
-                  <circle cx="60" cy="60" r="4" fill="#A5B4FC" opacity="0.6" />
-                </svg>
+            <div className="relative w-20 h-20 mb-3">
+              <div className="w-full h-full rounded-3xl bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shadow-lg shadow-[#1A3326]/20 ring-4 ring-white">
+                <Sparkles className="w-10 h-10 text-emerald-300 stroke-[1.8]" />
               </div>
             </div>
 
             {/* Personalized Greeting */}
-            <h2 className="text-[17px] font-black text-slate-900 text-center">
-              Chào buổi tối chị Phượng dễ thương!
+            <h2 className="text-[17px] font-black text-[#1A2820] text-center">
+              Chào {firstName}, em là CELLA AI! 🌿
             </h2>
-            <p className="text-[13px] text-slate-500 mt-1 text-center leading-relaxed">
-              Hôm nay chị cần em hỗ trợ điều gì ạ?
+            <p className="text-[12.5px] text-[#426953] mt-1 text-center max-w-xs leading-relaxed">
+              Em đã được học toàn bộ kiến thức về Bảng giá dịch vụ, Khóa học Academy, Lịch hẹn và Kỹ thuật Makeup.
             </p>
 
-            {/* Smart Quick Chips based on role */}
-            <div className="w-full mt-3 flex flex-col gap-1.5">
-              {smartSuggestions.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(s.prompt, 'Trả lời câu hỏi')}
-                  className="flex items-center justify-between px-3.5 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl hover:bg-indigo-100 active:scale-[0.98] transition-all text-left"
-                >
-                  <span className="text-[12px] font-semibold text-indigo-700">{s.label}</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                </button>
-              ))}
+            {/* Connection Status Pill */}
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 border border-[#264736]/15 shadow-2xs text-[11.5px]">
+              <span className={`w-2 h-2 rounded-full ${apiKey ? 'bg-emerald-500 animate-ping' : 'bg-emerald-500'}`} />
+              <span className="font-bold text-[#1E3A2F]">
+                {apiKey ? 'Đang kết nối: MiniMax-Text-01' : 'Đang chạy: CELLA Knowledge Engine 2.0'}
+              </span>
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="text-[10px] text-[#264736] underline font-bold ml-1"
+              >
+                {apiKey ? 'Đổi Key' : 'Thêm Key'}
+              </button>
             </div>
 
-            <div className="w-full mt-2 border-t border-slate-100 pt-3">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 mb-2">Hoặc chọn chủ đề</p>
-              {QUICK_ACTIONS.map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(item.prompt, item.category)}
-                    className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-indigo-200 hover:shadow-md active:scale-[0.98] transition-all text-left"
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}>
-                      <Icon className={`w-5 h-5 ${item.iconColor} stroke-[2.2]`} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-semibold text-slate-800">{item.text}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5 truncate">{item.prompt.substring(0, 55)}...</p>
-                    </div>
-                  </button>
-                );
-              })}
+            {/* System Knowledge Quick Prompts */}
+            <div className="w-full mt-5 space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#264736]">
+                  Hỏi đáp nhanh về hệ thống CELLA:
+                </span>
+                <span className="text-[10px] text-slate-400">Chạm để hỏi</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2">
+                {SYSTEM_TOPICS.map((topic, i) => {
+                  const Icon = topic.icon;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(topic.prompt, topic.category)}
+                      className="w-full flex items-center gap-3 p-3 bg-white/90 hover:bg-white rounded-2xl border border-[#264736]/10 shadow-xs hover:border-[#264736]/30 active:scale-[0.98] transition-all text-left group"
+                    >
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${topic.iconBg}`}>
+                        <Icon className="w-4.5 h-4.5 stroke-[2.2]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold text-[#1A2820] group-hover:text-[#1E3A2F] truncate">
+                          {topic.title}
+                        </p>
+                        <p className="text-[11px] text-[#557864] truncate">
+                          {topic.category}
+                        </p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#264736] group-hover:translate-x-0.5 transition-all shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (
           /* ── Chat Messages ── */
-          <div className="px-4 pt-4 space-y-4">
+          <div className="space-y-4">
             {messages.map((msg) => {
               const isUser = msg.role === 'user';
               return (
@@ -346,27 +372,35 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                   className={`flex items-end gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
                 >
                   {!isUser && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm mb-1">
-                      <Sparkles className="w-3.5 h-3.5 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shrink-0 shadow-xs mb-1">
+                      <Sparkles className="w-4 h-4 text-emerald-300" />
                     </div>
                   )}
                   {isUser && (
-                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0 mb-1">
-                      <User className="w-4 h-4 text-slate-600" />
+                    <div className="w-8 h-8 rounded-full bg-[#EAF2EC] border border-[#264736]/20 flex items-center justify-center shrink-0 mb-1">
+                      <User className="w-4 h-4 text-[#264736]" />
                     </div>
                   )}
 
-                  <div className={`max-w-[76%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+                  <div className={`max-w-[82%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
                     <div
                       className={`px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap ${
                         isUser
-                          ? 'bg-[#544CDE] text-white rounded-br-md'
-                          : 'bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm'
+                          ? 'btn-forest rounded-br-xs shadow-sm font-medium'
+                          : 'bg-white/95 border border-[#264736]/10 text-[#1A2820] rounded-bl-xs shadow-xs'
                       }`}
                     >
                       {msg.text}
                     </div>
-                    <span className="text-[10px] text-slate-400 px-1 mt-1">{msg.timestamp}</span>
+
+                    <div className="flex items-center gap-2 px-1 mt-1">
+                      <span className="text-[10px] text-slate-400">{msg.timestamp}</span>
+                      {!isUser && msg.model && (
+                        <span className="text-[9.5px] font-semibold text-[#426953] bg-[#EAF2EC] px-1.5 py-0.2 rounded-md">
+                          {msg.model}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -375,14 +409,15 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex items-end gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shrink-0 shadow-xs">
+                  <Sparkles className="w-4 h-4 text-emerald-300" />
                 </div>
-                <div className="bg-white border border-slate-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm flex items-center gap-1.5">
+                <div className="bg-white/95 border border-[#264736]/10 rounded-2xl rounded-bl-xs px-4 py-3 shadow-xs flex items-center gap-1.5">
+                  <span className="text-xs text-[#264736] font-medium mr-1">CELLA AI đang suy nghĩ</span>
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"
+                      className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-bounce"
                       style={{ animationDelay: `${i * 0.15}s` }}
                     />
                   ))}
@@ -394,27 +429,99 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         )}
       </div>
 
-      {/* ─── Bottom Input ─── */}
-      <div className="absolute bottom-0 inset-x-0 px-4 py-3 bg-white border-t border-slate-100">
-        <div className="flex items-center gap-3">
+      {/* ─── Bottom Input Bar ─── */}
+      <div className="absolute bottom-0 inset-x-0 p-3 bg-white/95 backdrop-blur-xl border-t border-[#264736]/10 shadow-[0_-4px_20px_rgba(26,51,38,0.05)] z-20">
+        <div className="flex items-center gap-2 max-w-md mx-auto">
           <input
             ref={inputRef}
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="Nhập câu hỏi hoặc mô tả tình huống khách hàng..."
-            className="flex-1 h-12 px-4 rounded-full bg-slate-50 border border-slate-200 text-[13.5px] font-medium placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#544CDE] focus:ring-2 focus:ring-indigo-200 transition-all"
+            placeholder="Hỏi về bảng giá, khóa học, lịch hẹn, makeup..."
+            className="flex-1 h-12 px-4 rounded-full bg-[#F4F7F4] border border-[#264736]/15 text-[13.5px] font-medium placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-[#264736] focus:ring-2 focus:ring-[#264736]/20 transition-all text-[#1A2820]"
           />
           <button
             onClick={() => handleSend()}
             disabled={!inputMessage.trim() || isTyping}
-            className="w-12 h-12 rounded-full bg-[#544CDE] text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/30 hover:bg-[#4338ca] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-12 h-12 rounded-full btn-forest flex items-center justify-center shrink-0 shadow-md active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Send className="w-5 h-5 -ml-0.5" />
+            <Send className="w-5 h-5 -ml-0.5 text-white" />
           </button>
         </div>
       </div>
+
+      {/* ─── MODAL CÀI ĐẶT MINIMAX API KEY ─── */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-2xl bg-[#EAF2EC] flex items-center justify-center text-[#264736]">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-bold text-[#1A2820]">Kết nối MiniMax API</h3>
+                  <p className="text-[11px] text-slate-500">Kích hoạt trí tuệ nhân tạo CELLA</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  MiniMax API Key:
+                </label>
+                <input
+                  type="password"
+                  value={inputKey}
+                  onChange={(e) => setInputKey(e.target.value)}
+                  placeholder="Dán API Key MiniMax tại đây (sk-... hoặc ey...)"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:border-[#264736] focus:outline-none focus:ring-2 focus:ring-[#264736]/20 bg-[#F8FAF8]"
+                />
+              </div>
+
+              <div className="text-[11.5px] text-slate-600 bg-[#EAF2EC]/60 p-3 rounded-2xl border border-[#264736]/10 space-y-1">
+                <p className="font-bold text-[#1E3A2F]">💡 Hướng dẫn nhận Key:</p>
+                <p>1. Đăng ký tài khoản tại cổng MiniMax: <a href="https://platform.minimaxi.com" target="_blank" rel="noreferrer" className="text-[#264736] font-bold underline inline-flex items-center gap-0.5">platform.minimaxi.com <ExternalLink className="w-3 h-3" /></a></p>
+                <p>2. Vào mục <strong>API Keys</strong> ➔ Bấm <strong>Create Key</strong> ➔ Copy và dán vào ô trên.</p>
+                <p>3. Khi có Key, hệ thống sẽ sử dụng mô hình LLM siêu cấp <strong>MiniMax-Text-01 / abab6.5s</strong>.</p>
+              </div>
+
+              {testResult && (
+                <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${testResult.success ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+                  {testResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+                  <span>{testResult.message}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleTestKey}
+                disabled={testingKey}
+                className="flex-1 py-2.5 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] text-xs font-bold hover:bg-[#DFECE2] active:scale-95 transition-all"
+              >
+                {testingKey ? 'Đang kiểm tra...' : 'Kiểm tra kết nối'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveApiKey}
+                className="flex-1 py-2.5 rounded-xl btn-forest text-xs font-bold shadow-sm active:scale-95 transition-all"
+              >
+                Lưu & Kích hoạt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

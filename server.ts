@@ -339,6 +339,39 @@ NGÔN NGỮ: Tiếng Việt, ngắn gọn, chuyên nghiệp, định dạng rõ 
 
   const prompt = `[Chuyên mục: ${category || "Chung"}]\n[Ngữ cảnh: ${context || "Hệ thống CELLA CRM"}]${customerContext}\n\nYêu cầu tư vấn: ${message}`;
 
+  // MiniMax API Integration
+  const minimaxKey = req.body?.minimaxApiKey || process.env.MINIMAX_API_KEY || process.env.VITE_MINIMAX_API_KEY;
+  if (minimaxKey) {
+    try {
+      const minimaxRes = await fetch("https://api.minimax.chat/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${minimaxKey.trim()}`,
+        },
+        body: JSON.stringify({
+          model: "MiniMax-Text-01",
+          messages: [
+            { role: "system", content: systemInstruction },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 1500,
+        }),
+      });
+
+      if (minimaxRes.ok) {
+        const mmData = await minimaxRes.json();
+        const mmContent = mmData.choices?.[0]?.message?.content;
+        if (mmContent) {
+          return res.json({ reply: mmContent, model: "MiniMax-Text-01 (minimax)" });
+        }
+      }
+    } catch (mmErr: any) {
+      console.warn("MiniMax API call failed, falling back to Gemini:", mmErr?.message || mmErr);
+    }
+  }
+
   const ai = getAI();
   if (ai) {
     // Attempt 1: Try primary model 'gemini-3.8-flash'
