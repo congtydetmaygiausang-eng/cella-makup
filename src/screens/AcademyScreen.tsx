@@ -59,7 +59,115 @@ export const AcademyScreen: React.FC<AcademyScreenProps> = ({
       />
 
       <div className="px-4 pt-1 space-y-3.5">
-        {/* Banner TUYỂN SINH KHÓA K25 (Matching screenshot 18) */}
+        {/* === GIỚI THIỆU CELLA MAKEUP ACADEMY === */}
+        <div className="space-y-3">
+
+          {/* Hero Card */}
+          <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#0A0A0C] via-[#1E1B4B] to-[#16161A] text-white p-5 space-y-3 relative">
+            <div className="absolute inset-0 opacity-10" style={{background: 'radial-gradient(ellipse at 80% 20%, #C9A24B 0%, transparent 60%)'}} />
+            <div className="relative z-10">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">Học viện Makeup · Thái Bình</span>
+              <h2 className="text-xl font-black mt-1 leading-tight">CELLA MAKEUP<br/><span className="text-amber-400">ACADEMY</span></h2>
+              <p className="text-[12px] text-slate-300 mt-1.5 italic">"Makeup your mind, makeup your life"</p>
+              <p className="text-[12px] text-slate-400 mt-2 leading-relaxed">
+                Nơi một người phụ nữ học cách tự làm đẹp cho chính mình — và nếu muốn,
+                học tiếp một cái nghề đủ nuôi sống bản thân ở bất cứ đâu.
+              </p>
+              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-center">
+                <div><div className="text-sm font-black text-amber-400">5,0 ★</div><div className="text-[9px] text-slate-400">32 đánh giá Google</div></div>
+                <div><div className="text-sm font-black text-amber-400">70K+</div><div className="text-[9px] text-slate-400">Follower Facebook</div></div>
+                <div><div className="text-sm font-black text-amber-400">2025</div><div className="text-[9px] text-slate-400">Bàn Tay Vàng Châu Á</div></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Nhà sáng lập */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <img
+                src="https://cellamakeup.vn/images/chan-dung-cella.jpg"
+                alt="Cella Hương Phượng"
+                className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-200"
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=80'; }}
+              />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Nhà sáng lập</p>
+                <h3 className="text-[15px] font-black text-slate-900">Cella Hương Phượng</h3>
+                <p className="text-[11px] text-slate-500">Trần Thị Hương Phượng · sinh 11/06/1994</p>
+              </div>
+            </div>
+            <p className="text-[12px] text-slate-600 leading-relaxed">
+              Sau <strong className="text-slate-800">9 năm</strong> gắn bó với nghề makeup, chị đã từ người thợ trực tiếp phục vụ khách,
+              đến người cô đào tạo hàng trăm học viên. Ở tuổi 26 chị theo học Quản trị Kinh doanh tại ĐH Thái Bình,
+              tốt nghiệp <strong className="text-slate-800">2024</strong>.
+            </p>
+            <p className="text-[12px] text-slate-600 leading-relaxed">
+              CELLA được sáng lập với mong muốn giúp học viên không chỉ biết trang điểm mà còn
+              <strong className="text-slate-800"> tạo ra thu nhập, xây dựng thương hiệu và làm chủ sự nghiệp</strong>.
+            </p>
+          </div>
+
+          {/* Triết lý 4 trụ cột */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Triết lý nghề</p>
+            <p className="text-[13px] font-bold text-slate-800 italic mb-3">"Lần 1 chưa đẹp, lần 200 chắc chắn sẽ đẹp."</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { idx: '01', title: 'Mối quan hệ', desc: 'Ở cạnh người khác mà không đánh mất mình.' },
+                { idx: '02', title: 'Sức khoẻ', desc: 'Cái đẹp bền nhất bắt đầu từ cơ thể được chăm.' },
+                { idx: '03', title: 'Nội tâm', desc: 'Soi gương và mỉm cười — chỉ số thật của makeup.' },
+                { idx: '04', title: 'Tài chính', desc: 'Một cái nghề trong tay là tự do không xin ai.' },
+              ].map(p => (
+                <div key={p.idx} className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                  <span className="text-[10px] font-black text-amber-500">{p.idx}</span>
+                  <p className="text-[12px] font-bold text-slate-800 mt-0.5">{p.title}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vì sao chọn CELLA */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Vì sao chọn CELLA</p>
+            <div className="space-y-2.5">
+              {[
+                { icon: '🎯', title: 'Người dạy vẫn cầm cọ', desc: 'Studio chạy khách mỗi ngày. Bài giảng từ ca thật.' },
+                { icon: '👥', title: 'Lớp tối đa 5 người', desc: 'Được cầm cọ và sửa tay, không ngồi xem người khác.' },
+                { icon: '🛍', title: 'Đủ đồ để học', desc: 'Mỹ phẩm & dụng cụ dùng suốt khoá học.' },
+                { icon: '🛡', title: 'Bảo hành 6 tháng', desc: 'Học xong vẫn hỏi được. Cộng đồng + chứng nhận tốt nghiệp.' },
+              ].map(r => (
+                <div key={r.title} className="flex items-start gap-3">
+                  <span className="text-lg mt-0.5">{r.icon}</span>
+                  <div>
+                    <p className="text-[12px] font-bold text-slate-800">{r.title}</p>
+                    <p className="text-[11px] text-slate-500 leading-snug">{r.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Liên hệ */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-4 space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Liên hệ</p>
+            <div className="space-y-1.5 text-[12px]">
+              <p className="flex gap-2"><span>📍</span><span className="text-slate-700">37–39 Phan Bội Châu, P. Lê Hồng Phong, TP. Thái Bình</span></p>
+              <p className="flex gap-2"><span>📞</span><a href="tel:0961161994" className="text-amber-700 font-bold">096 116 1994</a><span className="text-slate-400">·</span><a href="tel:0766311313" className="text-amber-700 font-bold">0766 311 313</a></p>
+              <p className="flex gap-2"><span>🌐</span><a href="https://cellamakeup.vn" target="_blank" rel="noreferrer" className="text-blue-600 underline">cellamakeup.vn</a></p>
+              <p className="flex gap-2"><span>📘</span><a href="https://facebook.com/makeupthaibinh" target="_blank" rel="noreferrer" className="text-blue-600 underline">facebook.com/makeupthaibinh</a></p>
+            </div>
+          </div>
+        </div>
+
+        {/* --- DIVIDER KHÓA HỌC --- */}
+        <div className="flex items-center gap-3 py-2">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Các khóa học</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
+        {/* Banner TUYỂN SINH KHÓA K25 */}
         <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1E1B4B] via-[#312E81] to-[#5850EC] text-white shadow-md space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-950 uppercase tracking-wider">
