@@ -5,62 +5,99 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
+
+  /* Botanical Luxury Design Tokens */
+  --color-forest-dark: #1A3326;
+  --color-forest: #264736;
+  --color-forest-light: #375F4A;
+  --color-sage: #6B9080;
+  --color-sage-light: #A4C3B2;
+  --color-sage-soft: #EAF2EC;
+  --color-paper: #F6F8F5;
+  --color-paper-white: #FCFDFB;
+  --color-emerald-accent: #10B981;
+  --color-champagne: #D4A373;
 }
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #E2E8F0;
+  background-color: #EBF1EB;
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(34, 211, 238, 0.45) 0%, transparent 55%),
-    radial-gradient(circle at 85% 25%, rgba(244, 114, 182, 0.4) 0%, transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.35) 0%, transparent 60%),
-    radial-gradient(circle at 20% 85%, rgba(167, 139, 250, 0.4) 0%, transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.3) 0%, transparent 55%);
+    radial-gradient(circle at 12% 10%, rgba(107, 144, 128, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 88% 18%, rgba(38, 71, 54, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(164, 195, 178, 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 20% 85%, rgba(38, 71, 54, 0.2) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(212, 163, 115, 0.18) 0%, transparent 50%);
   background-attachment: fixed;
-  color: #0f172a;
+  color: #1A2820;
   line-height: 1.5;
 }
 
-/* App Background Utility */
-.bg-pastel-mesh {
-  background-color: #E2E8F0;
+/* Botanical App Background Utility */
+.bg-pastel-mesh,
+.bg-botanical-mesh {
+  background-color: #EEF3ED;
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(34, 211, 238, 0.45) 0%, transparent 55%),
-    radial-gradient(circle at 85% 25%, rgba(244, 114, 182, 0.4) 0%, transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.35) 0%, transparent 60%),
-    radial-gradient(circle at 20% 85%, rgba(167, 139, 250, 0.4) 0%, transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.3) 0%, transparent 55%);
+    radial-gradient(circle at 10% 12%, rgba(107, 144, 128, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 90% 20%, rgba(38, 71, 54, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 50% 55%, rgba(164, 195, 178, 0.2) 0%, transparent 55%),
+    radial-gradient(circle at 18% 85%, rgba(38, 71, 54, 0.16) 0%, transparent 50%),
+    radial-gradient(circle at 82% 82%, rgba(212, 163, 115, 0.14) 0%, transparent 50%);
 }
 
-/* Frosted Pastel Aura Card Style as in Reference Images */
-.card-pastel {
+/* Frosted Botanical Glass Card */
+.card-pastel,
+.card-botanical {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -4px rgba(26, 51, 38, 0.08), 0 2px 6px -1px rgba(26, 51, 38, 0.03);
+}
+
+.card-pastel-interactive,
+.card-botanical-interactive {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px -4px rgba(15, 23, 42, 0.08), 0 0 4px rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 22px;
+  box-shadow: 0 8px 26px -4px rgba(26, 51, 38, 0.07), 0 1px 4px rgba(26, 51, 38, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.card-pastel-interactive {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px -4px rgba(15, 23, 42, 0.08), 0 0 4px rgba(15, 23, 42, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.card-pastel-interactive:hover {
+.card-pastel-interactive:hover,
+.card-botanical-interactive:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.12), 0 6px 12px -2px rgba(15, 23, 42, 0.05);
-  border-color: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 16px 36px -6px rgba(26, 51, 38, 0.12), 0 4px 12px -2px rgba(26, 51, 38, 0.05);
+  border-color: rgba(164, 195, 178, 0.4);
 }
 
-.card-pastel-interactive:active {
+.card-pastel-interactive:active,
+.card-botanical-interactive:active {
   transform: scale(0.985);
+}
+
+/* Reference Image Forest Green Button */
+.btn-forest {
+  background: linear-gradient(180deg, #2D503E 0%, #1F392C 100%);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  box-shadow: 0 6px 20px -3px rgba(31, 57, 44, 0.38);
+  transition: all 0.2s ease;
+}
+
+.btn-forest:hover {
+  background: linear-gradient(180deg, #375F4A 0%, #254434 100%);
+  box-shadow: 0 10px 24px -4px rgba(31, 57, 44, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-forest:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px -2px rgba(31, 57, 44, 0.3);
 }
 
 /* Floating Action Circle Button */
@@ -68,14 +105,15 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px -2px rgba(26, 51, 38, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #264736;
   transition: all 0.15s ease;
 }
 
@@ -86,12 +124,17 @@ body {
 
 /* Floating Bottom Bar */
 .bottom-nav-pill {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   border-radius: 36px;
-  box-shadow: 0 14px 40px -6px rgba(12, 74, 110, 0.09), 0 4px 16px -2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 14px 40px -6px rgba(26, 51, 38, 0.12), 0 4px 16px -2px rgba(26, 51, 38, 0.04);
+}
+
+/* Paper-cut layer effect */
+.paper-cut-shadow {
+  box-shadow: 0 20px 45px -10px rgba(15, 32, 23, 0.15), 0 4px 15px -2px rgba(15, 32, 23, 0.08);
 }
 
 /* Hide scrollbars cleanly */

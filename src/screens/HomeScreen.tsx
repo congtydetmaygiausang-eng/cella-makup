@@ -27,7 +27,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [isMultiPlatformOpen, setIsMultiPlatformOpen] = React.useState(false);
 
   return (
-    <div className="min-h-full bg-[#F3F4F6] pb-28 text-slate-900">
+    <div className="min-h-full bg-[#EEF3ED] bg-botanical-mesh pb-28 text-[#1A2820]">
       {/* Top Header */}
       <MobileHeader
         title="Bảng tin"
@@ -39,7 +39,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate('customers')}
-              className="w-10 h-10 rounded-full bg-white/95 shadow-sm border border-white/90 text-slate-700 flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-white"
+              className="w-10 h-10 rounded-full bg-white/95 shadow-xs border border-[#264736]/15 text-[#264736] flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-[#EAF2EC]"
               title="Tìm kiếm"
             >
               <Search className="w-5 h-5 stroke-[2.2]" />
@@ -49,62 +49,63 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       />
 
       <div className="pt-[72px]">
-        {/* Quick Actions Bar (Zalo style stories / quick actions) */}
-        <div className="bg-white px-4 py-3 flex items-center gap-4 overflow-x-auto no-scrollbar border-b border-slate-100">
+        {/* Quick Actions Bar (Botanical organic style stories / quick actions) */}
+        <div className="bg-white/90 backdrop-blur-md px-4 py-3.5 flex items-center gap-4 overflow-x-auto no-scrollbar border-b border-[#264736]/10 shadow-xs">
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('ai_assistant')}>
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-sky-400 to-[#544CDE] p-[2px] cursor-pointer active:scale-95 transition-transform">
-              <div className="w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-white">
-                <Sparkles className="w-6 h-6 text-[#544CDE] fill-[#544CDE]/20" />
+            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-400 via-[#3E6B52] to-[#1E3A2F] p-[2.5px] cursor-pointer active:scale-95 transition-transform shadow-[0_4px_12px_rgba(26,51,38,0.2)]">
+              <div className="w-full h-full bg-[#FCFDFB] rounded-full flex items-center justify-center border-2 border-white">
+                <Sparkles className="w-6 h-6 text-[#264736] fill-[#264736]/20" />
               </div>
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Trợ lý AI</span>
+            <span className="text-[11px] font-bold text-[#1E3A2F]">Trợ lý AI</span>
           </div>
           
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('create_customer')}>
-            <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <UserPlus className="w-6 h-6 text-slate-600" />
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <UserPlus className="w-6 h-6 text-[#264736]" />
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Thêm khách</span>
+            <span className="text-[11px] font-medium text-[#203227]">Thêm khách</span>
           </div>
 
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('create_booking')}>
-            <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <CalendarPlus className="w-6 h-6 text-slate-600" />
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <CalendarPlus className="w-6 h-6 text-[#264736]" />
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Đặt lịch</span>
+            <span className="text-[11px] font-medium text-[#203227]">Đặt lịch</span>
           </div>
+
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => setIsPostMenuOpen(true)}>
-            <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <Share2 className="w-6 h-6 text-slate-600" />
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <Share2 className="w-6 h-6 text-[#264736]" />
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Đăng bài</span>
+            <span className="text-[11px] font-medium text-[#203227]">Đăng bài</span>
           </div>
 
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('makeup_lookbook')}>
-            <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <Image className="w-6 h-6 text-slate-600" />
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <Image className="w-6 h-6 text-[#264736]" />
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Mẫu makeup</span>
+            <span className="text-[11px] font-medium text-[#203227]">Mẫu makeup</span>
           </div>
 
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('academy')}>
-            <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center cursor-pointer active:scale-95 transition-transform">
-              <Info className="w-6 h-6 text-slate-600" />
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <Info className="w-6 h-6 text-[#264736]" />
             </div>
-            <span className="text-[11px] font-medium text-slate-700">Giới thiệu</span>
+            <span className="text-[11px] font-medium text-[#203227]">Giới thiệu</span>
           </div>
         </div>
 
-        {/* Birthday Notification Banner (Zalo style) */}
-        <div className="px-4 py-3 bg-white mb-2">
-          <div className="w-full rounded-2xl bg-gradient-to-r from-rose-50 to-pink-50 p-3.5 flex items-center gap-3 border border-pink-100/50 shadow-[0_2px_10px_-4px_rgba(236,72,153,0.3)]">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-400 to-pink-500 flex flex-col items-center justify-center shrink-0 shadow-sm">
-              <Gift className="w-5 h-5 text-white" />
+        {/* Birthday Notification Banner (Botanical Luxury Theme) */}
+        <div className="px-3.5 py-3">
+          <div className="w-full rounded-2xl bg-gradient-to-r from-[#EAF2EC] via-[#F4F7F4] to-[#E3EDE5] p-3.5 flex items-center gap-3 border border-[#264736]/15 shadow-[0_4px_16px_rgba(26,51,38,0.06)]">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1F392C] flex flex-col items-center justify-center shrink-0 shadow-sm text-emerald-300">
+              <Gift className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-[13px] font-bold text-slate-800">Sinh nhật khách hàng</h4>
-              <p className="text-[11px] text-slate-500 truncate">
-                Hôm nay là sinh nhật của <span className="font-bold text-pink-600">Nguyễn Thị Hương</span>
+              <h4 className="text-[13px] font-bold text-[#1A2820]">Sinh nhật khách hàng</h4>
+              <p className="text-[11px] text-[#3D5A48] truncate">
+                Hôm nay là sinh nhật của <span className="font-bold text-[#1E3A2F]">Nguyễn Thị Hương</span>
               </p>
             </div>
             <button 
@@ -114,7 +115,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 phone: '0766311313',
                 lastContactText: 'Sinh nhật'
               })}
-              className="px-3 py-1.5 rounded-full bg-pink-100 text-pink-700 text-[11px] font-bold active:scale-95 transition-transform shrink-0 flex items-center gap-1.5"
+              className="btn-forest px-3.5 py-1.5 text-[11px] font-bold active:scale-95 transition-transform shrink-0 flex items-center gap-1.5 shadow-sm"
             >
               <MessageCircle className="w-3.5 h-3.5" /> Chúc ngay
             </button>
@@ -128,8 +129,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           ))}
           
           {/* End of feed message */}
-          <div className="py-8 text-center text-slate-400">
-            <p className="text-[13px]">Bạn đã xem hết tin mới</p>
+          <div className="py-8 text-center text-[#527763]">
+            <p className="text-[13px] font-medium">🌿 Bạn đã xem hết tin mới trên CELLA</p>
           </div>
         </div>
       </div>
@@ -140,17 +141,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="bg-white w-full rounded-t-3xl pb-8 pt-2 animate-in slide-in-from-bottom duration-300">
             <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-5" />
             <div className="px-5 space-y-4">
-              <h3 className="text-[18px] font-black text-slate-900 mb-2">Tạo bài viết mới</h3>
+              <h3 className="text-[18px] font-black text-[#1A2820] mb-2">Tạo bài viết mới</h3>
               <button 
                 onClick={() => { setIsPostMenuOpen(false); /* Focus on normal post */ }}
-                className="w-full flex items-center gap-4 bg-slate-50 p-4 rounded-2xl active:scale-95 transition-transform"
+                className="w-full flex items-center gap-4 bg-[#EAF2EC]/60 hover:bg-[#EAF2EC] p-4 rounded-2xl active:scale-95 transition-transform border border-[#264736]/10"
               >
-                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-[#544CDE]">
+                <div className="w-12 h-12 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center text-[#264736]">
                   <UserPlus className="w-6 h-6" />
                 </div>
                 <div className="text-left">
-                  <h4 className="text-[15px] font-bold text-slate-900">Đăng lên bảng tin CELLA</h4>
-                  <p className="text-[12px] text-slate-500">Chia sẻ với cộng đồng và nhân viên nội bộ</p>
+                  <h4 className="text-[15px] font-bold text-[#1A2820]">Đăng lên bảng tin CELLA</h4>
+                  <p className="text-[12px] text-[#3D5A48]">Chia sẻ với cộng đồng và nhân viên nội bộ</p>
                 </div>
               </button>
 
@@ -159,14 +160,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   setIsPostMenuOpen(false);
                   setIsMultiPlatformOpen(true);
                 }}
-                className="w-full flex items-center gap-4 bg-gradient-to-r from-sky-50 to-indigo-50 p-4 rounded-2xl active:scale-95 transition-transform border border-indigo-100"
+                className="w-full flex items-center gap-4 bg-gradient-to-r from-[#EAF2EC] to-[#F4F7F4] p-4 rounded-2xl active:scale-95 transition-transform border border-[#264736]/20"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#544CDE] to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1F392C] flex items-center justify-center text-white shadow-md shadow-[#264736]/20">
                   <Share2 className="w-6 h-6" />
                 </div>
                 <div className="text-left">
-                  <h4 className="text-[15px] font-bold text-[#544CDE]">Đăng đa nền tảng (API)</h4>
-                  <p className="text-[12px] text-slate-600">Đồng bộ lên Facebook, Tiktok, Instagram...</p>
+                  <h4 className="text-[15px] font-bold text-[#1E3A2F]">Đăng đa nền tảng (API)</h4>
+                  <p className="text-[12px] text-[#3D5A48]">Đồng bộ lên Facebook, Tiktok, Instagram...</p>
                 </div>
               </button>
             </div>

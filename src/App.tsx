@@ -136,7 +136,7 @@ const CellaAIButton: React.FC<CellaAIButtonProps> = ({ onOpen, isAIOpen }) => {
     >
       {/* Pulse ring */}
       {isPulsing && (
-        <span className="absolute inset-0 rounded-full bg-indigo-500 animate-ping opacity-30" />
+        <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-35" />
       )}
 
       {/* Main button */}
@@ -145,11 +145,12 @@ const CellaAIButton: React.FC<CellaAIButtonProps> = ({ onOpen, isAIOpen }) => {
           isDragging ? 'scale-110' : ''
         }`}
         style={{
-          background: 'linear-gradient(135deg, #544CDE 0%, #7C3AED 100%)',
-          boxShadow: '0 8px 24px rgba(84,76,222,0.45)',
+          background: 'linear-gradient(135deg, #2D503E 0%, #1A3326 100%)',
+          boxShadow: '0 8px 24px rgba(26,51,38,0.45)',
+          border: '1.5px solid rgba(164,195,178,0.4)',
         }}
       >
-        <Sparkles className="w-5 h-5 text-white mb-0.5" />
+        <Sparkles className="w-5 h-5 text-emerald-300 mb-0.5" />
         <span className="text-[9px] font-black text-white tracking-wide leading-none">CELLA AI</span>
       </div>
 
