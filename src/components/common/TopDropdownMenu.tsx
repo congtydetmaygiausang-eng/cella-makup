@@ -21,7 +21,8 @@ import {
   Building2,
   Users2,
   UserCheck,
-  BookOpen
+  BookOpen,
+  Info
 } from 'lucide-react';
 
 interface TopDropdownMenuProps {
@@ -117,6 +118,13 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
           desc: 'Thông tin cá nhân, năng lực & đãi ngộ',
           icon: UserCheck,
           iconBg: 'bg-indigo-50 text-[#544CDE] border border-indigo-200/80',
+        },
+        {
+          id: 'about' as ScreenId,
+          title: 'Giới thiệu CELLA BEAUTÉ',
+          desc: 'Thương hiệu, viện trưởng & 2 cơ sở',
+          icon: Info,
+          iconBg: 'bg-amber-50 text-amber-700 border border-amber-200/80',
         },
         {
           id: 'auth' as ScreenId,

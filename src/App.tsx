@@ -38,6 +38,7 @@ import { AuthScreen } from './screens/AuthScreen';
 import { MakeupLookbookScreen } from './screens/MakeupLookbookScreen';
 import { InstructorsScreen } from './screens/InstructorsScreen';
 import { StudentsScreen } from './screens/StudentsScreen';
+import { AboutScreen } from './screens/AboutScreen';
 
 // Common Components
 import { BottomNavBar } from './components/common/BottomNavBar';
@@ -753,6 +754,14 @@ export default function App() {
                     status: 'PENDING'
                   });
                 }}
+              />
+            )}
+
+            {currentScreen === 'about' && (
+              <AboutScreen
+                onNavigate={navigateTo}
+                onBack={handleBack}
+                currentUser={currentUser}
               />
             )}
 

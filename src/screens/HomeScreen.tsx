@@ -89,7 +89,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="text-[11px] font-medium text-[#203227]">Mẫu makeup</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => setIsAboutModalOpen(true)}>
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('about')}>
             <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
               <Info className="w-6 h-6 text-[#264736]" />
             </div>

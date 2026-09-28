@@ -140,6 +140,7 @@ export type ScreenId =
   | 'makeup_lookbook'
   | 'instructors'
   | 'students'
+  | 'about'
   | 'more';
 
 export interface NewsfeedPost {

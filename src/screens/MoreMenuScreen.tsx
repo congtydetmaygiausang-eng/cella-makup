@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ChevronUp,
   Shield,
+  Info,
 } from 'lucide-react';
 
 interface MoreMenuScreenProps {
@@ -267,6 +268,22 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
                 <div className="text-left">
                   <span className="text-[14px] font-bold text-slate-800 block">Hồ sơ nhân viên</span>
                   <span className="text-[12px] font-medium text-slate-400">Thông tin cá nhân, năng lực & đãi ngộ</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
+            </button>
+
+            <button
+              onClick={() => onNavigate('about')}
+              className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-white active:bg-slate-50 transition-colors group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl border-2 border-amber-200 bg-amber-50 text-amber-700 flex items-center justify-center">
+                  <Info className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[14px] font-bold text-slate-800 block">Giới thiệu CELLA BEAUTÉ</span>
+                  <span className="text-[12px] font-medium text-slate-400">Thương hiệu, viện trưởng & 2 cơ sở</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
