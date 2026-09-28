@@ -121,8 +121,8 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
         },
         {
           id: 'about' as ScreenId,
-          title: 'Giới thiệu CELLA BEAUTÉ',
-          desc: 'Thương hiệu, viện trưởng & 2 cơ sở',
+          title: 'Giới thiệu CELLA ACADEMY',
+          desc: 'Cella Hương Phượng, Bàn Tay Vàng Châu Á 2025',
           icon: Info,
           iconBg: 'bg-amber-50 text-amber-700 border border-amber-200/80',
         },

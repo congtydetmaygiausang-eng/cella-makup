@@ -282,8 +282,8 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
                   <Info className="w-5 h-5 stroke-[2.5]" />
                 </div>
                 <div className="text-left">
-                  <span className="text-[14px] font-bold text-slate-800 block">Giới thiệu CELLA BEAUTÉ</span>
-                  <span className="text-[12px] font-medium text-slate-400">Thương hiệu, viện trưởng & 2 cơ sở</span>
+                  <span className="text-[14px] font-bold text-slate-800 block">Giới thiệu CELLA ACADEMY</span>
+                  <span className="text-[12px] font-medium text-slate-400">Cella Hương Phượng, Bàn Tay Vàng Châu Á 2025</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
