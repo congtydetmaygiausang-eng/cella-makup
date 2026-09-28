@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
 CREATE TRIGGER trg_profiles_updated_at
 BEFORE UPDATE ON profiles
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -149,6 +150,7 @@ CREATE TABLE IF NOT EXISTS customers (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_customers_updated_at ON customers;
 CREATE TRIGGER trg_customers_updated_at
 BEFORE UPDATE ON customers
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -287,10 +289,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_booking_generate_code ON bookings;
 CREATE TRIGGER trg_booking_generate_code
 BEFORE INSERT ON bookings
 FOR EACH ROW EXECUTE FUNCTION generate_booking_code();
 
+DROP TRIGGER IF EXISTS trg_bookings_updated_at ON bookings;
 CREATE TRIGGER trg_bookings_updated_at
 BEFORE UPDATE ON bookings
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -571,6 +575,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_hr_employee_updated ON hr_employee_details;
 CREATE TRIGGER trg_hr_employee_updated
 BEFORE UPDATE ON hr_employee_details
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -629,6 +634,7 @@ CREATE TABLE IF NOT EXISTS payrolls (
     UNIQUE(staff_id, month_year)
 );
 
+DROP TRIGGER IF EXISTS trg_payrolls_updated ON payrolls;
 CREATE TRIGGER trg_payrolls_updated
 BEFORE UPDATE ON payrolls
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -643,8 +649,8 @@ ALTER TABLE rewards_disciplines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payrolls ENABLE ROW LEVEL SECURITY;
 
 -- Policy cho Nhân viên tự xem dữ liệu của mình
-CREATE POLICY "Staff view own details" ON hr_employee_details FOR SELECT USING (auth.uid() = id OR auth.role() = 'authenticated');
-CREATE POLICY "Staff view own attendances" ON attendances FOR SELECT USING (auth.uid() = staff_id OR auth.role() = 'authenticated');
-CREATE POLICY "Staff view own rewards" ON rewards_disciplines FOR SELECT USING (auth.uid() = staff_id OR auth.role() = 'authenticated');
-CREATE POLICY "Staff view own payrolls" ON payrolls FOR SELECT USING (auth.uid() = staff_id OR auth.role() = 'authenticated');
+CREATE POLICY "Staff view own details" ON hr_employee_details FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Staff view own attendances" ON attendances FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Staff view own rewards" ON rewards_disciplines FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Staff view own payrolls" ON payrolls FOR ALL USING (auth.role() = 'authenticated');
 

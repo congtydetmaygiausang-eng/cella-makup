@@ -78,10 +78,56 @@ const INITIAL_TEAM_MEMBERS = [
 export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManageRoles, currentUser }) => {
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [rewards, setRewards] = useState<any[]>([]);
+  const [isLoadingRewards, setIsLoadingRewards] = useState(false);
 
   React.useEffect(() => {
     fetchStaff();
+    fetchRewards();
   }, []);
+
+  const fetchRewards = async () => {
+    try {
+      setIsLoadingRewards(true);
+      const { data, error } = await supabase
+        .from('rewards_disciplines')
+        .select('*, profiles(full_name)')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setRewards(data || []);
+    } catch (err) {
+      console.error('Error fetching rewards:', err);
+    } finally {
+      setIsLoadingRewards(false);
+    }
+  };
+
+  const handleAddBonus = async () => {
+    if (!newBonus.staff_id || !newBonus.amount || !newBonus.reason) {
+      alert('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('rewards_disciplines').insert({
+        staff_id: newBonus.staff_id,
+        type: 'REWARD',
+        amount: parseFloat(newBonus.amount),
+        reason: newBonus.reason,
+        issued_date: new Date().toISOString().split('T')[0],
+      }).select('*, profiles(full_name)').single();
+      
+      if (error) throw error;
+      
+      setRewards([data, ...rewards]);
+      setIsAddBonusOpen(false);
+      setNewBonus({ staff_id: '', amount: '', reason: '' });
+      alert('Đã thêm khen thưởng thành công!');
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi thêm khen thưởng!');
+    }
+  };
 
   const fetchStaff = async () => {
     try {
@@ -121,6 +167,13 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
   const [isPayrollDetailOpen, setIsPayrollDetailOpen] = useState(false);
   const [isAddBonusOpen, setIsAddBonusOpen] = useState(false);
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
+
+  // Add bonus form state
+  const [newBonus, setNewBonus] = useState({
+    staff_id: '',
+    amount: '',
+    reason: '',
+  });
 
   // Add staff form state
   const [newStaff, setNewStaff] = useState({
@@ -500,30 +553,33 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
 
             <h4 className="text-sm font-bold text-slate-800 mb-2 px-1">Lịch sử nhận thưởng</h4>
             <div className="space-y-2">
-              {[
-                {
-                  icon: <Award className="w-5 h-5" />, bg: 'bg-amber-50 text-amber-500',
-                  title: 'Thưởng 5 Sao Khách Hàng', val: '+500,000đ',
-                  desc: 'Khách hàng Nguyễn Thị Mai đánh giá dịch vụ Makeup Cô dâu xuất sắc.', date: '14/09/2026',
-                },
-                {
-                  icon: <DollarSign className="w-5 h-5" />, bg: 'bg-emerald-50 text-emerald-500',
-                  title: 'Vượt Doanh Số Ngày', val: '+1,000,000đ',
-                  desc: 'Chốt thành công gói Masterclass K25 (Trị giá 35tr).', date: '10/09/2026',
-                },
-              ].map((item, i) => (
-                <div key={i} className="bg-white p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${item.bg}`}>{item.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <p className="text-[14px] font-bold text-slate-800">{item.title}</p>
-                      <span className="font-bold text-emerald-500">{item.val}</span>
+              {isLoadingRewards ? (
+                <div className="text-center py-4 text-slate-500 text-sm">Đang tải...</div>
+              ) : rewards.length === 0 ? (
+                <div className="text-center py-4 text-slate-500 text-sm">Chưa có dữ liệu khen thưởng.</div>
+              ) : (
+                rewards.map((item, i) => (
+                  <div key={item.id || i} className="bg-white p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${item.type === 'REWARD' ? 'bg-amber-50 text-amber-500' : 'bg-rose-50 text-rose-500'}`}>
+                      <Award className="w-5 h-5" />
                     </div>
-                    <p className="text-[12px] text-slate-500 mt-1">{item.desc}</p>
-                    <p className="text-[10px] text-slate-400 mt-1.5">{item.date}</p>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <p className="text-[14px] font-bold text-slate-800">
+                          {item.profiles?.full_name || 'Nhân sự'}
+                        </p>
+                        <span className={`font-bold ${item.type === 'REWARD' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {item.type === 'REWARD' ? '+' : '-'}{Number(item.amount).toLocaleString()}đ
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-slate-500 mt-1">{item.reason}</p>
+                      <p className="text-[10px] text-slate-400 mt-1.5">
+                        {new Date(item.created_at).toLocaleDateString('vi-VN')}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}
@@ -770,7 +826,10 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             <div className="p-5 flex-1 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[13px] font-bold text-slate-700">Chọn nhân sự nhận thưởng</label>
-                <select className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-400/50">
+                <select 
+                  value={newBonus.staff_id}
+                  onChange={(e) => setNewBonus({...newBonus, staff_id: e.target.value})}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-400/50">
                   <option value="">-- Chọn nhân sự --</option>
                   {teamMembers.map((m: any) => (
                     <option key={m.id} value={m.id}>{m.name} - {m.role}</option>
@@ -781,6 +840,8 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 <label className="text-[13px] font-bold text-slate-700">Số tiền thưởng (VNĐ)</label>
                 <input 
                   type="number"
+                  value={newBonus.amount}
+                  onChange={(e) => setNewBonus({...newBonus, amount: e.target.value})}
                   placeholder="Ví dụ: 500000"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
                 />
@@ -788,6 +849,8 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
               <div className="space-y-1.5">
                 <label className="text-[13px] font-bold text-slate-700">Lý do khen thưởng</label>
                 <textarea 
+                  value={newBonus.reason}
+                  onChange={(e) => setNewBonus({...newBonus, reason: e.target.value})}
                   placeholder="Nhập lý do khen thưởng..."
                   rows={3}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[14px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-400/50 resize-none"
@@ -796,10 +859,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             </div>
             <div className="p-5 border-t border-slate-100">
               <button 
-                onClick={() => {
-                  alert('Đã thêm khen thưởng thành công!');
-                  setIsAddBonusOpen(false);
-                }}
+                onClick={handleAddBonus}
                 className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-[15px] font-bold shadow-md shadow-amber-500/30"
               >
                 Xác nhận khen thưởng
