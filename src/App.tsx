@@ -384,6 +384,86 @@ export default function App() {
     localStorage.setItem('cella_tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  // Đồng bộ 2 chiều dữ liệu từ Supabase khi mở ứng dụng
+  useEffect(() => {
+    const fetchCloudData = async () => {
+      try {
+        // 1. Tải khách hàng từ Supabase
+        const { data: custData, error: custError } = await supabase
+          .from('customers')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!custError && custData && custData.length > 0) {
+          const mappedCustomers: Customer[] = custData.map((c: any) => ({
+            id: c.id,
+            name: c.full_name || 'Khách hàng',
+            phone: c.phone || '',
+            email: c.email || '',
+            source: c.source || 'TIKTOK',
+            status: c.status || 'LEAD',
+            crmStage: 'LEAD_NEW',
+            vipTier: c.is_member_pass ? 'VIP Diamond' : 'Thành viên mới',
+            lastContactText: 'Vừa đồng bộ',
+            totalSpent: Number(c.total_spent) || 0,
+            contactCount: 1,
+            notesHistory: c.skin_notes ? [c.skin_notes] : [],
+          }));
+          setCustomers(mappedCustomers);
+        }
+
+        // 2. Tải lịch hẹn dịch vụ từ Supabase
+        const { data: bkData, error: bkError } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('appointment_time', { ascending: true });
+
+        if (!bkError && bkData && bkData.length > 0) {
+          const mappedBookings: Booking[] = bkData.map((b: any) => ({
+            id: b.id,
+            bookingCode: b.booking_code || `#BK-${b.id.slice(0, 6)}`,
+            customerId: b.customer_id || 'CUST-001',
+            customerName: b.customer_name || 'Khách hàng',
+            customerPhone: b.customer_phone || '',
+            serviceTitle: b.service_title || 'Dịch vụ Makeup',
+            artistId: b.artist_id || 'ARTIST-01',
+            artistName: b.artist_name || 'Cella Artist',
+            appointmentDate: b.appointment_time ? new Date(b.appointment_time).toISOString().split('T')[0] : '2026-10-01',
+            appointmentTime: b.appointment_time ? new Date(b.appointment_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '09:00',
+            locationAddress: b.destination_address || '37–39 Phan Bội Châu, TP. Thái Bình',
+            status: b.status || 'CONFIRMED',
+            totalAmount: Number(b.total_amount) || 350000,
+            depositAmount: Number(b.deposit_amount) || 100000,
+            notes: b.notes,
+          }));
+          setBookings(mappedBookings);
+        }
+
+        // 3. Tải danh sách công việc từ Supabase
+        const { data: taskData, error: taskError } = await supabase
+          .from('tasks')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!taskError && taskData && taskData.length > 0) {
+          const mappedTasks: Task[] = taskData.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            priority: (t.priority || 'NORMAL') as Task['priority'],
+            dueDate: t.due_date || (t.due_time ? new Date(t.due_time).toLocaleDateString('vi-VN') : 'Hôm nay'),
+            assignedTo: t.assigned_name || 'Đội ngũ CELLA',
+            completed: Boolean(t.is_completed),
+          }));
+          setTasks(mappedTasks);
+        }
+      } catch (err) {
+        console.warn('Sync with Supabase skipped, using local cache:', err);
+      }
+    };
+
+    fetchCloudData();
+  }, []);
+
   // Selected Entities
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>(initialCustomers[0]);
   const [selectedBooking, setSelectedBooking] = useState<Booking>(initialBookings[0]);
@@ -509,6 +589,17 @@ export default function App() {
     setCustomers((prev) => [created, ...prev]);
     setSelectedCustomer(created);
     navigateTo('customer_detail');
+
+    // Lưu trực tiếp lên Supabase
+    supabase.from('customers').insert([{
+      full_name: created.name,
+      phone: created.phone,
+      email: created.email || null,
+      source: created.source,
+      status: 'NEW_LEAD',
+    }]).then(({ error }) => {
+      if (error) console.warn('Supabase customer insert notice:', error.message);
+    });
   };
 
   // Booking handlers
@@ -538,6 +629,25 @@ export default function App() {
     setBookings((prev) => [created, ...prev]);
     setSelectedBooking(created);
     navigateTo('booking_detail');
+
+    // Lưu trực tiếp lên Supabase
+    const appointmentDateStr = created.appointmentDate || new Date().toISOString().split('T')[0];
+    const appointmentTimeStr = (created.appointmentTime || '09:00').split(' ')[0] || '09:00';
+    supabase.from('bookings').insert([{
+      booking_code: created.bookingCode,
+      customer_name: created.customerName,
+      customer_phone: created.customerPhone,
+      service_title: created.serviceTitle,
+      artist_name: created.artistName,
+      appointment_time: new Date(`${appointmentDateStr}T${appointmentTimeStr.length === 5 ? appointmentTimeStr + ':00' : '09:00:00'}`).toISOString(),
+      destination_address: created.locationAddress,
+      status: created.status,
+      total_amount: created.totalAmount,
+      deposit_amount: created.depositAmount,
+      notes: created.notes || null,
+    }]).then(({ error }) => {
+      if (error) console.warn('Supabase booking insert notice:', error.message);
+    });
   };
 
   const handleUpdateBookingStatus = (status: Booking['status']) => {
@@ -545,12 +655,30 @@ export default function App() {
       prev.map((b) => (b.id === selectedBooking.id ? { ...b, status } : b))
     );
     setSelectedBooking((prev) => ({ ...prev, status }));
+
+    // Cập nhật trạng thái lên Supabase
+    if (selectedBooking.id && !selectedBooking.id.startsWith('BK-')) {
+      supabase.from('bookings').update({ status }).eq('id', selectedBooking.id).then(({ error }) => {
+        if (error) console.warn('Supabase booking update notice:', error.message);
+      });
+    }
   };
 
   // Task handlers
   const handleToggleTask = (id: string) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => {
+        if (t.id === id) {
+          const updatedCompleted = !t.completed;
+          if (!id.startsWith('task-')) {
+            supabase.from('tasks').update({ is_completed: updatedCompleted }).eq('id', id).then(({ error }) => {
+              if (error) console.warn('Supabase task update notice:', error.message);
+            });
+          }
+          return { ...t, completed: updatedCompleted };
+        }
+        return t;
+      })
     );
   };
 
@@ -561,6 +689,17 @@ export default function App() {
       completed: false,
     };
     setTasks((prev) => [newTask, ...prev]);
+
+    // Lưu công việc mới lên Supabase
+    supabase.from('tasks').insert([{
+      title: newTask.title,
+      priority: newTask.priority,
+      due_date: newTask.dueDate,
+      assigned_name: newTask.assignedTo,
+      is_completed: false,
+    }]).then(({ error }) => {
+      if (error) console.warn('Supabase task insert notice:', error.message);
+    });
   };
 
   // Format call duration MM:SS
