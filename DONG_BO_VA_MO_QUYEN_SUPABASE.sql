@@ -229,5 +229,64 @@ UPDATE profiles
 SET role = 'SUPER_ADMIN'
 WHERE email IN ('polomin1994@gmail.com', 'polomin@gmail.com');
 
+-- ==============================================================================
+-- 5. TRIGGER TỰ ĐỘNG LƯU TÀI KHOẢN MỚI ĐĂNG KÝ VÀO BẢNG QUẢN LÝ (PROFILES)
+-- ==============================================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (
+        id,
+        full_name,
+        email,
+        phone,
+        role,
+        avatar_url,
+        is_active,
+        created_at,
+        updated_at
+    )
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'phone', ''),
+        COALESCE(NEW.raw_user_meta_data->>'role', 'CUSTOMER'),
+        COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80'),
+        TRUE,
+        NOW(),
+        NOW()
+    )
+    ON CONFLICT (id) DO UPDATE
+    SET 
+        full_name = EXCLUDED.full_name,
+        email = EXCLUDED.email,
+        phone = COALESCE(NULLIF(EXCLUDED.phone, ''), profiles.phone),
+        updated_at = NOW();
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Gắn Trigger vào bảng auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT OR UPDATE ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Bật Realtime cho bảng profiles để màn hình Quản lý tài khoản cập nhật ngay lập tức
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND tablename = 'profiles'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL;
+END $$;
+
 -- Thông báo hoàn thành
-SELECT 'CHÚC MỪNG! HỆ THỐNG SUPABASE CELLA ĐÃ MỞ QUYỀN LƯU DỮ LIỆU TOÀN DIỆN THÀNH CÔNG!' AS ket_qua;
+SELECT 'CHÚC MỪNG! HỆ THỐNG SUPABASE CELLA ĐÃ MỞ QUYỀN VÀ BẬT TỰ ĐỘNG LƯU TÀI KHOẢN ĐĂNG KÝ THÀNH CÔNG!' AS ket_qua;

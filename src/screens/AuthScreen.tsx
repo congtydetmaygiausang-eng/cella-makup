@@ -189,6 +189,25 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
       setSuccessMessage('Đăng ký thành công! Đang tự động đăng nhập...');
       
+      // Đảm bảo lưu ngay lập tức vào bảng profiles trên Supabase
+      if (data.user) {
+        try {
+          await supabase.from('profiles').upsert([{
+            id: data.user.id,
+            full_name: regFullName.trim(),
+            email: regEmail.trim(),
+            phone: regPhone.trim() || null,
+            role: 'CUSTOMER',
+            avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+            branch_studio: '37–39 Phan Bội Châu, TP. Thái Bình',
+            is_active: true,
+            created_at: new Date().toISOString()
+          }]);
+        } catch (profileErr) {
+          console.warn('Upsert profile notice:', profileErr);
+        }
+      }
+
       // Force sign-in to establish a real session (if email confirmation is off)
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: regEmail.trim(),

@@ -140,6 +140,7 @@ export type ScreenId =
   | 'makeup_lookbook'
   | 'instructors'
   | 'students'
+  | 'user_management'
   | 'about'
   | 'more';
 

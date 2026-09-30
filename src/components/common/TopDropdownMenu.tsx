@@ -106,6 +106,13 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
       group: 'Hệ thống & Cài đặt',
       items: [
         {
+          id: 'user_management' as ScreenId,
+          title: 'Quản lý tài khoản',
+          desc: 'Tự động lưu và phân quyền tài khoản đăng ký',
+          icon: Users,
+          iconBg: 'bg-emerald-50 text-emerald-700 border border-emerald-200/80',
+        },
+        {
           id: 'roles' as ScreenId,
           title: 'Phân quyền & Vai trò',
           desc: 'Quản lý quyền và phân công nhiệm vụ',

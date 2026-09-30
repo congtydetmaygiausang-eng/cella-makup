@@ -5,7 +5,7 @@ import { CURRENT_USER } from '../data/mockData';
 import { MOCK_POSTS } from '../data/mockPosts';
 import { CreatePostInput } from '../components/newsfeed/CreatePostInput';
 import { PostCard } from '../components/newsfeed/PostCard';
-import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info, GraduationCap } from 'lucide-react';
+import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info, GraduationCap, Users } from 'lucide-react';
 
 interface HomeScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -88,6 +88,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="text-[11px] font-medium text-[#203227]">Mẫu makeup</span>
           </div>
 
+
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('user_management')}>
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <Users className="w-6 h-6 text-[#264736]" />
+            </div>
+            <span className="text-[11px] font-medium text-[#203227]">Tài khoản</span>
+          </div>
 
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('about')}>
             <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">

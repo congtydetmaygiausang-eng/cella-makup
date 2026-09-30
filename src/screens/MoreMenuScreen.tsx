@@ -234,6 +234,22 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({
             </button>
 
             <button
+              onClick={() => onNavigate('user_management')}
+              className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-white active:bg-slate-50 transition-colors group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl border-2 border-emerald-100 bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Shield className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div className="text-left">
+                  <span className="text-[14px] font-bold text-slate-800 block">Quản lý Tài khoản</span>
+                  <span className="text-[12px] font-medium text-slate-400">Tự động đồng bộ tài khoản đăng ký Supabase</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
+            </button>
+
+            <button
               onClick={() => onNavigate('roles')}
               className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-white active:bg-slate-50 transition-colors group"
             >

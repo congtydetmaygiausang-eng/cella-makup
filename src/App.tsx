@@ -39,6 +39,7 @@ import { MakeupLookbookScreen } from './screens/MakeupLookbookScreen';
 import { InstructorsScreen } from './screens/InstructorsScreen';
 import { StudentsScreen } from './screens/StudentsScreen';
 import { AboutScreen } from './screens/AboutScreen';
+import { UserManagementScreen } from './screens/UserManagementScreen';
 
 // Common Components
 import { BottomNavBar } from './components/common/BottomNavBar';
@@ -898,6 +899,14 @@ export default function App() {
 
             {currentScreen === 'about' && (
               <AboutScreen
+                onNavigate={navigateTo}
+                onBack={handleBack}
+                currentUser={currentUser}
+              />
+            )}
+
+            {currentScreen === 'user_management' && (
+              <UserManagementScreen
                 onNavigate={navigateTo}
                 onBack={handleBack}
                 currentUser={currentUser}
