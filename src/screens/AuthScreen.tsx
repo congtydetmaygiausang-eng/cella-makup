@@ -544,7 +544,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                         {acc.fullName}
                       </p>
                       <p className="text-[10px] text-slate-500 font-medium truncate">
-                        {acc.role === 'MASTER' ? 'Master' : acc.role === 'ARTIST' ? 'Artist' : acc.role === 'ACADEMY_TRAINER' ? 'Giảng viên' : 'Sales'}
+                        {acc.role === 'MASTER_ARTIST' ? 'Master' : acc.role === 'ARTIST' ? 'Artist' : acc.role === 'ACADEMY_TRAINER' ? 'Giảng viên' : acc.role === 'SUPER_ADMIN' ? 'Quản trị' : 'Sales'}
                       </p>
                     </div>
                   </button>

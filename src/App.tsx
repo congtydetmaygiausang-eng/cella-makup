@@ -451,6 +451,7 @@ export default function App() {
             id: t.id,
             title: t.title,
             priority: (t.priority || 'NORMAL') as Task['priority'],
+            time: t.time || (t.due_time ? new Date(t.due_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : 'Hôm nay'),
             dueDate: t.due_date || (t.due_time ? new Date(t.due_time).toLocaleDateString('vi-VN') : 'Hôm nay'),
             assignedTo: t.assigned_name || 'Đội ngũ CELLA',
             completed: Boolean(t.is_completed),

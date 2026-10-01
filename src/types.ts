@@ -37,6 +37,10 @@ export interface Customer {
   vipTier?: string; 
   lastContactText?: string; 
   notesHistory?: any[];
+  birthDate?: string;
+  birthday?: string;
+  address?: string;
+  skinProfile?: any;
 }
 
 // 3. Booking (bookings)
@@ -68,10 +72,11 @@ export interface Task {
   title: string;
   description?: string;
   taskType?: string;
-  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'Quan trß╗ìng' | 'B├¼nh th╞░ß╗¥ng' | 'Thß║Ñp';
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'Quan trọng' | 'Bình thường' | 'Thấp' | string;
   status?: 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
-  time: string; // Map to due_at for UI
+  time?: string; // Map to due_at for UI
   dueTime?: string;
+  dueDate?: string;
   dueAt?: string;
   assignedTo?: string;
   completed: boolean; // Derived from status === 'DONE'

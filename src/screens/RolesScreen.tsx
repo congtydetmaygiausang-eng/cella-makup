@@ -20,7 +20,8 @@ import {
   Sliders,
   UserCheck,
   Crown,
-  Info
+  Info,
+  ChevronRight
 } from 'lucide-react';
 import {
   AppAction,
@@ -393,10 +394,10 @@ export const RolesScreen: React.FC<RolesScreenProps> = ({
           <div className="space-y-3 animate-fade-in">
             {ROLES_LIST.map((role) => {
               const rolePerms = permissions[role.id] || {};
-              const totalView = Object.values(rolePerms).filter((actions) => actions.includes('view')).length;
-              const totalCreate = Object.values(rolePerms).filter((actions) => actions.includes('create')).length;
-              const totalEdit = Object.values(rolePerms).filter((actions) => actions.includes('edit')).length;
-              const totalDelete = Object.values(rolePerms).filter((actions) => actions.includes('delete')).length;
+              const totalView = Object.values(rolePerms).filter((actions: any) => Array.isArray(actions) && actions.includes('view')).length;
+              const totalCreate = Object.values(rolePerms).filter((actions: any) => Array.isArray(actions) && actions.includes('create')).length;
+              const totalEdit = Object.values(rolePerms).filter((actions: any) => Array.isArray(actions) && actions.includes('edit')).length;
+              const totalDelete = Object.values(rolePerms).filter((actions: any) => Array.isArray(actions) && actions.includes('delete')).length;
 
               return (
                 <div
