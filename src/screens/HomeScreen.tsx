@@ -133,7 +133,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Feed Posts */}
         <div className="flex flex-col">
           {MOCK_POSTS.map(post => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} currentUser={user} />
           ))}
           
           {/* End of feed message */}

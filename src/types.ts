@@ -158,6 +158,18 @@ export interface NewsfeedPost {
   isLikedByMe?: boolean;
 }
 
+export interface PostComment {
+  id: string;
+  post_id: string;
+  author_id?: string;
+  author_name: string;
+  author_avatar?: string;
+  author_role?: string;
+  content: string;
+  created_at: string;
+}
+
+
 // 6. Makeup Lookbook (matching Supabase makeup_looks table)
 export interface MakeupLook {
   id: string;

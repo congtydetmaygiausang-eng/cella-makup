@@ -288,5 +288,82 @@ EXCEPTION
         NULL;
 END $$;
 
+-- ==============================================================================
+-- 6. MỞ QUYỀN VÀ ĐỒNG BỘ DỮ LIỆU BÌNH LUẬN & BÀI VIẾT (POST_COMMENTS, POSTS)
+-- ==============================================================================
+
+-- Bảng Bình luận (post_comments)
+CREATE TABLE IF NOT EXISTS post_comments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    post_id TEXT NOT NULL,
+    author_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    author_name TEXT NOT NULL DEFAULT 'Thành viên CELLA',
+    author_avatar TEXT DEFAULT 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+    author_role VARCHAR(50) DEFAULT 'Khách hàng',
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Mở rộng cấu trúc bảng post_comments nếu đã tồn tại từ trước
+DO $$
+BEGIN
+    -- Chuyển post_id sang TEXT để hỗ trợ mọi mã bài viết
+    BEGIN
+        ALTER TABLE post_comments ALTER COLUMN post_id TYPE TEXT;
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+
+    -- Xóa khoá ngoại cũ nếu ép buộc UUID
+    BEGIN
+        ALTER TABLE post_comments DROP CONSTRAINT IF EXISTS post_comments_post_id_fkey;
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+
+    -- Cho phép author_id nhận NULL nếu là tài khoản vãng lai
+    BEGIN
+        ALTER TABLE post_comments ALTER COLUMN author_id DROP NOT NULL;
+    EXCEPTION WHEN OTHERS THEN NULL;
+    END;
+
+    -- Thêm các cột thông tin người bình luận nếu chưa có
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'post_comments' AND column_name = 'author_name') THEN
+        ALTER TABLE post_comments ADD COLUMN author_name TEXT DEFAULT 'Thành viên CELLA';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'post_comments' AND column_name = 'author_avatar') THEN
+        ALTER TABLE post_comments ADD COLUMN author_avatar TEXT DEFAULT 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'post_comments' AND column_name = 'author_role') THEN
+        ALTER TABLE post_comments ADD COLUMN author_role VARCHAR(50) DEFAULT 'Khách hàng';
+    END IF;
+END $$;
+
+-- MỞ RLS CHO BÌNH LUẬN (post_comments)
+ALTER TABLE post_comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "allow_all_post_comments_read" ON post_comments;
+DROP POLICY IF EXISTS "allow_all_post_comments_write" ON post_comments;
+DROP POLICY IF EXISTS "Mọi người có thể xem bình luận" ON post_comments;
+DROP POLICY IF EXISTS "Có thể bình luận" ON post_comments;
+
+CREATE POLICY "allow_all_post_comments_read" ON post_comments FOR SELECT USING (true);
+CREATE POLICY "allow_all_post_comments_write" ON post_comments FOR ALL USING (true) WITH CHECK (true);
+
+-- Bật Realtime cho bảng post_comments để khi người khác bình luận sẽ hiển thị ngay lập tức
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND tablename = 'post_comments'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE post_comments;
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL;
+END $$;
+
 -- Thông báo hoàn thành
-SELECT 'CHÚC MỪNG! HỆ THỐNG SUPABASE CELLA ĐÃ MỞ QUYỀN VÀ BẬT TỰ ĐỘNG LƯU TÀI KHOẢN ĐĂNG KÝ THÀNH CÔNG!' AS ket_qua;
+SELECT 'CHÚC MỪNG! HỆ THỐNG SUPABASE CELLA ĐÃ MỞ QUYỀN TOÀN DIỆN VÀ ĐỒNG BỘ BÌNH LUẬN REALTIME THÀNH CÔNG!' AS ket_qua;
+
