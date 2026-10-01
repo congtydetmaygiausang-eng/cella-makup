@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, MoreHorizontal, Share2, Send, Loader2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Heart, MessageCircle, MoreHorizontal, Share2, Send, Loader2, Sparkles, Check, Smile } from 'lucide-react';
 import { NewsfeedPost, PostComment, Staff } from '../../types';
 import { supabase } from '../../config/supabase';
 
@@ -42,6 +42,8 @@ const INITIAL_MOCK_COMMENTS: Record<string, PostComment[]> = {
   ]
 };
 
+const QUICK_TAGS = ['❤️ Tuyệt vời quá', '🔥 Đỉnh quá chị', '👏 Quá xịn', '🌿 Đẹp xuất sắc', '✨ Chúc mừng CELLA'];
+
 export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
   const [liked, setLiked] = useState(post.isLikedByMe || false);
   const [likesCount, setLikesCount] = useState(post.likes);
@@ -53,6 +55,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
   const [newComment, setNewComment] = useState('');
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const commentsContainerRef = useRef<HTMLDivElement>(null);
 
   // Load comments from Supabase & Local fallback
   const fetchComments = async () => {
@@ -98,12 +104,24 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
     }
   };
 
+  // Open comments and focus input
+  const handleOpenCommentInput = () => {
+    setIsCommentsOpen(true);
+    if (comments.length === 0) {
+      fetchComments();
+    }
+    setTimeout(() => {
+      commentsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      inputRef.current?.focus();
+    }, 150);
+  };
+
   // Toggle comments expand
   const handleToggleComments = () => {
-    const nextState = !isCommentsOpen;
-    setIsCommentsOpen(nextState);
-    if (nextState && comments.length === 0) {
-      fetchComments();
+    if (!isCommentsOpen) {
+      handleOpenCommentInput();
+    } else {
+      setIsCommentsOpen(false);
     }
   };
 
@@ -140,9 +158,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
   }, [isCommentsOpen, post.id]);
 
   // Handle submit comment
-  const handleSubmitComment = async (e?: React.FormEvent) => {
+  const handleSubmitComment = async (e?: React.FormEvent, customContent?: string) => {
     if (e) e.preventDefault();
-    const content = newComment.trim();
+    const content = (customContent !== undefined ? customContent : newComment).trim();
     if (!content || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -166,6 +184,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
     setComments((prev) => [...prev, optimisticComment]);
     setCommentsCount((prev) => prev + 1);
     setNewComment('');
+    setJustSubmitted(true);
+    setTimeout(() => setJustSubmitted(false), 2500);
 
     // 2. Cache in localStorage for durability
     try {
@@ -206,6 +226,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
       console.warn('Lỗi kết nối Supabase khi bình luận:', err);
     } finally {
       setIsSubmitting(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
   };
 
@@ -291,8 +314,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
           <span className="text-[12px] font-medium text-slate-500">{likesCount} lượt thích</span>
         </div>
         <button 
-          onClick={handleToggleComments}
-          className="flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-[#264736] font-medium transition-colors"
+          onClick={handleOpenCommentInput}
+          className="flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-[#264736] font-medium transition-colors cursor-pointer"
         >
           <span>{commentsCount} bình luận</span>
         </button>
@@ -308,11 +331,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
           <span className="text-[12.5px]">{liked ? 'Đã thích' : 'Thích'}</span>
         </button>
         <button 
-          onClick={handleToggleComments}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all active:scale-95 ${isCommentsOpen ? 'bg-[#EAF2EC] text-[#264736] font-bold' : 'text-slate-600 hover:text-[#264736] hover:bg-[#EAF2EC]/60'}`}
+          onClick={handleOpenCommentInput}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all active:scale-95 ${isCommentsOpen ? 'bg-[#EAF2EC] text-[#264736] font-bold shadow-xs' : 'text-slate-600 hover:text-[#264736] hover:bg-[#EAF2EC]/60'}`}
         >
-          <MessageCircle className="w-4.5 h-4.5" />
-          <span className="text-[12.5px] font-semibold">Bình luận</span>
+          <MessageCircle className="w-4.5 h-4.5 text-[#264736]" />
+          <span className="text-[12.5px] font-semibold text-[#1E3A2F]">Bình luận</span>
         </button>
         <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-slate-600 hover:text-[#264736] hover:bg-[#EAF2EC]/60 rounded-xl transition-all active:scale-95">
           <Share2 className="w-4.5 h-4.5" />
@@ -322,11 +345,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
 
       {/* ── EXPANDABLE COMMENTS SECTION ── */}
       {isCommentsOpen && (
-        <div className="px-4 py-3 bg-[#F9FAF9] border-t border-slate-100 animate-in fade-in duration-200">
+        <div ref={commentsContainerRef} className="px-4 py-3 bg-[#F9FAF9] border-t border-slate-100 animate-in fade-in duration-200">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200/60">
             <h5 className="text-[12.5px] font-bold text-[#1E3A2F] flex items-center gap-1.5">
               <span>Bình luận</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#EAF2EC] text-[#264736] text-[11px]">
+              <span className="px-2 py-0.5 rounded-full bg-[#EAF2EC] text-[#264736] text-[11px] font-bold">
                 {comments.length}
               </span>
             </h5>
@@ -334,6 +357,23 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Đồng bộ Supabase Live
             </span>
+          </div>
+
+          {/* Quick Reaction Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-2">
+            {QUICK_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setNewComment(tag);
+                  inputRef.current?.focus();
+                }}
+                className="shrink-0 px-2.5 py-1 rounded-full bg-white border border-[#264736]/15 hover:border-[#264736] hover:bg-[#EAF2EC] text-[11px] font-medium text-[#264736] active:scale-95 transition-all shadow-2xs"
+              >
+                {tag}
+              </button>
+            ))}
           </div>
 
           {/* Comments List */}
@@ -391,25 +431,36 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser }) => {
             />
             <div className="flex-1 relative flex items-center">
               <input
+                ref={inputRef}
                 type="text"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Viết bình luận công khai..."
-                className="w-full bg-white border border-[#264736]/20 rounded-full pl-3.5 pr-10 py-2 text-[12.5px] text-slate-800 focus:outline-none focus:border-[#264736] focus:ring-1 focus:ring-[#264736]/30 shadow-xs placeholder:text-slate-400 transition-all"
+                className="w-full bg-white border border-[#264736]/25 rounded-full pl-3.5 pr-11 py-2 text-[12.5px] text-slate-800 focus:outline-none focus:border-[#264736] focus:ring-2 focus:ring-[#264736]/20 shadow-xs placeholder:text-slate-400 transition-all"
               />
               <button
                 type="submit"
                 disabled={!newComment.trim() || isSubmitting}
-                className="absolute right-1.5 w-7 h-7 rounded-full bg-[#264736] text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#1E3A2F] active:scale-95 transition-all shadow-xs"
+                className="absolute right-1.5 w-7 h-7 rounded-full bg-[#264736] text-white flex items-center justify-center disabled:opacity-35 disabled:cursor-not-allowed hover:bg-[#1E3A2F] active:scale-95 transition-all shadow-xs"
+                title="Gửi bình luận"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : justSubmitted ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
                 ) : (
                   <Send className="w-3.5 h-3.5 translate-x-px" />
                 )}
               </button>
             </div>
           </form>
+
+          {/* Feedback note */}
+          {justSubmitted && (
+            <p className="text-[11px] text-emerald-700 font-medium text-center mt-1.5 animate-in fade-in">
+              🌿 Bình luận của bạn đã được đăng thành công!
+            </p>
+          )}
         </div>
       )}
     </div>
