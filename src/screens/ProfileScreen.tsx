@@ -6,7 +6,8 @@ import {
   Calendar, Shield, Award, Star, CheckCircle2, QrCode, Edit3, X,
   Save, Check, Lock, LogOut, Share2, Sparkles, DollarSign,
   TrendingUp, Clock, FileText, AlertCircle, Heart, Eye, Users,
-  ExternalLink, Key, Smartphone, MessageCircle, ChevronRight, Copy
+  ExternalLink, Key, Smartphone, MessageCircle, ChevronRight, Copy,
+  Menu, ChevronDown
 } from 'lucide-react';
 
 interface ProfileScreenProps {
@@ -99,7 +100,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     };
   });
 
-  const [activeTab, setActiveTab] = useState<'info' | 'skills' | 'payroll' | 'security'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'skills' | 'payroll' | 'kpi' | 'security'>('info');
+  const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -337,6 +339,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
           {/* Change cover button */}
           <button
+            type="button"
             onClick={() => coverInputRef.current?.click()}
             className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/20 transition-all active:scale-95"
           >
@@ -351,6 +354,133 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             className="hidden"
           />
 
+          {/* ── NÚT MENU THẢ XUỐNG HỒ SƠ NHÂN VIÊN (Vị trí theo yêu cầu góc trên/phải) ── */}
+          <div className="absolute top-12 right-3 z-30">
+            <button
+              type="button"
+              onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
+              className="flex items-center gap-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full border border-white/25 transition-all active:scale-95 shadow-lg"
+            >
+              <Menu className="w-3.5 h-3.5 text-amber-300" />
+              <span>Menu hồ sơ</span>
+              <ChevronDown className={`w-3 h-3 text-white/80 transition-transform duration-200 ${isMenuDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Menu thả xuống Popup */}
+            {isMenuDropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-30 bg-black/25" 
+                  onClick={() => setIsMenuDropdownOpen(false)} 
+                />
+                <div className="absolute right-0 top-9 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/80 p-2 z-40 text-slate-800 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Danh mục hồ sơ</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-[#544CDE]">5 danh mục</span>
+                  </div>
+
+                  <div className="py-1 space-y-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('info'); setIsMenuDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left font-bold transition-colors ${
+                        activeTab === 'info' ? 'bg-[#544CDE] text-white shadow-xs' : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <FileText className={`w-4 h-4 ${activeTab === 'info' ? 'text-white' : 'text-indigo-600'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate">Lý lịch & Hợp đồng</div>
+                        <div className={`text-[10px] font-normal truncate ${activeTab === 'info' ? 'text-indigo-100' : 'text-slate-400'}`}>Thông tin cá nhân, CCCD, BHXH</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('skills'); setIsMenuDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left font-bold transition-colors ${
+                        activeTab === 'skills' ? 'bg-[#544CDE] text-white shadow-xs' : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <Award className={`w-4 h-4 ${activeTab === 'skills' ? 'text-white' : 'text-amber-500'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate">Năng lực & Tác phẩm</div>
+                        <div className={`text-[10px] font-normal truncate ${activeTab === 'skills' ? 'text-indigo-100' : 'text-slate-400'}`}>Kỹ năng, Lookbook, Chứng chỉ</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('payroll'); setIsMenuDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left font-bold transition-colors ${
+                        activeTab === 'payroll' ? 'bg-[#544CDE] text-white shadow-xs' : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <DollarSign className={`w-4 h-4 ${activeTab === 'payroll' ? 'text-white' : 'text-emerald-600'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate">Lương & Hoa hồng</div>
+                        <div className={`text-[10px] font-normal truncate ${activeTab === 'payroll' ? 'text-indigo-100' : 'text-slate-400'}`}>Lương CB, hoa hồng, thu nhập</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('kpi'); setIsMenuDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left font-bold transition-colors ${
+                        activeTab === 'kpi' ? 'bg-[#544CDE] text-white shadow-xs' : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <TrendingUp className={`w-4 h-4 ${activeTab === 'kpi' ? 'text-white' : 'text-blue-600'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate">Hiệu suất & Chỉ số KPI</div>
+                        <div className={`text-[10px] font-normal truncate ${activeTab === 'kpi' ? 'text-indigo-100' : 'text-slate-400'}`}>Đánh giá 4.95★, 348+ ca, 118% KPI</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTab('security'); setIsMenuDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left font-bold transition-colors ${
+                        activeTab === 'security' ? 'bg-[#544CDE] text-white shadow-xs' : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <Shield className={`w-4 h-4 ${activeTab === 'security' ? 'text-white' : 'text-slate-600'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate">Bảo mật & Cài đặt</div>
+                        <div className={`text-[10px] font-normal truncate ${activeTab === 'security' ? 'text-indigo-100' : 'text-slate-400'}`}>Mật khẩu, mã PIN, thiết bị</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className="pt-1.5 mt-1 border-t border-slate-100 space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditForm({ ...profile });
+                        setIsEditModalOpen(true);
+                        setIsMenuDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 font-bold text-xs"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Chỉnh sửa thông tin hồ sơ</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsQrModalOpen(true);
+                        setIsMenuDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 font-bold text-xs"
+                    >
+                      <QrCode className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Xem thẻ số nhân viên</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Branch badge on top of cover */}
           <div className="absolute bottom-3 left-4 flex items-center gap-1.5 text-white/90 text-[11px] font-medium bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
             <Building2 className="w-3 h-3 text-amber-300" />
@@ -359,8 +489,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </div>
 
         {/* Avatar & Main Info */}
-        <div className="px-5 pt-0 pb-5">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-14 mb-4 gap-3">
+        <div className="px-5 pt-0 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-14 mb-3.5 gap-3">
             <div className="relative inline-block w-28 h-28 shrink-0">
               <img
                 src={profile.avatarUrl}
@@ -372,6 +502,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
               {/* Change Avatar Button */}
               <button
+                type="button"
                 onClick={() => avatarInputRef.current?.click()}
                 className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center border-2 border-white shadow-md hover:bg-indigo-600 transition-colors"
                 title="Đổi ảnh đại diện"
@@ -406,6 +537,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <span>Zalo</span>
               </a>
               <button
+                type="button"
                 onClick={() => setIsQrModalOpen(true)}
                 className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors border border-purple-200/60"
               >
@@ -415,111 +547,84 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
           </div>
 
-          {/* Name & Title */}
-          <div className="space-y-1.5">
+          {/* Name & Clean Subtitle (Gọn gàng thay vì một đống badges rườm rà) */}
+          <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{profile.fullName}</h2>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
                 <CheckCircle2 className="w-3 h-3 text-amber-600" />
                 <span>Verified Specialist</span>
               </span>
             </div>
 
-            <p className="text-sm font-semibold text-slate-600 flex items-center gap-1.5 flex-wrap">
-              <Briefcase className="w-4 h-4 text-[#544CDE]" />
-              <span>{profile.title}</span>
+            <div className="flex items-center gap-1.5 flex-wrap text-xs text-slate-600 font-semibold">
+              <span className="font-extrabold text-[#544CDE]">{profile.title}</span>
               <span className="text-slate-300">•</span>
-              <span className="text-slate-500 font-normal">{profile.department}</span>
-            </p>
-
-            <div className="flex items-center gap-2 pt-1 flex-wrap">
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-black border ${roleMeta.badgeBg} ${roleMeta.textColor}`}>
-                {roleMeta.label}
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                Mã NV: <strong>{profile.employeeCode}</strong>
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span>Chính thức ({profile.joinedDate})</span>
+              <span className="text-slate-500">{profile.department}</span>
+              <span className="text-slate-300">•</span>
+              <span className="font-mono text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
+                {profile.employeeCode}
               </span>
             </div>
-          </div>
-        </div>
 
-        {/* ── METRIC STATS BAR ── */}
-        <div className="grid grid-cols-4 border-t border-slate-100 divide-x divide-slate-100 bg-slate-50/60 py-3 text-center">
-          <div>
-            <div className="flex items-center justify-center gap-1 text-amber-500 font-black text-base sm:text-lg">
-              <Star className="w-4 h-4 fill-amber-400" />
-              <span>{profile.rating}</span>
+            {/* Quick KPI Glance Pill (Thay cho 4 ô to cồng kềnh) */}
+            <div 
+              onClick={() => setActiveTab('kpi')}
+              className="mt-2.5 flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-indigo-50/50 border border-slate-200/70 cursor-pointer transition-all active:scale-98"
+              title="Bấm để xem đầy đủ chỉ số KPI & Đánh giá"
+            >
+              <div className="flex items-center gap-2.5 text-xs font-bold text-slate-700 flex-wrap">
+                <span className="flex items-center gap-1 text-amber-600">
+                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+                  <span>{profile.rating}</span>
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="text-[#544CDE]">{profile.totalServices}+ Dịch vụ</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-emerald-700">{profile.kpiScore}% KPI</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-purple-700">{profile.workDays} Công</span>
+              </div>
+              <span className="text-[11px] font-bold text-[#544CDE] flex items-center gap-0.5 shrink-0">
+                Xem chi tiết <ChevronRight className="w-3.5 h-3.5" />
+              </span>
             </div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Đánh giá</div>
-          </div>
-          <div>
-            <div className="text-base sm:text-lg font-black text-[#544CDE]">{profile.totalServices}+</div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Dịch vụ</div>
-          </div>
-          <div>
-            <div className="text-base sm:text-lg font-black text-emerald-600">{profile.kpiScore}%</div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">KPI Tháng</div>
-          </div>
-          <div>
-            <div className="text-base sm:text-lg font-black text-purple-600">{profile.workDays}</div>
-            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-0.5 uppercase tracking-wide">Ngày công</div>
           </div>
         </div>
       </div>
 
-      {/* ── 4 TABS NAVIGATION ── */}
-      <div className="sticky top-[61px] z-20 bg-white border-b border-slate-200 shadow-xs">
-        <div className="flex px-2 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('info')}
-            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'info'
-                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Lý lịch & HĐ</span>
-          </button>
+      {/* ── THANH MENU RIÊNG CỦA HỒ SƠ NHÂN VIÊN (DROPDOWN MENU BAR) ── */}
+      <div className="sticky top-[61px] z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 py-2.5 shadow-xs">
+        <div className="flex items-center justify-between gap-2 max-w-4xl mx-auto">
+          {/* Dropdown Selector Button */}
+          <div className="relative flex-1">
+            <button
+              type="button"
+              onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
+              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 font-bold text-xs text-slate-800 transition-all border border-slate-200/60 active:scale-98 shadow-2xs"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Mục đang xem:</span>
+                <span className="flex items-center gap-1.5 text-[#544CDE] font-black truncate">
+                  {activeTab === 'info' && <><FileText className="w-3.5 h-3.5" /> Lý lịch & Hợp đồng</>}
+                  {activeTab === 'skills' && <><Award className="w-3.5 h-3.5 text-amber-500" /> Năng lực & Tác phẩm</>}
+                  {activeTab === 'payroll' && <><DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Lương & Hoa hồng</>}
+                  {activeTab === 'kpi' && <><TrendingUp className="w-3.5 h-3.5 text-blue-600" /> Hiệu suất & Chỉ số KPI</>}
+                  {activeTab === 'security' && <><Shield className="w-3.5 h-3.5 text-slate-600" /> Bảo mật & Cài đặt</>}
+                </span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-200 ${isMenuDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
 
+          {/* Quick Menu Button */}
           <button
-            onClick={() => setActiveTab('skills')}
-            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'skills'
-                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
+            type="button"
+            onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#544CDE] text-white hover:bg-[#433bc7] transition-all font-bold text-xs shadow-xs active:scale-95 shrink-0"
           >
-            <Award className="w-4 h-4" />
-            <span>Năng lực & Tác phẩm</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('payroll')}
-            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'payroll'
-                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            <span>Lương & Hoa hồng</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('security')}
-            className={`flex-1 min-w-[100px] py-3 text-xs sm:text-sm font-bold border-b-2 text-center transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'security'
-                ? 'border-[#544CDE] text-[#544CDE] bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Bảo mật & Cài đặt</span>
+            <Menu className="w-3.5 h-3.5" />
+            <span>Menu</span>
           </button>
         </div>
       </div>
@@ -802,6 +907,71 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <span>Doanh số dịch vụ mang về tháng này:</span>
               </span>
               <strong className="text-white font-mono text-sm">{profile.monthlyRevenue.toLocaleString('vi-VN')} đ</strong>
+            </div>
+          </div>
+
+          {/* Card: Cơ cấu lương & Đãi ngộ */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-100">
+              <DollarSign className="w-4 h-4 text-emerald-600" />
+              <span>Chính sách lương căn bản & Cơ chế hoa hồng</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 font-medium block mb-1">Mức lương căn bản cố định:</span>
+                <span className="text-base font-black text-slate-900">{profile.baseSalary.toLocaleString('vi-VN')} đ / tháng</span>
+                <span className="text-[11px] text-slate-500 block mt-1">Được chi trả đúng ngày 05 hàng tháng</span>
+              </div>
+
+              <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200/60">
+                <span className="text-emerald-800 font-medium block mb-1">Tỷ lệ hoa hồng dịch vụ:</span>
+                <span className="text-base font-black text-emerald-700">{profile.commissionRate}% trên doanh thu cá nhân</span>
+                <span className="text-[11px] text-emerald-600 block mt-1">Hưởng trực tiếp trên từng ca khách hoàn thành</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 4: HIỆU SUẤT & CHỈ SỐ KPI ── */}
+      {activeTab === 'kpi' && (
+        <div className="p-4 sm:p-5 space-y-4 max-w-4xl mx-auto">
+          {/* Card: 4 Ô Chỉ số KPI tổng quan */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-[#544CDE]" />
+                <span>Tổng hợp Chỉ số Hiệu suất & Đánh giá</span>
+              </h3>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                Tháng 09/2026
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/70">
+                <div className="flex items-center justify-center gap-1 text-amber-600 font-black text-xl">
+                  <Star className="w-4 h-4 fill-amber-400" />
+                  <span>{profile.rating}</span>
+                </div>
+                <div className="text-[11px] font-bold text-amber-700 mt-1">Đánh giá sao TB</div>
+              </div>
+
+              <div className="bg-indigo-50/70 p-3.5 rounded-2xl border border-indigo-200/70">
+                <div className="text-xl font-black text-[#544CDE]">{profile.totalServices}+</div>
+                <div className="text-[11px] font-bold text-indigo-700 mt-1">Ca dịch vụ makeup</div>
+              </div>
+
+              <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200/70">
+                <div className="text-xl font-black text-emerald-700">{profile.kpiScore}%</div>
+                <div className="text-[11px] font-bold text-emerald-700 mt-1">KPI hoàn thành</div>
+              </div>
+
+              <div className="bg-purple-50/70 p-3.5 rounded-2xl border border-purple-200/70">
+                <div className="text-xl font-black text-purple-700">{profile.workDays}</div>
+                <div className="text-[11px] font-bold text-purple-700 mt-1">Ngày công tháng</div>
+              </div>
             </div>
           </div>
 
