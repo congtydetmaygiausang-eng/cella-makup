@@ -142,6 +142,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   const showChat = messages.length > 0;
 
   // Active AI connection name and status (Luôn kết nối sẵn cho người dùng)
+  // Active AI connection name and status (Luôn kết nối sẵn cho người dùng)
   const currentProviderInfo = useMemo(() => {
     if (preferredProvider === 'minimax' && minimaxKey) {
       return {
@@ -152,11 +153,11 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         isOnline: true,
       };
     }
-    // Mặc định kết nối sẵn Gemini 2.5 Flash siêu tốc độ & thông minh
+    // Mặc định kết nối sẵn Gemini Flash-Lite siêu tốc độ & thông minh
     return {
-      name: 'Gemini 2.5 Flash',
-      badge: 'MiniMax & Gemini AI ⚡',
-      desc: 'Đã kết nối AI thông minh · Sẵn sàng 24/7',
+      name: 'Gemini Flash-Lite ⚡',
+      badge: 'AI Siêu Tốc (<1s) ⚡',
+      desc: 'Phản hồi tức thì · Trí tuệ tự nhiên 24/7',
       icon: Zap,
       isOnline: true,
     };
@@ -267,24 +268,65 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
     setInputMessage('');
     setIsTyping(true);
 
+    const aiMsgId = `ai-${Date.now()}`;
+
     try {
       const response = await askCellaAI({
         message: msg,
         category: cat,
         customerData: customerContext,
         history: messages.slice(-5).map((m) => ({ role: m.role, text: m.text })),
+        onChunk: (_chunk, accumulated) => {
+          setIsTyping(false);
+          setMessages((prev) => {
+            const idx = prev.findIndex((m) => m.id === aiMsgId);
+            if (idx >= 0) {
+              const updated = [...prev];
+              updated[idx] = { ...updated[idx], text: accumulated };
+              return updated;
+            } else {
+              return [
+                ...prev,
+                {
+                  id: aiMsgId,
+                  role: 'ai',
+                  text: accumulated,
+                  timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+                  provider: 'gemini',
+                  model: 'Gemini Flash-Lite ⚡ (Siêu tốc)',
+                },
+              ];
+            }
+          });
+        },
       });
 
-      const aiMsg: Message = {
-        id: `ai-${Date.now()}`,
-        role: 'ai',
-        text: response.reply,
-        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-        provider: response.provider,
-        model: response.model,
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
+      // Đảm bảo tin nhắn hoàn chỉnh được cập nhật đầy đủ cùng provider & model chính xác
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m.id === aiMsgId);
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = {
+            ...updated[idx],
+            text: response.reply,
+            provider: response.provider,
+            model: response.model,
+          };
+          return updated;
+        } else {
+          return [
+            ...prev,
+            {
+              id: aiMsgId,
+              role: 'ai',
+              text: response.reply,
+              timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+              provider: response.provider,
+              model: response.model,
+            },
+          ];
+        }
+      });
     } catch {
       const fallbackMsg: Message = {
         id: `ai-err-${Date.now()}`,
@@ -292,7 +334,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         text: 'Dạ đường truyền mạng đang bận một chút, em đã tra cứu thông tin theo chuẩn vận hành CELLA Studio & Academy cho bạn nhé 💕',
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         provider: 'cella_engine',
-        model: 'CELLA Expert Knowledge 2.0',
+        model: 'CELLA Expert Knowledge 2.0 ⚡',
       };
       setMessages((prev) => [...prev, fallbackMsg]);
     } finally {

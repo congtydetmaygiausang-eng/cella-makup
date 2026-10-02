@@ -403,27 +403,172 @@ export async function testMinimaxConnection(apiKey: string): Promise<{ success: 
   return testAiConnection(apiKey, 'minimax');
 }
 
+// Danh sách các model Gemini siêu tốc được ưu tiên hàng đầu (< 800ms)
+const ULTRA_FAST_GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash',
+];
+
 /**
- * Hàm gọi AI đa tầng (Backend Proxy -> Direct Gemini -> CELLA Master Engine)
+ * Hàm gọi AI đa tầng siêu tốc độ (Direct Fast Gemini Streaming -> Direct REST -> Backend Proxy -> Domain Engine)
  */
 export async function askCellaAI(params: {
   message: string;
   category?: string;
   customerData?: any;
   history?: { role: 'user' | 'ai'; text: string }[];
+  onChunk?: (chunk: string, fullText: string) => void;
 }): Promise<MinimaxResponse> {
-  const { message, category = 'Chung', customerData, history = [] } = params;
+  const { message, category = 'Chung', customerData, history = [], onChunk } = params;
+  const query = (message || '').trim().toLowerCase();
 
-  const minimaxKey = getMinimaxApiKey();
+  // ─── TẦNG 0: Xử lý tức thì 0ms cho các câu chào / xác nhận ngắn ───
+  if (['ok', 'dạ', 'da', 'cảm ơn', 'cam on', 'ừ', 'u', 'được', 'duoc', 'thanks', 'thx', 'vâng', 'vang'].includes(query)) {
+    const instantReply = 'Dạ vâng chị nhé 💕 Khi nào chị cần em hỗ trợ thêm cứ nhắn em nha!';
+    if (onChunk) onChunk(instantReply, instantReply);
+    return {
+      reply: instantReply,
+      provider: 'cella_engine',
+      model: 'CELLA Fast Engine ⚡',
+    };
+  }
+
   const geminiKey = getGeminiApiKey();
+  const minimaxKey = getMinimaxApiKey();
 
-  // Chuẩn bị lịch sử trò chuyện
-  const chatHistory: ChatMessage[] = history.map((h) => ({
-    role: h.role === 'user' ? 'user' : 'assistant',
-    content: h.text,
-  }));
+  // Chuẩn bị ngữ cảnh
+  const customerContext = customerData
+    ? `\n[KHÁCH CRM: ${customerData.name || 'Khách'}, Chi tiêu: ${customerData.totalSpent ? customerData.totalSpent.toLocaleString('vi-VN') + 'đ' : '0đ'}]`
+    : '';
+  const fullPrompt = `[Chuyên mục: ${category}]${customerContext}\nYêu cầu: ${message}`;
 
-  // TẦNG 1: Gọi qua backend API (/api/ai/chat)
+  const contentsPayload = [
+    ...history.slice(-4).map((h) => ({
+      role: h.role === 'user' ? 'user' : 'model',
+      parts: [{ text: h.text }],
+    })),
+    {
+      role: 'user',
+      parts: [{ text: fullPrompt }],
+    },
+  ];
+
+  // ─── TẦNG 1: Gọi TRỰC TIẾP Google Gemini từ Browser (1 chặng mạng, độ trễ < 800ms) ───
+  if (geminiKey) {
+    for (const mName of ULTRA_FAST_GEMINI_MODELS) {
+      try {
+        // Nếu có onChunk, dùng SSE Streaming để phản hồi chữ xuất hiện tức thì sau ~300ms
+        if (onChunk) {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+          const streamRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${mName}:streamGenerateContent?alt=sse&key=${geminiKey.trim()}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: CELLA_SYSTEM_PROMPT }] },
+                contents: contentsPayload,
+                generationConfig: {
+                  temperature: 0.65,
+                  maxOutputTokens: 350,
+                },
+              }),
+            }
+          );
+
+          clearTimeout(timeoutId);
+
+          if (streamRes.ok && streamRes.body) {
+            const reader = streamRes.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = '';
+            let hasChunk = false;
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const textChunk = decoder.decode(value, { stream: true });
+              const lines = textChunk.split('\n');
+
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const jsonStr = line.slice(6).trim();
+                    if (jsonStr) {
+                      const parsed = JSON.parse(jsonStr);
+                      const partText = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                      if (partText) {
+                        accumulatedText += partText;
+                        hasChunk = true;
+                        onChunk(partText, accumulatedText);
+                      }
+                    }
+                  } catch {
+                    // Tiếp tục xử lý chunk kế
+                  }
+                }
+              }
+            }
+
+            if (hasChunk && accumulatedText.trim()) {
+              return {
+                reply: accumulatedText.trim(),
+                provider: 'gemini',
+                model: `${mName} ⚡ (Siêu tốc)`,
+              };
+            }
+          }
+        }
+
+        // Nếu không stream hoặc stream chưa có chunk, gọi generateContent tiêu chuẩn có timeout 4.5s
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
+
+        const gRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${geminiKey.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: CELLA_SYSTEM_PROMPT }] },
+              contents: contentsPayload,
+              generationConfig: {
+                temperature: 0.65,
+                maxOutputTokens: 350,
+              },
+            }),
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (gRes.ok) {
+          const gData = await gRes.json();
+          const geminiText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (geminiText && geminiText.trim()) {
+            const finalReply = geminiText.trim();
+            if (onChunk) onChunk(finalReply, finalReply);
+            return {
+              reply: finalReply,
+              provider: 'gemini',
+              model: `${mName} ⚡`,
+            };
+          }
+        }
+      } catch (directErr) {
+        // Model bận hoặc lỗi mạng, thử tiếp model lite kế tiếp
+        console.warn(`Direct model ${mName} attempt skipped:`, directErr);
+      }
+    }
+  }
+
+  // ─── TẦNG 2: Gọi qua backend API (/api/ai/chat) dự phòng ───
   try {
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
@@ -441,83 +586,25 @@ export async function askCellaAI(params: {
     if (res.ok) {
       const data = await res.json();
       if (data.reply) {
+        if (onChunk) onChunk(data.reply, data.reply);
         return {
           reply: data.reply,
           provider: data.provider || (data.model?.includes('MiniMax') ? 'minimax' : 'gemini'),
-          model: data.model || 'Gemini 2.5 Flash',
+          model: data.model || 'Gemini Flash-Lite ⚡',
         };
       }
     }
   } catch (err) {
-    console.warn('Backend /api/ai/chat call failed, falling back to direct browser AI:', err);
+    console.warn('Backend proxy /api/ai/chat fallback failed:', err);
   }
 
-  // TẦNG 2: Gọi trực tiếp Google Gemini từ Browser (Hoàn toàn hỗ trợ CORS)
-  if (geminiKey) {
-    try {
-      const customerContext = customerData
-        ? `\n\n[DỮ LIỆU KHÁCH HÀNG CRM: Tên: ${customerData.name || 'N/A'}, Trạng thái: ${customerData.crmStage || 'N/A'}, Chi tiêu: ${customerData.totalSpent ? customerData.totalSpent.toLocaleString('vi-VN') + 'đ' : '0đ'}]`
-        : '';
-      const fullPrompt = `[Chuyên mục: ${category}]${customerContext}\n\nYêu cầu tư vấn: ${message}`;
-
-      const contentsPayload = [
-        ...history.slice(-4).map((h) => ({
-          role: h.role === 'user' ? 'user' : 'model',
-          parts: [{ text: h.text }],
-        })),
-        {
-          role: 'user',
-          parts: [{ text: fullPrompt }],
-        },
-      ];
-
-      const geminiModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
-      for (const mName of geminiModels) {
-        try {
-          const gRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${geminiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: CELLA_SYSTEM_PROMPT }],
-                },
-                contents: contentsPayload,
-                generationConfig: {
-                  temperature: 0.65,
-                  maxOutputTokens: 600,
-                },
-              }),
-            }
-          );
-
-          if (gRes.ok) {
-            const gData = await gRes.json();
-            const geminiText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (geminiText && geminiText.trim()) {
-              return {
-                reply: geminiText.trim(),
-                provider: 'gemini',
-                model: mName === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Gemini Flash-Lite',
-              };
-            }
-          }
-        } catch (mErr) {
-          console.warn(`Direct model ${mName} call failed:`, mErr);
-        }
-      }
-    } catch (directGeminiErr) {
-      console.warn('Direct Gemini calls failed:', directGeminiErr);
-    }
-  }
-
-  // TẦNG 3: CELLA Master Domain Knowledge Engine (Đảm bảo luôn phản hồi chính xác 100% về hệ thống)
+  // ─── TẦNG 3: CELLA Master Domain Knowledge Engine (0ms, đảm bảo luôn có phản hồi) ───
   const domainReply = generateOfflineDomainResponse(message, category, customerData);
+  if (onChunk) onChunk(domainReply, domainReply);
   return {
     reply: domainReply,
     provider: 'cella_engine',
-    model: 'CELLA Expert Knowledge 2.0',
+    model: 'CELLA Expert Knowledge 2.0 ⚡',
   };
 }
 

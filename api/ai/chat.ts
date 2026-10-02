@@ -216,15 +216,24 @@ export default async function handler(req: any, res: any) {
           },
         ];
 
-        // TẦNG 1: Google Gemini (Ưu tiên gemini-3.5-flash, fallback gemini-3.1-flash-lite và gemini-flash-latest)
-        const geminiModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+        // TẦNG 1: Google Gemini (Ưu tiên các dòng Flash-Lite siêu tốc độ < 800ms)
+        const geminiModels = [
+          'gemini-3.5-flash-lite',
+          'gemini-flash-lite-latest',
+          'gemini-3.1-flash-lite',
+          'gemini-3.5-flash',
+        ];
         for (const mName of geminiModels) {
           try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4500);
+
             const geminiRes = await fetch(
               `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${effectiveGeminiKey.trim()}`,
               {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
                 body: JSON.stringify({
                   systemInstruction: {
                     parts: [{ text: CELLA_SYSTEM_PROMPT }],
@@ -232,11 +241,13 @@ export default async function handler(req: any, res: any) {
                   contents: contentsPayload,
                   generationConfig: {
                     temperature: 0.65,
-                    maxOutputTokens: 600,
+                    maxOutputTokens: 350,
                   },
                 }),
               }
             );
+
+            clearTimeout(timeoutId);
 
             if (geminiRes.ok) {
               const gData = await geminiRes.json();
@@ -245,7 +256,7 @@ export default async function handler(req: any, res: any) {
                 return res.status(200).json({
                   reply: geminiReply.trim(),
                   provider: 'gemini',
-                  model: mName === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Gemini Flash-Lite',
+                  model: `${mName} ⚡ (Siêu tốc)`,
                 });
               }
             }
