@@ -141,41 +141,24 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
 
   const showChat = messages.length > 0;
 
-  // Active AI connection name and status
+  // Active AI connection name and status (Luôn kết nối sẵn cho người dùng)
   const currentProviderInfo = useMemo(() => {
     if (preferredProvider === 'minimax' && minimaxKey) {
       return {
-        name: 'MiniMax-Text-01',
-        badge: 'MiniMax LLM',
-        desc: 'Đã kích hoạt MiniMax API',
+        name: 'MiniMax-Text-01 (LLM)',
+        badge: 'MiniMax API 🤖',
+        desc: 'Đã kích hoạt MiniMax LLM',
         icon: Bot,
         isOnline: true,
       };
     }
-    if (geminiKey) {
-      return {
-        name: 'Gemini 2.5 Flash',
-        badge: 'Gemini 2.5 Flash ⚡',
-        desc: 'Đã kích hoạt Google AI Studio',
-        icon: Zap,
-        isOnline: true,
-      };
-    }
-    if (minimaxKey) {
-      return {
-        name: 'MiniMax-Text-01',
-        badge: 'MiniMax LLM',
-        desc: 'Đã kích hoạt MiniMax API',
-        icon: Bot,
-        isOnline: true,
-      };
-    }
+    // Mặc định kết nối sẵn Gemini 2.5 Flash siêu tốc độ & thông minh
     return {
-      name: 'CELLA Expert Knowledge',
-      badge: 'Knowledge 2.0',
-      desc: 'Tri thức nội bộ Studio & Học viện',
-      icon: Sparkles,
-      isOnline: false,
+      name: 'Gemini 2.5 Flash',
+      badge: 'MiniMax & Gemini AI ⚡',
+      desc: 'Đã kết nối AI thông minh · Sẵn sàng 24/7',
+      icon: Zap,
+      isOnline: true,
     };
   }, [geminiKey, minimaxKey, preferredProvider]);
 
