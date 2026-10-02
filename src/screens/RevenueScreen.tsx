@@ -30,14 +30,14 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
   ];
 
   const sources = [
-    { label: 'Booking dịch vụ', percent: 45, amount: '115.402.500 đ', color: 'bg-[#5850EC]' },
-    { label: 'Khóa học đào tạo', percent: 30, amount: '76.935.000 đ', color: 'bg-[#8B5CF6]' },
-    { label: 'TikTok livestream', percent: 15, amount: '38.467.500 đ', color: 'bg-[#EC4899]' },
-    { label: 'Sản phẩm & Mỹ phẩm', percent: 10, amount: '25.645.000 đ', color: 'bg-[#38BDF8]' },
+    { label: 'Booking dịch vụ', percent: 45, amount: '115.402.500 đ', color: 'bg-[#264736]' },
+    { label: 'Khóa học đào tạo', percent: 30, amount: '76.935.000 đ', color: 'bg-emerald-600' },
+    { label: 'TikTok livestream', percent: 15, amount: '38.467.500 đ', color: 'bg-amber-600' },
+    { label: 'Sản phẩm & Mỹ phẩm', percent: 10, amount: '25.645.000 đ', color: 'bg-[#3D5A48]' },
   ];
 
   return (
-    <div className="min-h-full bg-[#F8F9FF] pb-24 text-slate-900">
+    <div className="min-h-full bg-[#F4F7F4] pb-24 text-slate-900">
       <MobileHeader
         title="Doanh thu"
         subtitle="Báo cáo tài chính & Tăng trưởng CELLA"
@@ -46,7 +46,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
         rightAction={
           <button
             onClick={() => onNavigate('payroll')}
-            className="text-xs font-semibold text-[#5850EC] bg-[#EFF4FF] px-2.5 py-1.5 rounded-xl border border-[#5850EC]/20 hover:bg-[#E0EAFF]"
+            className="text-xs font-bold text-[#264736] bg-[#EAF2EC] px-2.5 py-1.5 rounded-xl border border-[#264736]/20 hover:bg-[#d8e6db] transition-colors"
           >
             Bảng lương cá nhân
           </button>
@@ -54,7 +54,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
       />
 
       <div className="px-4 pt-2 space-y-3.5">
-        {/* Period Selector (Matching screenshot 6) */}
+        {/* Period Selector */}
         <div className="grid grid-cols-4 gap-1 p-1 bg-slate-200/70 rounded-xl text-xs font-semibold">
           {(['day', 'month', 'year', 'custom'] as const).map((p) => {
             const labels = { day: 'Ngày', month: 'Tháng', year: 'Năm', custom: 'Tùy chọn' };
@@ -65,7 +65,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
                 onClick={() => setPeriod(p)}
                 className={`py-1.5 rounded-lg transition-all ${
                   isSelected
-                    ? 'bg-[#5850EC] text-white shadow-xs'
+                    ? 'bg-[#264736] text-white shadow-xs font-bold'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -92,7 +92,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
           </p>
         </GlassCard>
 
-        {/* Bar chart Doanh thu vs Chi phí (Matching screenshot 6) */}
+        {/* Bar chart Doanh thu vs Chi phí */}
         <GlassCard className="p-4 bg-white space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -100,10 +100,10 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
             </h3>
             <div className="flex items-center gap-3 text-[11px]">
               <span className="flex items-center gap-1 font-medium text-slate-700">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#5850EC]" /> Doanh thu
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#264736]" /> Doanh thu
               </span>
               <span className="flex items-center gap-1 font-medium text-slate-700">
-                <span className="w-2.5 h-2.5 rounded-sm bg-indigo-200" /> Chi phí
+                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-200" /> Chi phí
               </span>
             </div>
           </div>
@@ -117,7 +117,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
               return (
                 <div key={d.month} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group">
                   {d.highlight && (
-                    <div className="text-[10px] font-bold text-white bg-[#5850EC] px-1.5 py-0.5 rounded-md shadow-xs mb-1">
+                    <div className="text-[10px] font-bold text-white bg-[#264736] px-1.5 py-0.5 rounded-md shadow-xs mb-1">
                       256.4M
                     </div>
                   )}
@@ -126,20 +126,20 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
                     <div
                       style={{ height: `${revHeight}%` }}
                       className={`w-3.5 rounded-t-md transition-all ${
-                        d.highlight ? 'bg-[#5850EC]' : 'bg-indigo-500 hover:bg-[#5850EC]'
+                        d.highlight ? 'bg-[#264736]' : 'bg-[#3D5A48] hover:bg-[#264736]'
                       }`}
                       title={`Doanh thu ${d.month}: ${d.revenue}M`}
                     />
                     {/* Cost bar */}
                     <div
                       style={{ height: `${costHeight}%` }}
-                      className="w-3.5 rounded-t-md bg-indigo-200"
+                      className="w-3.5 rounded-t-md bg-emerald-200"
                       title={`Chi phí ${d.month}: ${d.cost}M`}
                     />
                   </div>
                   <span
                     className={`text-[11px] font-bold ${
-                      d.highlight ? 'text-[#5850EC]' : 'text-slate-400'
+                      d.highlight ? 'text-[#264736]' : 'text-slate-400'
                     }`}
                   >
                     {d.month}
@@ -150,7 +150,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
           </div>
         </GlassCard>
 
-        {/* Nguồn doanh thu progress bars (Matching screenshot 6) */}
+        {/* Nguồn doanh thu progress bars */}
         <GlassCard className="p-4 bg-white space-y-3.5">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -166,7 +166,7 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
                   <span className="text-slate-800">{item.label}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-500 font-normal text-[11px]">{item.amount}</span>
-                    <span className="text-slate-900">{item.percent}%</span>
+                    <span className="text-slate-900 font-bold">{item.percent}%</span>
                   </div>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -183,18 +183,18 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
         {/* Link to payroll */}
         <div
           onClick={() => onNavigate('payroll')}
-          className="p-3.5 rounded-2xl bg-[#EFF4FF] border border-[#5850EC]/30 flex items-center justify-between cursor-pointer hover:bg-[#E0EAFF] transition-colors"
+          className="p-3.5 rounded-2xl bg-[#EAF2EC] border border-[#264736]/20 flex items-center justify-between cursor-pointer hover:bg-[#d8e6db] transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#5850EC] text-white flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#264736] text-white flex items-center justify-center">
               <CreditCard className="w-5 h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Bảng lương & Hoa hồng T04/2025</h4>
-              <p className="text-[11px] text-slate-500">Thực nhận cá nhân: 28.450.000 đ (Đã chốt)</p>
+              <p className="text-[11px] text-slate-600 font-medium">Thực nhận cá nhân: 28.450.000 đ (Đã chốt)</p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-slate-400" />
+          <ChevronRight className="w-4 h-4 text-[#264736]" />
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
         rightAction={
           <button
             onClick={() => onNavigate('create_customer')}
-            className="w-10 h-10 rounded-full bg-white/95 shadow-sm border border-white/90 text-[#00A3FF] flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-white"
+            className="w-10 h-10 rounded-full bg-white/95 shadow-sm border border-white/90 text-[#264736] flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-[#EAF2EC]"
             title="Thêm khách"
           >
             <UserPlus className="w-4 h-4 stroke-[2.2]" />
@@ -109,16 +109,16 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
         {/* Stats mini bar */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { icon: <Users className="w-3.5 h-3.5" />, label: 'Tổng KH', value: `${customers.length}`, color: 'text-[#00A3FF] bg-sky-50 border-sky-100' },
-            { icon: <Crown className="w-3.5 h-3.5" />, label: 'VIP', value: `${totalVIP}`, color: 'text-amber-600 bg-amber-50 border-amber-100' },
-            { icon: <TrendingUp className="w-3.5 h-3.5" />, label: 'Doanh thu', value: formatCurrency(totalRevenue), color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+            { icon: <Users className="w-3.5 h-3.5" />, label: 'Tổng KH', value: `${customers.length}`, color: 'text-[#264736] bg-[#EAF2EC] border-[#264736]/20' },
+            { icon: <Crown className="w-3.5 h-3.5" />, label: 'VIP', value: `${totalVIP}`, color: 'text-amber-700 bg-amber-50 border-amber-200/70' },
+            { icon: <TrendingUp className="w-3.5 h-3.5" />, label: 'Doanh thu', value: formatCurrency(totalRevenue), color: 'text-emerald-700 bg-emerald-50 border-emerald-200/70' },
           ].map((stat, i) => (
-            <div key={i} className={`rounded-2xl border p-2.5 flex flex-col gap-0.5 ${stat.color}`}>
-              <div className="flex items-center gap-1 opacity-70">
+            <div key={i} className={`rounded-2xl border p-2.5 flex flex-col gap-0.5 shadow-2xs ${stat.color}`}>
+              <div className="flex items-center gap-1 opacity-80">
                 {stat.icon}
                 <span className="text-[9px] font-bold uppercase tracking-wider">{stat.label}</span>
               </div>
-              <p className="text-base font-black">{stat.value}</p>
+              <p className="text-base font-black tracking-tight">{stat.value}</p>
             </div>
           ))}
         </div>
@@ -131,11 +131,11 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
             placeholder="Tìm tên, SĐT, nguồn khách..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 pl-10 pr-10 rounded-full bg-white/90 backdrop-blur-xl border border-white shadow-xs text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00A3FF]/40 placeholder:text-slate-400"
+            className="w-full h-10 pl-10 pr-10 rounded-full bg-white/90 backdrop-blur-xl border border-white shadow-xs text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#264736]/30 placeholder:text-slate-400"
           />
           <button
             onClick={() => setShowSourceFilter((p) => !p)}
-            className={`absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${showSourceFilter ? 'bg-[#00A3FF] text-white' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-colors ${showSourceFilter ? 'bg-[#264736] text-white' : 'text-slate-400 hover:text-slate-600'}`}
           >
             <Filter className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
@@ -152,7 +152,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                   onClick={() => setActiveSource(tab.id)}
                   className={`px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all select-none ${
                     isActive
-                      ? 'bg-violet-600 text-white shadow-xs'
+                      ? 'bg-[#264736] text-white shadow-xs'
                       : 'bg-white/80 text-slate-500 border border-white/90 hover:bg-white'
                   }`}
                 >
@@ -173,7 +173,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                 onClick={() => setActiveStatus(tab.id)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all select-none ${
                   isActive
-                    ? 'bg-[#00A3FF] text-white shadow-xs'
+                    ? 'bg-[#264736] text-white shadow-xs'
                     : 'bg-white/80 text-slate-600 border border-white/90 hover:bg-white'
                 }`}
               >
@@ -207,7 +207,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                   className="card-pastel-interactive p-3.5 flex items-center justify-between gap-3 cursor-pointer"
                 >
                   {/* Avatar */}
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 text-[#00A3FF] font-black text-sm flex items-center justify-center shrink-0 border border-sky-100">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#EAF2EC] to-emerald-100 text-[#264736] font-black text-sm flex items-center justify-center shrink-0 border border-[#264736]/20 shadow-2xs">
                     {customer.name.split(' ').map((n) => n[0]).slice(-2).join('')}
                   </div>
 
@@ -216,7 +216,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <h3 className="text-xs font-bold text-slate-900 truncate">{customer.name}</h3>
                       {customer.vipTier && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200/80 shrink-0">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
                           {customer.vipTier}
                         </span>
                       )}
@@ -227,7 +227,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                         {srcInfo.label}
                       </span>
                       {customer.totalSpent && customer.totalSpent > 0 && (
-                        <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                        <span className="text-[9px] font-bold text-[#264736] bg-[#EAF2EC] border border-[#264736]/20 px-1.5 py-0.5 rounded-full">
                           {formatCurrency(customer.totalSpent)}
                         </span>
                       )}
@@ -238,9 +238,9 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                   {/* CRM Stage dot */}
                   <div className="flex flex-col items-end gap-2 shrink-0">
                     <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${
-                      customer.status === 'VIP' ? 'bg-amber-100 text-amber-700' :
-                      customer.status === 'BOOKED' ? 'bg-emerald-100 text-emerald-700' :
-                      customer.status === 'CONSULTING' ? 'bg-blue-100 text-blue-700' :
+                      customer.status === 'VIP' ? 'bg-amber-100 text-amber-800' :
+                      customer.status === 'BOOKED' ? 'bg-emerald-100 text-emerald-800' :
+                      customer.status === 'CONSULTING' ? 'bg-[#EAF2EC] text-[#264736]' :
                       customer.status === 'LEAD' ? 'bg-rose-100 text-rose-700' :
                       'bg-slate-100 text-slate-600'
                     }`}>
@@ -253,13 +253,13 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => onQuickCall(customer)}
-                        className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 active:scale-90 flex items-center justify-center transition-all border border-emerald-100"
+                        className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 active:scale-90 flex items-center justify-center transition-all border border-emerald-200/60"
                       >
                         <Phone className="w-3 h-3 stroke-[2.4]" />
                       </button>
                       <button
                         onClick={() => onQuickMessage(customer)}
-                        className="w-7 h-7 rounded-full bg-sky-50 text-[#00A3FF] hover:bg-sky-100 active:scale-90 flex items-center justify-center transition-all border border-sky-100"
+                        className="w-7 h-7 rounded-full bg-[#EAF2EC] text-[#264736] hover:bg-[#d8e6db] active:scale-90 flex items-center justify-center transition-all border border-[#264736]/20"
                       >
                         <MessageCircle className="w-3 h-3 stroke-[2.4]" />
                       </button>
@@ -276,7 +276,7 @@ export const CustomersScreen: React.FC<CustomersScreenProps> = ({
       <button
         id="btn-create-customer-fab"
         onClick={() => onNavigate('create_customer')}
-        className="fixed bottom-24 right-5 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-500 to-[#00A3FF] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,163,255,0.4)] hover:brightness-105 active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-5 w-12 h-12 rounded-full bg-gradient-to-tr from-[#264736] to-[#3D5A48] text-white flex items-center justify-center shadow-lg shadow-[#264736]/40 hover:brightness-105 active:scale-90 transition-all z-20"
         title="Thêm khách hàng mới"
       >
         <Plus className="w-6 h-6 stroke-[2.5]" />

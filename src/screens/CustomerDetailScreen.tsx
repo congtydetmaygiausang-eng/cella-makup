@@ -49,7 +49,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#F8F9FF] pb-24 text-slate-900">
+    <div className="min-h-full bg-[#F4F7F4] pb-24 text-slate-900">
       {/* Header */}
       <MobileHeader
         showBack
@@ -76,10 +76,10 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
       />
 
       <div className="px-4 pt-2 space-y-3.5">
-        {/* Profile Card (Matching screenshot 9) */}
+        {/* Profile Card */}
         <GlassCard className="p-4 bg-white border border-slate-100 flex flex-col items-center text-center">
           <div className="relative mb-2">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#5850EC] to-[#A855F7] text-white font-bold text-xl flex items-center justify-center shadow-md">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#264736] to-[#3D5A48] text-white font-bold text-xl flex items-center justify-center shadow-md">
               {customer.name
                 .split(' ')
                 .map((n) => n[0])
@@ -103,7 +103,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
             <AuraBadge variant="primary" size="xs">
               {customer.status === 'LEAD' ? 'Lead mới' : customer.status}
             </AuraBadge>
-            <AuraBadge variant="purple" size="xs">
+            <AuraBadge variant="neutral" size="xs">
               {customer.source}
             </AuraBadge>
           </div>
@@ -114,7 +114,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
               onClick={() => onQuickCall(customer)}
               className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
                 <Phone className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-medium whitespace-nowrap">Gọi điện</span>
@@ -122,9 +122,9 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
 
             <button
               onClick={() => onQuickMessage(customer)}
-              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-sky-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center shrink-0">
                 <MessageCircle className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-medium whitespace-nowrap">Nhắn tin</span>
@@ -146,9 +146,9 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
 
             <button
               onClick={() => onNavigate('create_booking')}
-              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-indigo-50 active:scale-95 transition-all text-slate-700"
+              className="flex flex-col items-center gap-1 p-1.5 rounded-xl hover:bg-[#EAF2EC] active:scale-95 transition-all text-slate-700"
             >
-              <div className="w-9 h-9 rounded-full bg-[#EFF4FF] text-[#5850EC] flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center shrink-0">
                 <CalendarPlus className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-medium whitespace-nowrap">Đặt lịch</span>
@@ -166,13 +166,13 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
           </div>
         </GlassCard>
 
-        {/* Segmented control tabs (Matching screenshot 9) */}
+        {/* Segmented control tabs */}
         <div className="grid grid-cols-3 gap-1 p-1 bg-slate-200/70 rounded-xl">
           <button
             onClick={() => setActiveSubTab('info')}
             className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeSubTab === 'info'
-                ? 'bg-white text-[#5850EC] shadow-xs'
+                ? 'bg-white text-[#264736] shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -182,7 +182,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
             onClick={() => setActiveSubTab('booking')}
             className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeSubTab === 'booking'
-                ? 'bg-white text-[#5850EC] shadow-xs'
+                ? 'bg-white text-[#264736] shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -192,7 +192,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
             onClick={() => setActiveSubTab('notes')}
             className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeSubTab === 'notes'
-                ? 'bg-white text-[#5850EC] shadow-xs'
+                ? 'bg-white text-[#264736] shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -203,21 +203,21 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
         {/* TAB 1: THÔNG TIN */}
         {activeSubTab === 'info' && (
           <div className="space-y-3">
-            {/* Lịch hẹn sắp tới banner (Matching screenshot 9) */}
+            {/* Lịch hẹn sắp tới banner */}
             <div
               onClick={() => onNavigate('booking_detail')}
-              className="p-3.5 rounded-2xl bg-gradient-to-r from-[#EFF4FF] to-white border border-[#5850EC]/30 shadow-xs cursor-pointer hover:border-[#5850EC] transition-all"
+              className="p-3.5 rounded-2xl bg-gradient-to-r from-[#EAF2EC] to-white border border-[#264736]/25 shadow-xs cursor-pointer hover:border-[#264736] transition-all"
             >
-              <div className="flex items-center justify-between text-xs font-bold text-[#5850EC] uppercase tracking-wider mb-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#264736] uppercase tracking-wider mb-2">
                 <span>LỊCH HẸN SẮP TỚI</span>
-                <span className="px-2 py-0.5 rounded-full bg-[#5850EC] text-white text-[10px]">
+                <span className="px-2 py-0.5 rounded-full bg-[#264736] text-white text-[10px]">
                   Ca trực tiếp
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[#5850EC] text-white flex flex-col items-center justify-center shrink-0">
-                  <span className="text-[10px] uppercase font-bold">Thứ 6</span>
+                <div className="w-12 h-12 rounded-xl bg-[#264736] text-white flex flex-col items-center justify-center shrink-0">
+                  <span className="text-[10px] uppercase font-bold text-emerald-200">Thứ 6</span>
                   <span className="text-base font-extrabold leading-none">25</span>
                 </div>
 
@@ -238,7 +238,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
               </div>
             </div>
 
-            {/* Thông tin cơ bản (Matching screenshot 9) */}
+            {/* Thông tin cơ bản */}
             <GlassCard className="p-3.5 bg-white space-y-2.5">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -264,7 +264,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[11px]">Chuyên viên phụ trách</span>
-                  <span className="font-semibold text-[#5850EC]">
+                  <span className="font-semibold text-[#264736]">
                     {customer.assignedStaff || 'Lan Anh (Sales Team)'}
                   </span>
                 </div>
@@ -294,20 +294,20 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
             {customer.skinProfile && (
               <GlassCard className="p-3.5 bg-white space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <Sparkles className="w-4 h-4 text-[#264736]" />
                   <span>HỒ SƠ DA & MAKEUP PROFILE</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2 rounded-xl bg-purple-50 text-purple-900">
-                    <span className="text-[10px] text-purple-600 block font-medium">Loại da</span>
+                  <div className="p-2 rounded-xl bg-[#EAF2EC] text-[#264736]">
+                    <span className="text-[10px] text-[#264736] block font-medium">Loại da</span>
                     <span className="font-bold">{customer.skinProfile.skinType}</span>
                   </div>
                   <div className="p-2 rounded-xl bg-amber-50 text-amber-900">
                     <span className="text-[10px] text-amber-700 block font-medium">Undertone</span>
                     <span className="font-bold">{customer.skinProfile.undertone}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-sky-50 text-sky-900">
-                    <span className="text-[10px] text-sky-700 block font-medium">Dáng mặt</span>
+                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-900">
+                    <span className="text-[10px] text-emerald-700 block font-medium">Dáng mặt</span>
                     <span className="font-bold">{customer.skinProfile.faceShape}</span>
                   </div>
                 </div>
@@ -319,19 +319,19 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
               </GlassCard>
             )}
 
-            {/* Tương tác & Chi tiêu (Matching screenshot 9) */}
+            {/* Tương tác & Chi tiêu */}
             <GlassCard className="p-3.5 bg-white space-y-2">
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Tương tác & Chi tiêu
               </h4>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-100">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-slate-400 block text-[11px]">Tổng chi tiêu</span>
-                  <span className="text-sm font-bold text-slate-900">
+                  <span className="text-sm font-bold text-[#264736]">
                     {customer.totalSpent ? `${customer.totalSpent.toLocaleString('vi-VN')} đ` : '0 đ (Đang tư vấn)'}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#F8F9FF] border border-slate-100">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-slate-400 block text-[11px]">Lịch sử liên hệ</span>
                   <span className="text-sm font-bold text-slate-900">
                     {customer.contactCount || 5} lượt (3 gọi • 2 Zalo)
@@ -347,10 +347,10 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
           <div className="space-y-2.5">
             <GlassCard
               onClick={() => onNavigate('booking_detail')}
-              className="p-3.5 bg-white cursor-pointer hover:border-[#5850EC]"
+              className="p-3.5 bg-white cursor-pointer hover:border-[#264736] transition-all"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#5850EC]">#BK-20250425-01</span>
+                <span className="text-xs font-bold text-[#264736]">#BK-20250425-01</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   Đã xác nhận
                 </span>
@@ -369,7 +369,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
                 </p>
               </div>
               <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end">
-                <span className="text-xs font-semibold text-[#5850EC] flex items-center gap-1">
+                <span className="text-xs font-semibold text-[#264736] flex items-center gap-1">
                   Xem chi tiết & Check-in <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -396,7 +396,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
                 placeholder="Nhập ghi chú chăm sóc khách hàng..."
                 value={newNoteInput}
                 onChange={(e) => setNewNoteInput(e.target.value)}
-                className="flex-1 h-10 px-3.5 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#5850EC]/30"
+                className="flex-1 h-10 px-3.5 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#264736]/30"
               />
               <PrimaryButton size="sm" type="submit">
                 <Send className="w-3.5 h-3.5" />
@@ -413,7 +413,7 @@ export const CustomerDetailScreen: React.FC<CustomerDetailScreenProps> = ({
                 customer.notesHistory?.map((note) => (
                   <GlassCard key={note.id} className="p-3 bg-white space-y-1">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#5850EC]">{note.author}</span>
+                      <span className="font-bold text-[#264736]">{note.author}</span>
                       <span className="text-slate-400">{note.timestamp}</span>
                     </div>
                     <p className="text-xs text-slate-700">{note.content}</p>

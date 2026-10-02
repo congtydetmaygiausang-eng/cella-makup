@@ -97,17 +97,20 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
   return (
     <div className="min-h-full bg-[#F0F2F5] pb-28 text-slate-900 animate-in fade-in duration-300">
       {/* ── HEADER (Giữ trọn vẹn phong cách tím gradient nguyên bản) ── */}
-      <div className="bg-gradient-to-r from-[#544CDE] to-[#7C3AED] px-4 pt-12 pb-6 text-white rounded-b-3xl shadow-md">
+      <div className="bg-gradient-to-r from-[#264736] via-[#1E3A2F] to-[#12241A] px-4 pt-12 pb-6 text-white rounded-b-3xl shadow-lg border-b border-emerald-900/30">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-black">Lịch hẹn</h1>
-            <p className="text-[13px] text-indigo-100 font-medium mt-1">
-              Quản lý slot & Nghệ nhân CELLA
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider mb-1.5">
+              <span>✦</span> Lịch hẹn Artist
+            </div>
+            <h1 className="text-2xl font-black tracking-tight">Quản lý Lịch hẹn</h1>
+            <p className="text-[13px] text-emerald-100/80 font-medium">
+              Theo dõi slot dịch vụ & Nghệ nhân CELLA
             </p>
           </div>
           <button
             onClick={() => onNavigate('create_booking')}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-white/30 shadow-sm"
+            className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm text-white flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-emerald-500 hover:text-white shadow-sm border border-white/20"
             title="Đặt lịch mới"
           >
             <CalendarPlus className="w-5 h-5 stroke-[2.2]" />
@@ -117,23 +120,23 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
         {/* Month Navigator & Segmented View Switcher */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <button className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-white/30 active:scale-90 transition-all">
+            <button className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all">
               <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
             </button>
             <span className="text-[14px] font-bold text-white px-1">Tháng 4, 2025</span>
-            <button className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-white/30 active:scale-90 transition-all">
+            <button className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all">
               <ChevronRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
 
           {/* Segmented Pill Selector (Ngày / Tuần / Tất cả) */}
-          <div className="flex items-center p-1 bg-white/20 rounded-full text-[11px] font-bold backdrop-blur-xs">
+          <div className="flex items-center p-1 bg-black/25 border border-white/10 rounded-full text-[11px] font-bold backdrop-blur-xs">
             <button
               onClick={() => setViewMode('day')}
               className={`px-3 py-1.5 rounded-full transition-all ${
                 viewMode === 'day'
-                  ? 'bg-white text-[#544CDE] shadow-sm'
-                  : 'text-indigo-100 hover:text-white'
+                  ? 'bg-emerald-400 text-[#12241A] font-extrabold shadow-sm'
+                  : 'text-emerald-100/70 hover:text-white'
               }`}
             >
               Ngày
@@ -142,8 +145,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               onClick={() => setViewMode('week')}
               className={`px-3 py-1.5 rounded-full transition-all ${
                 viewMode === 'week'
-                  ? 'bg-white text-[#544CDE] shadow-sm'
-                  : 'text-indigo-100 hover:text-white'
+                  ? 'bg-emerald-400 text-[#12241A] font-extrabold shadow-sm'
+                  : 'text-emerald-100/70 hover:text-white'
               }`}
             >
               Tuần
@@ -152,8 +155,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 rounded-full transition-all ${
                 viewMode === 'list'
-                  ? 'bg-white text-[#544CDE] shadow-sm'
-                  : 'text-indigo-100 hover:text-white'
+                  ? 'bg-emerald-400 text-[#12241A] font-extrabold shadow-sm'
+                  : 'text-emerald-100/70 hover:text-white'
               }`}
             >
               Tất cả
@@ -176,20 +179,20 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                 }}
                 className={`flex flex-col items-center justify-center py-2.5 rounded-2xl transition-all duration-150 ${
                   isSelected
-                    ? 'bg-white text-[#544CDE] shadow-lg scale-105 ring-2 ring-white/50'
-                    : 'bg-white/15 text-indigo-50 border border-transparent hover:bg-white/25 active:scale-95'
+                    ? 'bg-emerald-400 text-[#12241A] shadow-lg shadow-emerald-950/40 scale-105 ring-2 ring-emerald-300'
+                    : 'bg-white/10 text-emerald-100 border border-white/10 hover:bg-white/20 active:scale-95'
                 }`}
               >
                 <span
                   className={`text-[11px] font-bold ${
-                    isSelected ? 'text-[#544CDE]' : 'text-indigo-200'
+                    isSelected ? 'text-[#12241A]' : 'text-emerald-200/80'
                   }`}
                 >
                   {d.dayName}
                 </span>
                 <span
                   className={`text-[15px] font-black mt-0.5 ${
-                    isSelected ? 'text-[#544CDE]' : 'text-white'
+                    isSelected ? 'text-[#12241A]' : 'text-white'
                   }`}
                 >
                   {d.dayNum}
@@ -197,7 +200,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                 <span
                   className={`w-1 h-1 rounded-full mt-1 ${
                     isSelected
-                      ? 'bg-[#544CDE]'
+                      ? 'bg-[#12241A]'
                       : hasDots
                       ? 'bg-amber-300'
                       : 'bg-transparent'
@@ -219,7 +222,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               placeholder="Tìm khách hàng, số điện thoại, dịch vụ, artist..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#544CDE]/30 shadow-xs"
+              className="w-full h-10 pl-10 pr-4 rounded-xl bg-white border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#264736]/30 shadow-xs"
             />
           </div>
 
@@ -234,9 +237,9 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id as any)}
-                className={`px-3 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all ${
                   statusFilter === tab.id
-                    ? 'bg-[#544CDE] text-white shadow-xs'
+                    ? 'bg-[#264736] text-white shadow-xs'
                     : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -248,14 +251,14 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
 
         {/* Schedule Timeline Header */}
         <div className="flex items-center justify-between px-1 pt-1">
-          <span className="text-[13px] font-black text-slate-800">
+          <span className="text-[13px] font-black text-slate-800 tracking-wide uppercase">
             {viewMode === 'day'
-              ? `LỊCH HẸN (${selectedDay}/04)`
+              ? `Lịch hẹn (${selectedDay}/04)`
               : viewMode === 'week'
-              ? 'LỊCH HẸN TRONG TUẦN (21 - 27/04)'
-              : 'TẤT CẢ LỊCH HẸN CELLA'}
+              ? 'Lịch hẹn tuần (21 - 27/04)'
+              : 'Tất cả lịch hẹn CELLA'}
           </span>
-          <span className="text-[12px] font-bold text-[#544CDE] bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">
+          <span className="text-[12px] font-bold text-[#264736] bg-[#EAF2EC] px-2.5 py-0.5 rounded-full border border-[#264736]/20">
             {filteredBookings.length} cuộc hẹn
           </span>
         </div>
@@ -267,11 +270,11 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
               <CalendarIcon className="w-10 h-10 text-slate-300 mx-auto" />
               <p className="text-sm font-bold text-slate-700">Chưa có lịch hẹn nào</p>
               <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Không tìm thấy lịch hẹn cho ngày {selectedDay}/04. Bạn có thể bấm nút bên dưới để tạo lịch hẹn mới.
+                Không tìm thấy lịch hẹn phù hợp. Bạn có thể bấm nút bên dưới để tạo lịch hẹn mới.
               </p>
               <button
                 onClick={() => onNavigate('create_booking')}
-                className="px-4 py-2 bg-[#544CDE] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#4338CA] transition-all"
+                className="px-4 py-2 bg-[#264736] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#1E3A2F] transition-all"
               >
                 + Đặt lịch hẹn mới
               </button>
@@ -286,7 +289,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                 <div
                   key={booking.id}
                   onClick={() => onSelectBooking(booking)}
-                  className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all relative overflow-hidden"
+                  className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 cursor-pointer hover:shadow-md hover:border-[#264736]/40 transition-all relative overflow-hidden"
                 >
                   {/* Left Accent Bar */}
                   <div
@@ -294,7 +297,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                       isConfirmed
                         ? 'bg-emerald-500'
                         : isInProgress
-                        ? 'bg-[#544CDE]'
+                        ? 'bg-[#264736]'
                         : isCompleted
                         ? 'bg-slate-400'
                         : 'bg-amber-400'
@@ -304,7 +307,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                   {/* Top Bar: Time slot & Status badge */}
                   <div className="flex items-center justify-between mb-2.5 pl-2">
                     <div className="flex items-center gap-1.5 text-[13px] font-black text-slate-800">
-                      <div className="w-6 h-6 rounded-full bg-indigo-50 text-[#544CDE] flex items-center justify-center">
+                      <div className="w-6 h-6 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center font-bold">
                         <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
                       </div>
                       <span>{booking.appointmentTime}</span>
@@ -320,7 +323,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                         isConfirmed
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           : isInProgress
-                          ? 'bg-indigo-50 text-[#544CDE] border-indigo-200'
+                          ? 'bg-[#EAF2EC] text-[#264736] border-[#264736]/25'
                           : isCompleted
                           ? 'bg-slate-100 text-slate-600 border-slate-200'
                           : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -370,7 +373,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
                       <a
                         href={`tel:${booking.customerPhone}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 flex items-center justify-center transition-colors"
                         title="Gọi điện"
                       >
                         <Phone className="w-3.5 h-3.5" />
@@ -388,7 +391,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({
       <button
         id="btn-create-booking-fab"
         onClick={() => onNavigate('create_booking')}
-        className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-gradient-to-tr from-[#544CDE] to-[#7C3AED] text-white flex items-center justify-center shadow-lg shadow-indigo-500/40 hover:brightness-110 active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-gradient-to-tr from-[#264736] to-[#3D5A48] text-white flex items-center justify-center shadow-lg shadow-[#264736]/40 hover:brightness-110 active:scale-90 transition-all z-20"
         title="Đặt lịch hẹn mới"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />

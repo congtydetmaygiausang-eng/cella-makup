@@ -62,7 +62,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#F8F9FF] pb-28 text-slate-900 animate-in fade-in duration-200">
+    <div className="min-h-full bg-[#F4F7F4] pb-28 text-slate-900 animate-in fade-in duration-200">
       <MobileHeader
         showBack
         onBack={onBack}
@@ -71,7 +71,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
         rightAction={
           <button
             onClick={() => setShowReceiptModal(true)}
-            className="p-2 rounded-full hover:bg-slate-100 text-[#544CDE]"
+            className="p-2 rounded-full hover:bg-slate-100 text-[#264736]"
             title="Biên lai dịch vụ"
           >
             <FileText className="w-5 h-5" />
@@ -88,7 +88,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
                 currentStatus === 'CONFIRMED'
                   ? 'bg-emerald-500 animate-pulse'
                   : currentStatus === 'IN_PROGRESS'
-                  ? 'bg-[#544CDE] animate-ping'
+                  ? 'bg-[#264736] animate-ping'
                   : currentStatus === 'COMPLETED'
                   ? 'bg-slate-400'
                   : 'bg-amber-400'
@@ -113,7 +113,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
                 : 'Chờ duyệt'}
             </AuraBadge>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-[#544CDE] border border-indigo-200 font-mono">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EAF2EC] text-[#264736] border border-[#264736]/20 font-mono">
             {booking.bookingCode}
           </span>
         </div>
@@ -121,7 +121,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
         {/* Thời gian & Địa điểm */}
         <GlassCard className="p-4 bg-white space-y-3 rounded-2xl shadow-xs border border-slate-100">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-[#544CDE] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#EAF2EC] text-[#264736] flex items-center justify-center shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -179,7 +179,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
             </h4>
             <button
               onClick={() => onNavigate('customers')}
-              className="text-xs font-bold text-[#544CDE] hover:underline flex items-center gap-0.5"
+              className="text-xs font-bold text-[#264736] hover:underline flex items-center gap-0.5"
             >
               <span>Xem CRM</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -188,7 +188,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#544CDE] to-purple-600 text-white font-black text-sm flex items-center justify-center shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#264736] to-[#3D5A48] text-white font-black text-sm flex items-center justify-center shadow-sm">
                 {booking.customerName
                   ? booking.customerName
                       .split(' ')
@@ -255,7 +255,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#544CDE] bg-indigo-50 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#264736] bg-[#EAF2EC] px-2 py-0.5 rounded border border-[#264736]/20">
               Dịch vụ Makeup CELLA
             </span>
             <p className="text-sm font-black text-slate-900 mt-1">
@@ -281,7 +281,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
             </div>
             <div className="flex justify-between pt-1.5 border-t border-slate-100 text-sm font-black text-slate-900">
               <span>Còn lại thanh toán tại tiệm:</span>
-              <span className="text-[#544CDE]">
+              <span className="text-[#264736] font-bold">
                 {remainingAmount.toLocaleString('vi-VN')} đ
               </span>
             </div>
@@ -293,7 +293,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           {currentStatus === 'CONFIRMED' && (
             <button
               onClick={() => handleUpdateStatus('IN_PROGRESS')}
-              className="w-full py-3 rounded-2xl bg-[#544CDE] text-white font-black text-xs shadow-md shadow-indigo-200 hover:bg-[#4338CA] transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-3 rounded-2xl bg-[#264736] text-white font-black text-xs shadow-md shadow-[#264736]/25 hover:bg-[#1E3A2F] transition-all flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Khách đã đến tiệm — Bắt đầu phục vụ (Check-in)</span>
@@ -303,7 +303,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           {currentStatus === 'IN_PROGRESS' && (
             <button
               onClick={() => handleUpdateStatus('COMPLETED')}
-              className="w-full py-3 rounded-2xl bg-emerald-600 text-white font-black text-xs shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-3 rounded-2xl bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-900/20 hover:bg-emerald-800 transition-all flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Hoàn tất makeup & Thu nốt {remainingAmount.toLocaleString('vi-VN')} đ</span>
@@ -311,7 +311,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           )}
 
           {currentStatus === 'COMPLETED' && (
-            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center text-xs font-bold text-emerald-700 flex items-center justify-center gap-1.5">
+            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Dịch vụ đã hoàn tất thành công</span>
             </div>
@@ -363,7 +363,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-500">STK:</span>
                 <div className="flex items-center gap-1">
-                  <strong className="font-mono text-[#544CDE]">0984556712</strong>
+                  <strong className="font-mono text-[#264736]">0984556712</strong>
                   <button
                     onClick={() => handleCopy('0984556712', 'stk')}
                     className="p-1 rounded bg-white border border-slate-200"
@@ -423,7 +423,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Nghệ nhân thực hiện:</span>
-                <strong className="text-[#544CDE]">{booking.artistName}</strong>
+                <strong className="text-[#264736]">{booking.artistName}</strong>
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
                 <span>Tổng chi phí:</span>
@@ -433,7 +433,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
                 <span>Đã đặt cọc:</span>
                 <span>- {(booking.depositAmount || 0).toLocaleString('vi-VN')} đ</span>
               </div>
-              <div className="flex justify-between text-[#544CDE] font-black border-t border-slate-200 pt-1 text-sm">
+              <div className="flex justify-between text-[#264736] font-black border-t border-slate-200 pt-1 text-sm">
                 <span>Thanh toán nốt:</span>
                 <span>{remainingAmount.toLocaleString('vi-VN')} đ</span>
               </div>
@@ -441,7 +441,7 @@ export const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
             <button
               onClick={() => setShowReceiptModal(false)}
-              className="w-full py-2.5 bg-[#544CDE] text-white text-xs font-bold rounded-xl shadow-md"
+              className="w-full py-2.5 bg-[#264736] text-white text-xs font-bold rounded-xl shadow-md hover:bg-[#1E3A2F]"
             >
               Đóng phiếu thu
             </button>

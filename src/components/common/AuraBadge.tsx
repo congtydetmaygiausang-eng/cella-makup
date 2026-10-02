@@ -17,7 +17,7 @@ export const AuraBadge: React.FC<AuraBadgeProps> = ({
 }) => {
   // Soft pastel pill badge styling directly inspired by the reference screens (e.g. "+56.4% 30 days", "Running")
   const variantStyles = {
-    primary: 'bg-sky-50 text-[#00A3FF] border border-sky-200/80 font-semibold',
+    primary: 'bg-[#EAF2EC] text-[#264736] border border-[#264736]/25 font-bold',
     cyan: 'bg-cyan-50 text-cyan-600 border border-cyan-200/80 font-semibold',
     success: 'bg-emerald-50 text-emerald-600 border border-emerald-200/80 font-semibold',
     warning: 'bg-amber-50 text-amber-700 border border-amber-200/80 font-semibold',

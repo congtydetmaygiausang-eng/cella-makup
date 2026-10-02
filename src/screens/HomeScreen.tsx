@@ -89,6 +89,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
 
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('academy')}>
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <GraduationCap className="w-6 h-6 text-[#264736]" />
+            </div>
+            <span className="text-[11px] font-medium text-[#203227]">Khóa học</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('hr')}>
+            <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
+              <Users className="w-6 h-6 text-[#264736]" />
+            </div>
+            <span className="text-[11px] font-medium text-[#203227]">Nhân sự</span>
+          </div>
+
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('user_management')}>
             <div className="w-14 h-14 rounded-full bg-[#EAF2EC] border border-[#264736]/15 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-[#DEEAE1] shadow-xs">
               <Users className="w-6 h-6 text-[#264736]" />

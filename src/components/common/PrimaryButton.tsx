@@ -22,12 +22,12 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    primary: 'bg-[#5850EC] text-white hover:bg-[#4F46E5] active:bg-[#4338CA] shadow-[0_4px_14px_0_rgba(88,80,236,0.39)] border border-transparent',
-    gradient: 'bg-gradient-to-r from-[#6366F1] via-[#5850EC] to-[#A855F7] text-white hover:opacity-95 shadow-[0_4px_18px_rgba(88,80,236,0.45)] border border-transparent',
-    secondary: 'bg-[#EFF4FF] text-[#5850EC] hover:bg-[#E0EAFF] active:bg-[#D5E2FF] border border-[#5850EC]/15',
-    outline: 'bg-white text-slate-800 border border-slate-200 hover:bg-slate-50 active:bg-slate-100',
-    glass: 'backdrop-blur-md bg-white/80 text-[#5850EC] border border-white/60 shadow-sm hover:bg-white',
-    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+    primary: 'bg-gradient-to-r from-[#264736] to-[#1E3A2F] text-white hover:from-[#1E3A2F] hover:to-[#15271E] active:scale-[0.98] shadow-[0_4px_16px_rgba(26,51,38,0.25)] border border-[#264736]/20 font-bold',
+    gradient: 'bg-gradient-to-r from-[#264736] via-[#2F5943] to-[#1A3326] text-white hover:opacity-95 shadow-[0_6px_20px_rgba(26,51,38,0.3)] border border-white/10 font-bold',
+    secondary: 'bg-[#EAF2EC] text-[#264736] hover:bg-[#DEEAE1] active:bg-[#D5E3D8] border border-[#264736]/20 font-bold',
+    outline: 'bg-white text-[#1A2820] border border-[#264736]/20 hover:bg-[#EAF2EC]/50 active:bg-[#EAF2EC]',
+    glass: 'backdrop-blur-md bg-white/90 text-[#264736] border border-[#264736]/15 shadow-xs hover:bg-white font-bold',
+    ghost: 'bg-transparent text-[#3D5A48] hover:bg-[#EAF2EC]/60 hover:text-[#1A2820]',
   };
 
   const sizeStyles = {

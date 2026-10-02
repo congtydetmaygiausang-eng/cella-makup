@@ -65,7 +65,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
         rightAction={
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-10 h-10 rounded-full bg-white/95 shadow-sm border border-white/90 text-[#00A3FF] flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-white"
+            className="w-10 h-10 rounded-full bg-white/95 shadow-sm border border-white/90 text-[#264736] flex items-center justify-center transition-all duration-150 active:scale-90 hover:bg-[#EAF2EC]"
             title="Thêm việc mới"
           >
             <Plus className="w-4.5 h-4.5 stroke-[2.4]" />
@@ -80,7 +80,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
             onClick={() => setFilter('ALL')}
             className={`flex-1 py-1.5 rounded-full text-center transition-all ${
               filter === 'ALL'
-                ? 'bg-[#00A3FF] text-white shadow-xs'
+                ? 'bg-[#264736] text-white shadow-xs font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
@@ -90,7 +90,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
             onClick={() => setFilter('TODAY')}
             className={`flex-1 py-1.5 rounded-full text-center transition-all ${
               filter === 'TODAY'
-                ? 'bg-[#00A3FF] text-white shadow-xs'
+                ? 'bg-[#264736] text-white shadow-xs font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
@@ -100,7 +100,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
             onClick={() => setFilter('OVERDUE')}
             className={`flex-1 py-1.5 rounded-full text-center transition-all ${
               filter === 'OVERDUE'
-                ? 'bg-[#00A3FF] text-white shadow-xs'
+                ? 'bg-[#264736] text-white shadow-xs font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
@@ -121,8 +121,8 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
                   onClick={() => onToggleTask(task.id)}
                   className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                     task.completed
-                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs'
-                      : 'border-slate-300 hover:border-[#00A3FF] bg-white'
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                      : 'border-slate-300 hover:border-[#264736] bg-white'
                   }`}
                 >
                   {task.completed && <Check className="w-4 h-4 stroke-[3]" />}
@@ -160,10 +160,10 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
         </div>
       </div>
 
-      {/* Floating Action Button (+) with Cyan Glow */}
+      {/* Floating Action Button (+) with Botanical Accent */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="fixed bottom-24 right-5 w-12 h-12 rounded-full bg-gradient-to-tr from-sky-500 to-[#00A3FF] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,163,255,0.4)] hover:brightness-105 active:scale-90 transition-all z-20"
+        className="fixed bottom-24 right-5 w-12 h-12 rounded-full bg-gradient-to-tr from-[#264736] to-[#3D5A48] text-white flex items-center justify-center shadow-lg shadow-[#264736]/40 hover:brightness-105 active:scale-90 transition-all z-20"
         title="Thêm công việc mới"
       >
         <Plus className="w-6 h-6 stroke-[2.5]" />
@@ -194,7 +194,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
                   placeholder="Ví dụ: Gọi nhắc lịch dặm môi chị Lan"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00A3FF]/30"
+                  className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#264736]/30"
                 />
               </div>
 
@@ -207,7 +207,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
                   placeholder="Ví dụ: 14:00 hôm nay"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00A3FF]/30"
+                  className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#264736]/30"
                 />
               </div>
 
@@ -221,7 +221,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-full bg-gradient-to-r from-sky-500 to-[#00A3FF] text-white text-xs font-bold transition-all shadow-sm"
+                  className="flex-1 py-3 rounded-full bg-gradient-to-r from-[#264736] to-[#3D5A48] text-white text-xs font-bold transition-all shadow-sm hover:brightness-110"
                 >
                   Lưu công việc
                 </button>
