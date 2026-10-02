@@ -615,8 +615,8 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 <p className="text-[11px] text-[#3D5A48] mt-1">Thử từ khóa khác hoặc chuyển bộ lọc vai trò</p>
               </div>
             ) : viewMode === 'grid' ? (
-              /* ── GRID MODE: LUXURY PROFILE CARDS ── */
-              <div className="grid grid-cols-1 gap-3.5">
+              /* ── GRID MODE: LUXURY STREAMLINED PROFILE CARDS ── */
+              <div className="grid grid-cols-1 gap-2.5">
                 {filteredTeam.map((member) => {
                   const role = ROLE_META[member.role] || ROLE_META.ARTIST;
                   return (
@@ -626,126 +626,86 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                         setSelectedStaff(member);
                         setDetailTab('overview');
                       }}
-                      className="bg-white rounded-3xl border border-[#264736]/15 shadow-[0_4px_16px_rgba(26,51,38,0.05)] overflow-hidden cursor-pointer hover:shadow-md hover:border-[#264736]/35 transition-all group"
+                      className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-md hover:border-[#264736]/40 transition-all cursor-pointer relative"
                     >
-                      {/* Cover Image banner */}
-                      <div className="h-20 w-full relative overflow-hidden bg-gradient-to-r from-[#264736] to-[#1E3A2F]">
-                        {member.cover && (
+                      {/* Top: Avatar, Name, Role, Phone & Code */}
+                      <div className="flex items-center gap-3">
+                        <div className="relative shrink-0">
                           <img
-                            src={member.cover}
-                            alt="Cover"
-                            className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                            src={member.avatar}
+                            alt={member.name}
+                            className="w-13 h-13 rounded-2xl object-cover ring-2 ring-[#264736]/15 shadow-2xs"
                           />
-                        )}
-                        <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
-                          <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs border ${role.border} ${role.bg} ${role.color}`}>
-                            {role.label}
-                          </span>
+                          <span
+                            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-white ${
+                              member.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400'
+                            }`}
+                            title={member.status === 'active' ? 'Đang hoạt động' : 'Nghỉ phép'}
+                          />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1.5 mb-0.5">
+                            <h4 className="text-[14.5px] font-black text-[#1A2820] truncate">
+                              {member.name}
+                            </h4>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 border ${role.border} ${role.bg} ${role.color}`}>
+                              {role.label}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-[11.5px] text-slate-500 font-medium">
+                            <span className="font-mono text-slate-700 font-semibold">{member.phone}</span>
+                            <span>•</span>
+                            <span className="text-[#3D5A48] font-bold">{member.code || member.id}</span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Card Body */}
-                      <div className="px-4 pb-4 pt-0 relative">
-                        {/* Avatar (overlapping cover) */}
-                        <div className="flex items-end justify-between -mt-9 mb-2.5">
-                          <div className="relative">
-                            <img
-                              src={member.avatar}
-                              alt={member.name}
-                              className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white shadow-md border border-[#264736]/10"
-                            />
-                            <span
-                              className={`absolute bottom-0 right-0 w-4 h-4 rounded-full ring-2 ring-white ${
-                                member.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400'
-                              }`}
-                              title={member.status === 'active' ? 'Đang làm việc' : 'Nghỉ phép'}
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                            <span>{member.rating || 5.0}</span>
-                            <span className="text-slate-400">· KPI {member.kpi}%</span>
-                          </div>
-                        </div>
-
-                        {/* Name and Code */}
-                        <div className="mb-2">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-[15px] font-black text-[#1A2820] group-hover:text-[#264736] transition-colors">
-                              {member.name}
-                            </h4>
-                            <span className="text-[10px] font-bold text-[#3D5A48] bg-[#EAF2EC] px-2 py-0.2 rounded-md">
-                              {member.code || member.id}
+                      {/* Bottom Row: Key Highlight (Chuyên môn chính & Rating) + Quick Actions */}
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          {member.skills?.[0] ? (
+                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-[#EAF2EC] text-[#264736] border border-[#264736]/20 truncate max-w-[155px]">
+                              ✦ {member.skills[0]}
                             </span>
-                          </div>
-                          <p className="text-[11px] text-[#3D5A48] flex items-center gap-1 mt-0.5">
-                            <MapPin className="w-3 h-3 text-[#264736]" />
-                            <span className="truncate">{member.branch}</span>
-                          </p>
+                          ) : (
+                            <span className="text-[10.5px] font-semibold text-slate-500">
+                              {member.experienceYears || 3} năm kinh nghiệm
+                            </span>
+                          )}
+                          <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-lg shrink-0 flex items-center gap-0.5">
+                            ⭐ {member.rating || 5.0}
+                          </span>
                         </div>
 
-                        {/* Bio snippet */}
-                        {member.bio && (
-                          <p className="text-[11.5px] text-[#203227] leading-relaxed line-clamp-2 mb-3 bg-[#F9FAF9] p-2 rounded-xl border border-slate-100">
-                            {member.bio}
-                          </p>
-                        )}
-
-                        {/* Skills / Specialization Tags */}
-                        {member.skills && member.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-3.5">
-                            {member.skills.slice(0, 3).map((sk, idx) => (
-                              <span
-                                key={idx}
-                                className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EAF2EC] text-[#264736] border border-[#264736]/15"
-                              >
-                                {sk}
-                              </span>
-                            ))}
-                            {member.skills.length > 3 && (
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-slate-500">
-                                +{member.skills.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Footer Action buttons */}
-                        <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-2 text-[11px] text-[#3D5A48] font-medium">
-                            <span>{member.experienceYears || 3} năm KN</span>
-                            <span>•</span>
-                            <span className="text-emerald-700 font-bold">{member.completedJobs || 100}+ ca makeup</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            <a
-                              href={`tel:${member.phone}`}
-                              className="w-8 h-8 rounded-full bg-[#EAF2EC] text-[#264736] border border-[#264736]/15 flex items-center justify-center hover:bg-[#264736] hover:text-white transition-all shadow-2xs"
-                              title="Gọi điện"
-                            >
-                              <Phone className="w-3.5 h-3.5" />
-                            </a>
-                            <a
-                              href={`https://zalo.me/${member.phone.replace(/[^0-9]/g, '')}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="px-2.5 h-8 rounded-full bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center text-[10.5px] font-bold hover:bg-blue-600 hover:text-white transition-all shadow-2xs"
-                              title="Nhắn tin Zalo"
-                            >
-                              Zalo
-                            </a>
-                            <button
-                              onClick={() => {
-                                setSelectedStaff(member);
-                                setDetailTab('overview');
-                              }}
-                              className="px-3 h-8 rounded-full bg-[#264736] text-white text-[11px] font-bold flex items-center gap-1 active:scale-95 transition-transform shadow-xs"
-                            >
-                              Xem hồ sơ <ChevronRight className="w-3 h-3" />
-                            </button>
-                          </div>
+                        {/* Quick Contact & View */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <a
+                            href={`tel:${member.phone}`}
+                            className="w-7 h-7 rounded-full bg-[#EAF2EC] text-[#264736] hover:bg-[#264736] hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                            title="Gọi điện"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
+                          <a
+                            href={`https://zalo.me/${member.phone.replace(/[^0-9]/g, '')}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2 h-7 rounded-full bg-blue-50 text-blue-600 border border-blue-200/80 hover:bg-blue-600 hover:text-white flex items-center justify-center text-[10px] font-bold transition-colors shadow-2xs"
+                            title="Nhắn Zalo"
+                          >
+                            Zalo
+                          </a>
+                          <button
+                            onClick={() => {
+                              setSelectedStaff(member);
+                              setDetailTab('overview');
+                            }}
+                            className="px-2.5 h-7 rounded-full bg-[#264736] text-white text-[10.5px] font-bold flex items-center gap-0.5 hover:bg-[#1E3A2F] active:scale-95 transition-all shadow-2xs"
+                          >
+                            Chi tiết <ChevronRight className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -753,7 +713,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 })}
               </div>
             ) : (
-              /* ── LIST MODE ── */
+              /* ── LIST MODE: STREAMLINED ROWS ── */
               <div className="space-y-2">
                 {filteredTeam.map((member) => {
                   const role = ROLE_META[member.role] || ROLE_META.ARTIST;
@@ -764,40 +724,40 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                         setSelectedStaff(member);
                         setDetailTab('overview');
                       }}
-                      className="bg-white rounded-2xl border border-[#264736]/15 p-3 flex items-center gap-3 cursor-pointer hover:bg-[#F9FAF9] shadow-2xs transition-colors"
+                      className="bg-white rounded-2xl border border-slate-200/90 p-3 flex items-center gap-3 cursor-pointer hover:bg-[#F9FAF9] shadow-2xs transition-colors"
                     >
                       <div className="relative shrink-0">
                         <img
                           src={member.avatar}
                           alt={member.name}
-                          className="w-12 h-12 rounded-2xl object-cover border border-[#264736]/15"
+                          className="w-11 h-11 rounded-2xl object-cover border border-[#264736]/15"
                         />
                         <span
-                          className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                          className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
                             member.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400'
                           }`}
                         />
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="text-[13px] font-black text-[#1A2820] truncate">{member.name}</h4>
-                          <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md ${role.bg} ${role.color}`}>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <h4 className="text-[13.5px] font-black text-[#1A2820] truncate">{member.name}</h4>
+                          <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-md ${role.bg} ${role.color}`}>
                             {role.label}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#3D5A48] truncate">{member.phone} · {member.branch}</p>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400 font-medium">
-                          <span>Mã: {member.code || member.id}</span>
+                        <div className="flex items-center gap-2 text-[11px] text-[#3D5A48]">
+                          <span className="font-mono text-slate-700">{member.phone}</span>
                           <span>•</span>
-                          <span className="text-emerald-700 font-bold">KPI {member.kpi}%</span>
+                          <span className="text-amber-700 font-bold">⭐ {member.rating || 5.0}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <a
                           href={`tel:${member.phone}`}
-                          className="w-8 h-8 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center hover:bg-[#264736] hover:text-white transition-colors"
+                          className="w-7 h-7 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center hover:bg-[#264736] hover:text-white transition-colors"
+                          title="Gọi điện"
                         >
                           <Phone className="w-3.5 h-3.5" />
                         </a>
@@ -806,9 +766,10 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                             setSelectedStaff(member);
                             setDetailTab('overview');
                           }}
-                          className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-[#264736] hover:text-white transition-colors"
+                          className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-[#264736] hover:text-white transition-colors"
+                          title="Xem chi tiết"
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -998,221 +959,178 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
       </div>
 
       {/* ========================================================================= */}
-      {/* ── MODAL CHI TIẾT HỒ SƠ NHÂN SỰ (STAFF PROFILE DETAIL DRAWER) ──          */}
+      {/* ── MODAL CHI TIẾT HỒ SƠ NHÂN SỰ (STREAMLINED LUXURY PROFILE DRAWER) ──    */}
       {/* ========================================================================= */}
       {selectedStaff && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end animate-in fade-in duration-200">
-          <div className="bg-white w-full rounded-t-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
-            {/* Header / Cover */}
-            <div className="relative h-28 w-full bg-gradient-to-r from-[#264736] to-[#1A3326] shrink-0">
-              {selectedStaff.cover && (
-                <img
-                  src={selectedStaff.cover}
-                  alt="Cover"
-                  className="w-full h-full object-cover opacity-60"
-                />
-              )}
-              {/* Close button */}
+          <div className="bg-white w-full rounded-t-3xl max-h-[88vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+            {/* Header Hero */}
+            <div className="bg-gradient-to-br from-[#264736] via-[#1E3A2F] to-[#12241A] p-5 text-white relative shrink-0">
               <button
                 onClick={() => setSelectedStaff(null)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-md hover:bg-black/70 active:scale-95 transition-all"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center hover:bg-white/25 active:scale-95 transition-all"
+                title="Đóng"
               >
                 <X className="w-4 h-4" />
               </button>
-            </div>
 
-            {/* Profile Bar */}
-            <div className="px-5 pt-0 pb-3 relative border-b border-slate-100 shrink-0">
-              <div className="flex items-end justify-between -mt-10 mb-2">
-                <div className="relative">
+              <div className="flex items-center gap-3.5 mb-3.5">
+                <div className="relative shrink-0">
                   <img
                     src={selectedStaff.avatar}
                     alt={selectedStaff.name}
-                    className="w-20 h-20 rounded-3xl object-cover ring-4 ring-white shadow-lg border border-[#264736]/15"
+                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-emerald-400/30 shadow-md"
                   />
                   <span
-                    className={`absolute bottom-0 right-0 w-5 h-5 rounded-full ring-2 ring-white ${
-                      selectedStaff.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400'
+                    className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-[#1E3A2F] ${
+                      selectedStaff.status === 'active' ? 'bg-emerald-400' : 'bg-amber-400'
                     }`}
                   />
                 </div>
 
-                {/* Quick Call & Zalo */}
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`tel:${selectedStaff.phone}`}
-                    className="px-3.5 py-2 rounded-full bg-[#264736] text-white text-[12px] font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform"
-                  >
-                    <Phone className="w-3.5 h-3.5" /> Gọi điện
-                  </a>
-                  <a
-                    href={`https://zalo.me/${selectedStaff.phone.replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-3.5 py-2 rounded-full bg-blue-500 text-white text-[12px] font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform"
-                  >
-                    Zalo
-                  </a>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-[17px] font-black text-white truncate">
+                      {selectedStaff.name}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-400 text-[#12241A]">
+                      {ROLE_META[selectedStaff.role]?.label || selectedStaff.role}
+                    </span>
+                    <span className="text-[10.5px] font-bold text-emerald-200/90 font-mono">
+                      {selectedStaff.code || selectedStaff.id}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Name & Title */}
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[18px] font-black text-[#1A2820]">{selectedStaff.name}</h3>
-                  <span className="text-[11px] font-bold text-[#264736] bg-[#EAF2EC] px-2.5 py-0.5 rounded-full">
-                    {selectedStaff.code}
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#3D5A48] flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#264736]" /> {selectedStaff.branch}
-                </p>
-              </div>
-
-              {/* Sub-Tabs inside profile */}
-              <div className="flex gap-2 mt-3 pt-2 border-t border-slate-100">
-                {[
-                  { id: 'overview', label: 'Tổng quan & Kỹ năng' },
-                  { id: 'kpi', label: 'KPI & Hiệu suất' },
-                  { id: 'payroll', label: 'Lương & Chính sách' },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setDetailTab(t.id as any)}
-                    className={`flex-1 py-1.5 rounded-xl text-[11.5px] font-bold transition-all ${
-                      detailTab === t.id
-                        ? 'bg-[#264736] text-white shadow-2xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+              {/* Quick Actions (Call & Zalo) */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                <a
+                  href={`tel:${selectedStaff.phone}`}
+                  className="py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all border border-white/10"
+                >
+                  <Phone className="w-3.5 h-3.5" /> Gọi điện: {selectedStaff.phone}
+                </a>
+                <a
+                  href={`https://zalo.me/${selectedStaff.phone.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="py-2 rounded-xl bg-blue-500/90 hover:bg-blue-600 text-white text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-xs"
+                >
+                  Nhắn Zalo
+                </a>
               </div>
             </div>
 
-            {/* Scrollable Content inside profile */}
-            <div className="p-5 flex-1 overflow-y-auto space-y-4 text-[13px] no-scrollbar">
-              {detailTab === 'overview' && (
-                <div className="space-y-4">
-                  {/* Bio */}
-                  <div className="bg-[#F9FAF9] p-3.5 rounded-2xl border border-slate-100">
-                    <h5 className="text-[12px] font-bold text-[#1E3A2F] mb-1">Giới thiệu nghề nghiệp</h5>
-                    <p className="text-[#3D5A48] leading-relaxed text-[12.5px]">{selectedStaff.bio}</p>
-                  </div>
-
-                  {/* Skills */}
+            {/* Scrollable Content: Essential Info Only */}
+            <div className="p-4 flex-1 overflow-y-auto space-y-3.5 text-[12.5px] no-scrollbar">
+              {/* Thẻ 1: Thông tin liên hệ & Công tác */}
+              <div className="bg-[#F9FAF9] p-3.5 rounded-2xl border border-slate-200/80 space-y-2">
+                <h5 className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+                  Thông tin công tác & Liên hệ
+                </h5>
+                <div className="grid grid-cols-2 gap-2.5 pt-1 text-[12px]">
                   <div>
-                    <h5 className="text-[12px] font-bold text-[#1E3A2F] mb-2 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-emerald-600" /> Kỹ năng chuyên sâu & Giải thưởng
-                    </h5>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedStaff.skills?.map((sk, idx) => (
+                    <span className="text-slate-400 block text-[10.5px]">Số điện thoại</span>
+                    <span className="font-bold text-[#1A2820] font-mono">{selectedStaff.phone}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10.5px]">Email</span>
+                    <span className="font-bold text-[#1A2820] truncate block">{selectedStaff.email}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10.5px]">Ngày gia nhập</span>
+                    <span className="font-bold text-[#1A2820]">{selectedStaff.joinedDate}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10.5px]">Thâm niên</span>
+                    <span className="font-bold text-emerald-800">{selectedStaff.experienceYears || 3} năm kinh nghiệm</span>
+                  </div>
+                  <div className="col-span-2 pt-1 border-t border-slate-100">
+                    <span className="text-slate-400 block text-[10.5px]">Cơ sở làm việc</span>
+                    <span className="font-semibold text-slate-700 flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5 text-[#264736] shrink-0" /> {selectedStaff.branch}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Thẻ 2: Hiệu suất & Chuyên môn */}
+              <div className="bg-[#F9FAF9] p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5">
+                <h5 className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+                  Hiệu suất & Thế mạnh chuyên môn
+                </h5>
+
+                {/* 3 Stats Mini */}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white p-2 rounded-xl border border-slate-200/70">
+                    <span className="text-[10px] text-slate-400 block font-medium">Đánh giá</span>
+                    <span className="text-[14px] font-black text-amber-600">⭐ {selectedStaff.rating || 5.0}</span>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl border border-slate-200/70">
+                    <span className="text-[10px] text-slate-400 block font-medium">Điểm KPI</span>
+                    <span className="text-[14px] font-black text-emerald-700">{selectedStaff.kpi}%</span>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl border border-slate-200/70">
+                    <span className="text-[10px] text-slate-400 block font-medium">Hoàn thành</span>
+                    <span className="text-[14px] font-black text-[#264736]">{selectedStaff.completedJobs || 120} ca</span>
+                  </div>
+                </div>
+
+                {/* Skills tags */}
+                {selectedStaff.skills && selectedStaff.skills.length > 0 && (
+                  <div className="pt-1">
+                    <span className="text-slate-400 block text-[10.5px] mb-1.5">Kỹ năng thế mạnh</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedStaff.skills.map((sk, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1 rounded-xl bg-[#EAF2EC] text-[#264736] border border-[#264736]/20 font-bold text-[11.5px]"
+                          className="px-2.5 py-1 rounded-lg bg-[#EAF2EC] text-[#264736] border border-[#264736]/20 font-bold text-[11px]"
                         >
-                          {sk}
+                          ✦ {sk}
                         </span>
                       ))}
                     </div>
                   </div>
+                )}
+              </div>
 
-                  {/* Key Details */}
-                  <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100">
-                    <div className="p-3 flex justify-between items-center">
-                      <span className="text-slate-500">Số điện thoại</span>
-                      <span className="font-bold text-[#1A2820]">{selectedStaff.phone}</span>
-                    </div>
-                    <div className="p-3 flex justify-between items-center">
-                      <span className="text-slate-500">Email công việc</span>
-                      <span className="font-bold text-[#1A2820]">{selectedStaff.email}</span>
-                    </div>
-                    <div className="p-3 flex justify-between items-center">
-                      <span className="text-slate-500">Ngày gia nhập CELLA</span>
-                      <span className="font-bold text-[#1A2820]">{selectedStaff.joinedDate}</span>
-                    </div>
-                    <div className="p-3 flex justify-between items-center">
-                      <span className="text-slate-500">Kinh nghiệm thực chiến</span>
-                      <span className="font-bold text-emerald-700">{selectedStaff.experienceYears || 3} năm</span>
-                    </div>
-                  </div>
+              {/* Thẻ 3: Chế độ đãi ngộ */}
+              <div className="bg-[#F9FAF9] p-3.5 rounded-2xl border border-slate-200/80">
+                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">
+                  <span>Chính sách lương & Hoa hồng</span>
+                  <span className="text-emerald-700 font-bold lowercase">tháng 9/2026</span>
                 </div>
-              )}
-
-              {detailTab === 'kpi' && (
-                <div className="space-y-3.5">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3.5 rounded-2xl bg-[#EAF2EC] border border-[#264736]/20 text-center">
-                      <span className="text-[11px] text-[#3D5A48] font-medium block">Điểm KPI tổng thể</span>
-                      <span className="text-2xl font-black text-[#264736]">{selectedStaff.kpi}%</span>
-                    </div>
-                    <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-center">
-                      <span className="text-[11px] text-amber-700 font-medium block">Đánh giá khách hàng</span>
-                      <span className="text-2xl font-black text-amber-600 flex items-center justify-center gap-1">
-                        <Star className="w-5 h-5 fill-amber-500" /> {selectedStaff.rating || 5.0}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
-                    <div className="flex justify-between text-[12px] font-bold">
-                      <span className="text-slate-600">Tổng ca makeup đã hoàn thành:</span>
-                      <span className="text-[#264736]">{selectedStaff.completedJobs || 120} ca</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${selectedStaff.kpi}%` }} />
-                    </div>
-                    <p className="text-[11px] text-slate-400">Đạt danh hiệu Nghệ Sĩ Xuất Sắc tháng 9/2026</p>
-                  </div>
-                </div>
-              )}
-
-              {detailTab === 'payroll' && (
-                <div className="space-y-3.5">
-                  <div className="bg-[#264736] text-white p-4 rounded-2xl shadow-sm">
-                    <span className="text-[11px] text-emerald-300 font-medium block">Lương cơ bản hàng tháng</span>
-                    <div className="text-2xl font-black mt-1">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                    <span className="text-[10px] text-slate-400 block">Lương cơ bản</span>
+                    <span className="text-[13px] font-black text-slate-900">
                       {Number(selectedStaff.baseSalary || 8500000).toLocaleString('vi-VN')} đ
-                    </div>
-                    <p className="text-[11px] text-white/80 mt-1">Được tính theo 22 ngày công tiêu chuẩn</p>
+                    </span>
                   </div>
-
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-2.5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Tỷ lệ hoa hồng dịch vụ:</span>
-                      <span className="font-bold text-[#264736]">
-                        {((selectedStaff.commissionRate || 0.10) * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Doanh thu mang về tháng này:</span>
-                      <span className="font-bold text-slate-900">
-                        {Number(selectedStaff.monthlyRevenue || 45000000).toLocaleString('vi-VN')} đ
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-100">
-                      <span className="text-slate-800 font-bold">Ước tính hoa hồng nhận:</span>
-                      <span className="font-black text-emerald-600 text-[15px]">
-                        {(Number(selectedStaff.monthlyRevenue || 45000000) * (selectedStaff.commissionRate || 0.10)).toLocaleString('vi-VN')} đ
-                      </span>
-                    </div>
+                  <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                    <span className="text-[10px] text-slate-400 block">Tỷ lệ hoa hồng</span>
+                    <span className="text-[13px] font-black text-[#264736]">
+                      {((selectedStaff.commissionRate || 0.10) * 100).toFixed(0)}% dịch vụ
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-slate-100 bg-[#F9FAF9] flex items-center gap-2">
+            {/* Footer Buttons */}
+            <div className="p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
               <button
                 onClick={() => onNavigate('roles')}
-                className="flex-1 py-3 rounded-2xl bg-white border border-[#264736]/20 text-[#264736] font-bold text-[12.5px] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[12px] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
               >
-                <Shield className="w-4 h-4" /> Phân quyền vai trò
+                <Shield className="w-3.5 h-3.5 text-[#264736]" /> Phân quyền
               </button>
               <button
                 onClick={() => setSelectedStaff(null)}
-                className="flex-1 py-3 rounded-2xl bg-[#264736] text-white font-bold text-[12.5px] active:scale-95 transition-transform shadow-xs"
+                className="flex-1 py-2.5 rounded-xl bg-[#264736] text-white font-bold text-[12px] active:scale-95 transition-all shadow-xs hover:bg-[#1E3A2F]"
               >
                 Đóng hồ sơ
               </button>
