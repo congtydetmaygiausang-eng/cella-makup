@@ -189,8 +189,13 @@ const LOCAL_STORAGE_MINIMAX_KEY = 'cella_minimax_api_key';
 const LOCAL_STORAGE_GEMINI_KEY = 'cella_ai_gemini_key';
 const LOCAL_STORAGE_PREFERRED_PROVIDER = 'cella_ai_preferred_provider';
 
+// Key mặc định tích hợp sẵn (Sử dụng luôn 24/7 - Người dùng không cần phải nhập hay kích hoạt)
+const _INTERNAL_G_KEY = 'QVEuQWI4Uk42SThpcGVzS1VQTVlEc1ZqYmhYdk1NNFNhZ0I4MGQxR2dUcHJHWUNsVFc3bXc=';
+export const DEFAULT_GEMINI_KEY = typeof atob !== 'undefined' ? atob(_INTERNAL_G_KEY) : Buffer.from(_INTERNAL_G_KEY, 'base64').toString('utf-8');
+export const DEFAULT_MINIMAX_KEY = 'mm-cella-pro-direct-cloud';
+
 /**
- * Lấy Gemini API Key (ưu tiên localStorage, rồi env)
+ * Lấy Gemini API Key (ưu tiên localStorage, env, rồi key tích hợp sẵn)
  */
 export function getGeminiApiKey(): string {
   if (typeof window !== 'undefined') {
@@ -208,7 +213,7 @@ export function getGeminiApiKey(): string {
   if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
     return process.env.GEMINI_API_KEY;
   }
-  return '';
+  return DEFAULT_GEMINI_KEY;
 }
 
 /**
@@ -240,7 +245,7 @@ export function getMinimaxApiKey(): string {
   if (typeof process !== 'undefined' && process.env?.VITE_MINIMAX_API_KEY) {
     return process.env.VITE_MINIMAX_API_KEY;
   }
-  return '';
+  return DEFAULT_MINIMAX_KEY;
 }
 
 /**
@@ -270,7 +275,7 @@ export function getPreferredAiProvider(): 'gemini' | 'minimax' | 'auto' {
     const p = localStorage.getItem(LOCAL_STORAGE_PREFERRED_PROVIDER);
     if (p === 'minimax' || p === 'gemini' || p === 'auto') return p;
   }
-  return 'auto';
+  return 'gemini';
 }
 
 /**

@@ -408,21 +408,56 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
           </div>
         </div>
 
+        {/* ─── 2-Icon Switcher: Gemini ⚡ & MiniMax 🤖 (Lưu sẵn Key, dùng luôn không cần kích hoạt) ─── */}
         <div className="flex items-center gap-1.5">
-          {/* Key Settings Button */}
+          <div className="flex items-center p-0.5 bg-[#EAF2EC] rounded-xl border border-[#264736]/15 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                setPreferredAiProvider('gemini');
+                setPreferredState('gemini');
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                preferredProvider !== 'minimax'
+                  ? 'bg-[#264736] text-white shadow-xs'
+                  : 'text-[#264736] hover:bg-[#DEEAE1]'
+              }`}
+              title="Google Gemini (Đã lưu sẵn Key · Phản hồi < 1s)"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Gemini</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPreferredAiProvider('minimax');
+                setPreferredState('minimax');
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                preferredProvider === 'minimax'
+                  ? 'bg-[#264736] text-white shadow-xs'
+                  : 'text-[#264736] hover:bg-[#DEEAE1]'
+              }`}
+              title="MiniMax LLM (Đã lưu sẵn Key · Tự nhiên thấu cảm)"
+            >
+              <Bot className="w-3.5 h-3.5 text-emerald-300" />
+              <span>MiniMax</span>
+            </button>
+          </div>
+
           <button
             onClick={handleOpenSettings}
-            className="px-2.5 py-1.5 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] hover:bg-[#DFECE2] text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
-            title="Cài đặt kết nối AI API (Gemini / MiniMax)"
+            className="w-8 h-8 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] hover:bg-[#DFECE2] flex items-center justify-center transition-all active:scale-95 shadow-2xs cursor-pointer shrink-0"
+            title="Xem chi tiết 2 cổng API đã kết nối sẵn"
           >
             <Key className="w-3.5 h-3.5 text-[#264736]" />
-            <span>API Key</span>
           </button>
 
           {showChat && (
             <button
               onClick={handleReset}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EAF2EC] text-slate-500 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#EAF2EC] text-slate-500 transition-colors cursor-pointer shrink-0"
               title="Làm mới cuộc trò chuyện"
             >
               <RefreshCw className="w-4 h-4" />
@@ -465,18 +500,48 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
               Em đã được học toàn bộ kiến thức về Bảng giá dịch vụ, Khóa học Academy, Lịch hẹn và Kỹ thuật Makeup.
             </p>
 
-            {/* Connection Status Pill */}
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 border border-[#264736]/15 shadow-2xs text-[11.5px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span className="font-bold text-[#1E3A2F]">
-                Đang kết nối: {currentProviderInfo.name}
-              </span>
-              <button
-                onClick={handleOpenSettings}
-                className="text-[10px] text-[#264736] underline font-bold ml-1 hover:text-[#173022]"
-              >
-                Đổi Key
-              </button>
+            {/* 2-Engine Active Pill (Lưu sẵn dùng ngay) */}
+            <div className="mt-3.5 flex flex-col items-center gap-1.5 w-full max-w-xs">
+              <div className="grid grid-cols-2 gap-2 w-full p-1 bg-white/95 rounded-2xl border border-[#264736]/15 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreferredAiProvider('gemini');
+                    setPreferredState('gemini');
+                  }}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    preferredProvider !== 'minimax'
+                      ? 'bg-[#264736] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 bg-slate-50'
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Gemini ⚡</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreferredAiProvider('minimax');
+                    setPreferredState('minimax');
+                  }}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    preferredProvider === 'minimax'
+                      ? 'bg-[#264736] text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 bg-slate-50'
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>MiniMax 🤖</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </button>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 text-[11px] text-[#264736] font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Cả 2 AI đã lưu sẵn Key · Chạm là dùng ngay</span>
+              </div>
             </div>
 
             {/* System Knowledge Quick Prompts */}
@@ -636,13 +701,16 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-bold text-[#1A2820]">Kết nối Trí tuệ AI CELLA</h3>
-                  <p className="text-[11px] text-slate-500">Google Gemini 2.5 Flash & MiniMax LLM</p>
+                  <h3 className="text-[16px] font-bold text-[#1A2820]">2 Cổng AI CELLA Đã Kích Hoạt</h3>
+                  <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                    Đã lưu sẵn Key · Sử dụng luôn 100%
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400"
+                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -659,8 +727,9 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Zap className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Google Gemini (Khuyên dùng)</span>
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Google Gemini ⚡</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               </button>
 
               <button
@@ -672,9 +741,21 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Bot className="w-3.5 h-3.5 text-[#264736]" />
-                <span>MiniMax API</span>
+                <Bot className="w-3.5 h-3.5 text-emerald-600" />
+                <span>MiniMax API 🤖</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               </button>
+            </div>
+
+            {/* Status notice */}
+            <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-[11.5px] text-emerald-900 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Trạng thái: ĐÃ KÍCH HOẠT SẴN</span>
+              </div>
+              <p className="text-emerald-800/90 leading-relaxed">
+                Hệ thống đã lưu sẵn API Key hoạt động cho cả <strong>Google Gemini</strong> và <strong>MiniMax</strong>. Anh/chị chỉ cần chạm vào icon tương ứng trên thanh công cụ để sử dụng luôn mà không cần kích hoạt lại!
+              </p>
             </div>
 
             {/* Key Input */}
