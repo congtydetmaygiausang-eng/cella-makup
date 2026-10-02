@@ -6,7 +6,7 @@ import {
   DollarSign, Star, Users, Phone, MessageCircle, Search,
   Shield, MapPin, Mail, UserCog, Plus, Camera, Loader2,
   Sparkles, Grid, List, Briefcase, GraduationCap, X, Check,
-  ExternalLink, UserCheck, Flame, Heart, FileText, ChevronDown
+  ExternalLink, UserCheck, Flame, Heart, FileText, ChevronDown, Edit2
 } from 'lucide-react';
 import { supabase } from '../config/supabase';
 
@@ -240,6 +240,10 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
   const [isPayrollDetailOpen, setIsPayrollDetailOpen] = useState(false);
   const [isAddBonusOpen, setIsAddBonusOpen] = useState(false);
 
+  // Edit staff profile state
+  const [editingStaff, setEditingStaff] = useState<StaffProfileData | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   // Rewards list
   const [rewards, setRewards] = useState<any[]>([]);
   const [isLoadingRewards, setIsLoadingRewards] = useState(false);
@@ -390,6 +394,60 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
     alert('Thêm hồ sơ nhân sự mới thành công!');
   };
 
+  // Open edit modal
+  const handleOpenEdit = (staff: StaffProfileData) => {
+    setEditingStaff({ ...staff });
+    setIsEditModalOpen(true);
+  };
+
+  // Save edited staff
+  const handleSaveEditedStaff = async () => {
+    if (!editingStaff) return;
+    if (!editingStaff.name.trim() || !editingStaff.phone.trim()) {
+      alert('Vui lòng nhập đầy đủ Họ tên và Số điện thoại!');
+      return;
+    }
+
+    const updated: StaffProfileData = {
+      ...editingStaff,
+      name: editingStaff.name.trim(),
+      phone: editingStaff.phone.trim(),
+      email: editingStaff.email.trim(),
+      baseSalary: Number(editingStaff.baseSalary) || 0,
+      commissionRate: Number(editingStaff.commissionRate) || 0.10,
+    };
+
+    // Update local state
+    setTeamMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+    if (selectedStaff && selectedStaff.id === updated.id) {
+      setSelectedStaff(updated);
+    }
+    setIsEditModalOpen(false);
+
+    // Sync to Supabase
+    try {
+      const { error } = await supabase.from('profiles').update({
+        full_name: updated.name,
+        phone: updated.phone,
+        email: updated.email,
+        role: updated.role,
+        base_salary: updated.baseSalary,
+        commission_rate: updated.commissionRate,
+        branch_studio: updated.branch,
+        is_active: updated.status === 'active',
+        bio: updated.bio,
+      }).eq('id', updated.id);
+
+      if (error) {
+        console.warn('Lỗi Supabase khi lưu hồ sơ:', error.message);
+      }
+    } catch (err) {
+      console.warn('Supabase update profile error:', err);
+    }
+
+    alert(`Đã lưu thay đổi hồ sơ nhân sự "${updated.name}" thành công!`);
+  };
+
   // Handle Add Bonus
   const handleAddBonus = async () => {
     if (!newBonus.staff_id || !newBonus.amount || !newBonus.reason) {
@@ -506,18 +564,16 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
         {/* TAB 1: HỒ SƠ NHÂN SỰ (STAFF DIRECTORY & PROFILES)                        */}
         {/* ========================================================================= */}
         {activeTab === 'team' && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            {/* Hero Stats Banner */}
-            <div className="rounded-3xl bg-gradient-to-br from-[#264736] via-[#1E3A2F] to-[#15271E] p-4 text-white shadow-[0_8px_24px_rgba(26,51,38,0.18)] border border-[#3D5A48]/30 relative overflow-hidden">
-              <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-emerald-500/10 blur-xl pointer-events-none" />
-              
-              <div className="flex items-center justify-between mb-3.5">
+          <div className="space-y-3.5 animate-in fade-in duration-300">
+            {/* Hero Stats Banner (Simple & Elegant) */}
+            <div className="rounded-3xl bg-gradient-to-br from-[#264736] via-[#1E3A2F] to-[#15271E] p-4 text-white shadow-sm border border-[#3D5A48]/30 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-300/90 flex items-center gap-1.5">
+                  <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" /> CELLA TALENT ACADEMY
                   </span>
-                  <h3 className="text-[17px] font-black text-white mt-0.5">
-                    Đội Ngũ Nghệ Sĩ & Chuyên Viên
+                  <h3 className="text-[16px] font-black text-white mt-0.5">
+                    Hồ Sơ Nhân Sự & Lương Cơ Bản
                   </h3>
                 </div>
                 <button
@@ -529,26 +585,22 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
               </div>
 
               {/* Stat grid */}
-              <div className="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center">
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
                 <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-2 border border-white/10">
-                  <span className="text-[10px] text-white/70 block font-medium">Tổng NV</span>
-                  <span className="text-[16px] font-black text-white">{teamMembers.length}</span>
+                  <span className="text-[10px] text-white/70 block font-medium">Tổng nhân sự</span>
+                  <span className="text-[15px] font-black text-white">{teamMembers.length} người</span>
                 </div>
                 <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-2 border border-white/10">
-                  <span className="text-[10px] text-white/70 block font-medium">Master</span>
-                  <span className="text-[16px] font-black text-emerald-300">
-                    {teamMembers.filter(m => m.role.includes('MASTER') || m.role === 'SUPER_ADMIN').length}
+                  <span className="text-[10px] text-white/70 block font-medium">Tổng quỹ lương CB</span>
+                  <span className="text-[15px] font-black text-emerald-300">
+                    {(teamMembers.reduce((s, m) => s + (m.baseSalary || 8500000), 0) / 1000000).toFixed(1)} tr
                   </span>
                 </div>
                 <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-2 border border-white/10">
-                  <span className="text-[10px] text-white/70 block font-medium">Artist</span>
-                  <span className="text-[16px] font-black text-rose-200">
-                    {teamMembers.filter(m => m.role === 'ARTIST').length}
+                  <span className="text-[10px] text-white/70 block font-medium">Đang hoạt động</span>
+                  <span className="text-[15px] font-black text-amber-300">
+                    {teamMembers.filter(m => m.status === 'active').length} active
                   </span>
-                </div>
-                <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-2 border border-white/10">
-                  <span className="text-[10px] text-white/70 block font-medium">KPI TB</span>
-                  <span className="text-[16px] font-black text-amber-300">95%</span>
                 </div>
               </div>
             </div>
@@ -571,7 +623,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-1.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-[#264736] text-white' : 'text-[#3D5A48]'}`}
-                  title="Dạng thẻ hồ sơ VIP"
+                  title="Dạng thẻ hồ sơ"
                 >
                   <Grid className="w-4 h-4" />
                 </button>
@@ -606,7 +658,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-2 text-[#3D5A48]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#264736]" />
-                <p className="text-[12px] font-medium">Đang đồng bộ hồ sơ nhân sự Supabase...</p>
+                <p className="text-[12px] font-medium">Đang tải hồ sơ nhân sự Supabase...</p>
               </div>
             ) : filteredTeam.length === 0 ? (
               <div className="bg-white rounded-3xl p-8 text-center border border-[#264736]/10 text-slate-500">
@@ -615,8 +667,8 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 <p className="text-[11px] text-[#3D5A48] mt-1">Thử từ khóa khác hoặc chuyển bộ lọc vai trò</p>
               </div>
             ) : viewMode === 'grid' ? (
-              /* ── GRID MODE: LUXURY STREAMLINED PROFILE CARDS ── */
-              <div className="grid grid-cols-1 gap-2.5">
+              /* ── GRID MODE: STREAMLINED CARDS WITH BASE SALARY & EDIT ── */
+              <div className="grid grid-cols-1 gap-3">
                 {filteredTeam.map((member) => {
                   const role = ROLE_META[member.role] || ROLE_META.ARTIST;
                   return (
@@ -628,16 +680,16 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                       }}
                       className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-md hover:border-[#264736]/40 transition-all cursor-pointer relative"
                     >
-                      {/* Top: Avatar, Name, Role, Phone & Code */}
+                      {/* Hàng 1: Avatar, Tên, Chức danh, SĐT */}
                       <div className="flex items-center gap-3">
                         <div className="relative shrink-0">
                           <img
                             src={member.avatar}
                             alt={member.name}
-                            className="w-13 h-13 rounded-2xl object-cover ring-2 ring-[#264736]/15 shadow-2xs"
+                            className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#264736]/15 shadow-2xs"
                           />
                           <span
-                            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-white ${
+                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
                               member.status === 'active' ? 'bg-emerald-500' : 'bg-amber-400'
                             }`}
                             title={member.status === 'active' ? 'Đang hoạt động' : 'Nghỉ phép'}
@@ -646,7 +698,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1.5 mb-0.5">
-                            <h4 className="text-[14.5px] font-black text-[#1A2820] truncate">
+                            <h4 className="text-[14px] font-black text-[#1A2820] truncate">
                               {member.name}
                             </h4>
                             <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 border ${role.border} ${role.bg} ${role.color}`}>
@@ -654,7 +706,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2 text-[11.5px] text-slate-500 font-medium">
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
                             <span className="font-mono text-slate-700 font-semibold">{member.phone}</span>
                             <span>•</span>
                             <span className="text-[#3D5A48] font-bold">{member.code || member.id}</span>
@@ -662,28 +714,44 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                         </div>
                       </div>
 
-                      {/* Bottom Row: Key Highlight (Chuyên môn chính & Rating) + Quick Actions */}
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-1.5 overflow-hidden">
-                          {member.skills?.[0] ? (
-                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-[#EAF2EC] text-[#264736] border border-[#264736]/20 truncate max-w-[155px]">
-                              ✦ {member.skills[0]}
-                            </span>
-                          ) : (
-                            <span className="text-[10.5px] font-semibold text-slate-500">
-                              {member.experienceYears || 3} năm kinh nghiệm
-                            </span>
-                          )}
-                          <span className="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-lg shrink-0 flex items-center gap-0.5">
-                            ⭐ {member.rating || 5.0}
+                      {/* Hàng 2: LƯƠNG CĂN BẢN (Nổi bật, rõ ràng) */}
+                      <div className="mt-2.5 px-3 py-2 rounded-xl bg-[#F4F7F4] border border-[#264736]/15 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-[#264736]">💵 Lương căn bản:</span>
+                          <span className="text-[13px] font-black text-[#1A2820]">
+                            {(member.baseSalary || 8500000).toLocaleString('vi-VN')} đ
                           </span>
                         </div>
+                        <span className="text-[10px] font-bold text-emerald-800 bg-[#EAF2EC] px-2 py-0.5 rounded-md border border-[#264736]/15">
+                          + {((member.commissionRate || 0.10) * 100).toFixed(0)}% hoa hồng
+                        </span>
+                      </div>
 
-                        {/* Quick Contact & View */}
-                        <div className="flex items-center gap-1 shrink-0">
+                      {/* Hàng 3: Thao tác (Sửa hồ sơ, Chi tiết, Gọi, Zalo) */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(member)}
+                            className="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-bold border border-amber-200/80 flex items-center gap-1 active:scale-95 transition-all shadow-2xs"
+                            title="Chỉnh sửa thông tin & lương"
+                          >
+                            <Edit2 className="w-3 h-3 text-amber-700" /> Sửa hồ sơ
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedStaff(member);
+                              setDetailTab('overview');
+                            }}
+                            className="px-2.5 py-1.5 rounded-xl bg-[#EAF2EC] hover:bg-[#DEEAE1] text-[#264736] text-[11px] font-bold border border-[#264736]/15 flex items-center gap-0.5 active:scale-95 transition-all shadow-2xs"
+                          >
+                            Chi tiết <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1">
                           <a
                             href={`tel:${member.phone}`}
-                            className="w-7 h-7 rounded-full bg-[#EAF2EC] text-[#264736] hover:bg-[#264736] hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                            className="w-7 h-7 rounded-full bg-slate-100 hover:bg-[#264736] hover:text-white text-[#264736] flex items-center justify-center transition-colors shadow-2xs"
                             title="Gọi điện"
                           >
                             <Phone className="w-3.5 h-3.5" />
@@ -692,20 +760,11 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                             href={`https://zalo.me/${member.phone.replace(/[^0-9]/g, '')}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="px-2 h-7 rounded-full bg-blue-50 text-blue-600 border border-blue-200/80 hover:bg-blue-600 hover:text-white flex items-center justify-center text-[10px] font-bold transition-colors shadow-2xs"
+                            className="px-2 h-7 rounded-full bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 border border-blue-200 flex items-center justify-center text-[10px] font-bold transition-colors shadow-2xs"
                             title="Nhắn Zalo"
                           >
                             Zalo
                           </a>
-                          <button
-                            onClick={() => {
-                              setSelectedStaff(member);
-                              setDetailTab('overview');
-                            }}
-                            className="px-2.5 h-7 rounded-full bg-[#264736] text-white text-[10.5px] font-bold flex items-center gap-0.5 hover:bg-[#1E3A2F] active:scale-95 transition-all shadow-2xs"
-                          >
-                            Chi tiết <ChevronRight className="w-3 h-3" />
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -713,7 +772,7 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 })}
               </div>
             ) : (
-              /* ── LIST MODE: STREAMLINED ROWS ── */
+              /* ── LIST MODE: STREAMLINED ROWS WITH SALARY & EDIT ── */
               <div className="space-y-2">
                 {filteredTeam.map((member) => {
                   const role = ROLE_META[member.role] || ROLE_META.ARTIST;
@@ -747,13 +806,20 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-[#3D5A48]">
-                          <span className="font-mono text-slate-700">{member.phone}</span>
+                          <span className="font-bold text-[#264736]">💵 {(member.baseSalary || 8500000).toLocaleString('vi-VN')} đ</span>
                           <span>•</span>
-                          <span className="text-amber-700 font-bold">⭐ {member.rating || 5.0}</span>
+                          <span className="font-mono text-slate-500">{member.phone}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleOpenEdit(member)}
+                          className="px-2 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-[10.5px] font-bold flex items-center gap-1 hover:bg-amber-100"
+                          title="Chỉnh sửa"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </button>
                         <a
                           href={`tel:${member.phone}`}
                           className="w-7 h-7 rounded-full bg-[#EAF2EC] text-[#264736] flex items-center justify-center hover:bg-[#264736] hover:text-white transition-colors"
@@ -1005,13 +1071,20 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 </div>
               </div>
 
-              {/* Quick Actions (Call & Zalo) */}
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+              {/* Quick Actions (Edit, Call, Zalo) */}
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(selectedStaff)}
+                  className="py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-xs"
+                >
+                  <Edit2 className="w-3.5 h-3.5" /> Sửa hồ sơ
+                </button>
                 <a
                   href={`tel:${selectedStaff.phone}`}
                   className="py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[12px] font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all border border-white/10"
                 >
-                  <Phone className="w-3.5 h-3.5" /> Gọi điện: {selectedStaff.phone}
+                  <Phone className="w-3.5 h-3.5" /> Gọi điện
                 </a>
                 <a
                   href={`https://zalo.me/${selectedStaff.phone.replace(/[^0-9]/g, '')}`}
@@ -1097,22 +1170,22 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 )}
               </div>
 
-              {/* Thẻ 3: Chế độ đãi ngộ */}
-              <div className="bg-[#F9FAF9] p-3.5 rounded-2xl border border-slate-200/80">
-                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">
-                  <span>Chính sách lương & Hoa hồng</span>
-                  <span className="text-emerald-700 font-bold lowercase">tháng 9/2026</span>
+              {/* Thẻ 3: Chế độ đãi ngộ & Lương căn bản */}
+              <div className="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80">
+                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-amber-900 mb-2">
+                  <span>💵 Lương căn bản & Hoa hồng</span>
+                  <span className="text-amber-800 font-bold lowercase bg-amber-100 px-2 py-0.5 rounded">tháng 9/2026</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                    <span className="text-[10px] text-slate-400 block">Lương cơ bản</span>
-                    <span className="text-[13px] font-black text-slate-900">
+                  <div className="bg-white p-2.5 rounded-xl border border-amber-200/70 shadow-2xs">
+                    <span className="text-[10.5px] text-slate-500 block font-medium">Lương căn bản</span>
+                    <span className="text-[14px] font-black text-slate-900">
                       {Number(selectedStaff.baseSalary || 8500000).toLocaleString('vi-VN')} đ
                     </span>
                   </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                    <span className="text-[10px] text-slate-400 block">Tỷ lệ hoa hồng</span>
-                    <span className="text-[13px] font-black text-[#264736]">
+                  <div className="bg-white p-2.5 rounded-xl border border-amber-200/70 shadow-2xs">
+                    <span className="text-[10.5px] text-slate-500 block font-medium">Tỷ lệ hoa hồng</span>
+                    <span className="text-[14px] font-black text-[#264736]">
                       {((selectedStaff.commissionRate || 0.10) * 100).toFixed(0)}% dịch vụ
                     </span>
                   </div>
@@ -1121,18 +1194,27 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-4 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
+            <div className="p-3.5 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
               <button
+                type="button"
+                onClick={() => handleOpenEdit(selectedStaff)}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-[12px] flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-xs"
+              >
+                <Edit2 className="w-3.5 h-3.5" /> Sửa thông tin & Lương
+              </button>
+              <button
+                type="button"
                 onClick={() => onNavigate('roles')}
-                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[12px] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+                className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[12px] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
               >
                 <Shield className="w-3.5 h-3.5 text-[#264736]" /> Phân quyền
               </button>
               <button
+                type="button"
                 onClick={() => setSelectedStaff(null)}
-                className="flex-1 py-2.5 rounded-xl bg-[#264736] text-white font-bold text-[12px] active:scale-95 transition-all shadow-xs hover:bg-[#1E3A2F]"
+                className="py-2.5 px-4 rounded-xl bg-[#264736] text-white font-bold text-[12px] active:scale-95 transition-all shadow-xs hover:bg-[#1E3A2F]"
               >
-                Đóng hồ sơ
+                Đóng
               </button>
             </div>
           </div>
@@ -1246,6 +1328,215 @@ export const HRScreen: React.FC<HRScreenProps> = ({ onNavigate, onBack, onManage
                 className="w-full py-3.5 bg-[#264736] text-white rounded-2xl text-[14px] font-bold shadow-md shadow-[#264736]/20 active:scale-95 transition-transform"
               >
                 Lưu hồ sơ nhân sự
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ── MODAL CHỈNH SỬA HỒ SƠ & LƯƠNG CĂN BẢN (EDIT STAFF MODAL) ──              */}
+      {/* ========================================================================= */}
+      {isEditModalOpen && editingStaff && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-3xl max-h-[88vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-[16px] font-black text-[#1A2820] flex items-center gap-2">
+                  <Edit2 className="w-4 h-4 text-amber-600" /> Chỉnh sửa hồ sơ & Lương
+                </h3>
+                <p className="text-[11px] text-[#3D5A48]">Mã nhân sự: <span className="font-mono font-bold text-slate-700">{editingStaff.code || editingStaff.id}</span></p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form body */}
+            <div className="p-5 flex-1 overflow-y-auto space-y-3.5 no-scrollbar">
+              {/* Họ tên */}
+              <div className="space-y-1">
+                <label className="text-[12.5px] font-bold text-slate-700">Họ và tên <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={editingStaff.name}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, name: e.target.value })}
+                  placeholder="Họ và tên nhân sự"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white font-medium"
+                />
+              </div>
+
+              {/* SĐT & Email */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Số điện thoại <span className="text-red-500">*</span></label>
+                  <input
+                    type="tel"
+                    value={editingStaff.phone}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, phone: e.target.value })}
+                    placeholder="0987 654 321"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white font-mono"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Email</label>
+                  <input
+                    type="email"
+                    value={editingStaff.email}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, email: e.target.value })}
+                    placeholder="email@cellamakeup.vn"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Chức danh & Trạng thái */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Chức danh / Vai trò</label>
+                  <select
+                    value={editingStaff.role}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, role: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-slate-50 font-medium focus:outline-none focus:border-[#264736]"
+                  >
+                    <option value="ARTIST">Senior Artist</option>
+                    <option value="MASTER_ARTIST">Master Artist</option>
+                    <option value="ACADEMY_TRAINER">Giảng viên Học viện</option>
+                    <option value="SALES_CONSULTANT">Tư vấn tuyển sinh</option>
+                    <option value="ADMIN">Quản lý cơ sở (Admin)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Trạng thái làm việc</label>
+                  <select
+                    value={editingStaff.status}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, status: e.target.value as 'active' | 'leave' })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[13px] bg-slate-50 font-medium focus:outline-none focus:border-[#264736]"
+                  >
+                    <option value="active">🟢 Đang làm việc</option>
+                    <option value="leave">🟡 Nghỉ phép / Tạm dừng</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* PHẦN LƯƠNG CĂN BẢN & HOA HỒNG - NỔI BẬT */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/90 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-black uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                    💵 Lương căn bản & Hoa hồng
+                  </span>
+                  <span className="text-[11px] font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-md">
+                    Chính sách đãi ngộ
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-bold text-slate-800">
+                      Lương căn bản (VNĐ) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={editingStaff.baseSalary || 0}
+                      onChange={(e) => setEditingStaff({ ...editingStaff, baseSalary: Number(e.target.value) || 0 })}
+                      step="500000"
+                      min="0"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-[14px] font-black text-slate-900 bg-white focus:outline-none focus:border-[#264736] focus:ring-1 focus:ring-[#264736]"
+                    />
+                    <p className="text-[11px] font-bold text-emerald-700">
+                      = {Number(editingStaff.baseSalary || 0).toLocaleString('vi-VN')} đ/tháng
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[12px] font-bold text-slate-800">
+                      Tỷ lệ hoa hồng (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={Math.round((editingStaff.commissionRate || 0.1) * 100)}
+                      onChange={(e) => setEditingStaff({ ...editingStaff, commissionRate: (Number(e.target.value) || 0) / 100 })}
+                      step="1"
+                      min="0"
+                      max="100"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-[14px] font-black text-[#264736] bg-white focus:outline-none focus:border-[#264736]"
+                    />
+                    <p className="text-[11px] font-bold text-slate-500">
+                      = {((editingStaff.commissionRate || 0.1) * 100).toFixed(0)}% trên dịch vụ
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chi nhánh & Kinh nghiệm */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Chi nhánh làm việc</label>
+                  <input
+                    type="text"
+                    value={editingStaff.branch}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, branch: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[12.5px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[12.5px] font-bold text-slate-700">Năm kinh nghiệm</label>
+                  <input
+                    type="number"
+                    value={editingStaff.experienceYears || 1}
+                    onChange={(e) => setEditingStaff({ ...editingStaff, experienceYears: Number(e.target.value) || 1 })}
+                    min="0"
+                    max="40"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[12.5px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Kỹ năng */}
+              <div className="space-y-1">
+                <label className="text-[12.5px] font-bold text-slate-700">Kỹ năng thế mạnh (cách nhau bởi dấu phẩy)</label>
+                <input
+                  type="text"
+                  value={editingStaff.skills?.join(', ') || ''}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                  placeholder="Ví dụ: Cô Dâu Tone Trong Trẻo, Bới Tóc..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[12.5px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white"
+                />
+              </div>
+
+              {/* Giới thiệu ngắn */}
+              <div className="space-y-1">
+                <label className="text-[12.5px] font-bold text-slate-700">Giới thiệu ngắn / Tiểu sử</label>
+                <textarea
+                  value={editingStaff.bio || ''}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, bio: e.target.value })}
+                  placeholder="Giới thiệu về kỹ năng, phong cách makeup..."
+                  rows={2}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-[12.5px] bg-slate-50 focus:outline-none focus:border-[#264736] focus:bg-white resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="p-4 border-t border-slate-100 bg-[#F9FAF9] flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="py-3 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-[13px] hover:bg-slate-100 active:scale-95 transition-all"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditedStaff}
+                className="flex-1 py-3 bg-[#264736] hover:bg-[#1E3A2F] text-white rounded-xl text-[13.5px] font-bold shadow-md shadow-[#264736]/20 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" /> Lưu thay đổi hồ sơ
               </button>
             </div>
           </div>
