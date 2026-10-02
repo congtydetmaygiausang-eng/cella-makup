@@ -238,9 +238,92 @@ app.post("/api/auth/forgot-password", (req, res) => {
   });
 });
 
-// AI Assistant Chat endpoint with high-availability retry and fallback
+// AI Assistant Chat endpoint with high-availability retry, testing and fallback
 app.post("/api/ai/chat", async (req, res) => {
-  const { message, category, context, customerData } = req.body;
+  const {
+    action,
+    provider,
+    apiKey,
+    message,
+    category,
+    context,
+    customerData,
+    history = [],
+  } = req.body || {};
+
+  // 1. Connection test action
+  if (action === "test") {
+    const testKey = (apiKey || "").trim();
+    if (!testKey) {
+      return res.status(400).json({ success: false, message: "Chưa cung cấp API Key để kiểm tra" });
+    }
+
+    const isGemini = provider === "gemini" || testKey.startsWith("AQ.") || testKey.startsWith("AIzaSy");
+    if (isGemini) {
+      try {
+        const testRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models?key=${testKey}`
+        );
+        if (testRes.ok) {
+          return res.json({
+            success: true,
+            provider: "gemini",
+            message: "Đã kết nối thành công tới Google Gemini 2.5 Flash API!",
+          });
+        }
+        const errJson = await testRes.json().catch(() => ({}));
+        return res.json({
+          success: false,
+          provider: "gemini",
+          message: errJson.error?.message || `Lỗi xác thực Gemini API (${testRes.status})`,
+        });
+      } catch (err: any) {
+        return res.json({
+          success: false,
+          message: err.message || "Không thể kết nối đến máy chủ Google Gemini",
+        });
+      }
+    } else {
+      try {
+        const mmRes = await fetch("https://api.minimax.chat/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${testKey}`,
+          },
+          body: JSON.stringify({
+            model: "MiniMax-Text-01",
+            messages: [
+              { role: "system", content: "You are CELLA AI." },
+              { role: "user", content: "Ping" },
+            ],
+            max_tokens: 20,
+          }),
+        });
+
+        if (mmRes.ok) {
+          return res.json({
+            success: true,
+            provider: "minimax",
+            message: "Đã kết nối thành công tới MiniMax-Text-01 API!",
+          });
+        }
+        const mmErr = await mmRes.json().catch(() => ({}));
+        return res.json({
+          success: false,
+          provider: "minimax",
+          message: mmErr.error?.message || `Lỗi máy chủ MiniMax (${mmRes.status})`,
+        });
+      } catch (err: any) {
+        return res.json({
+          success: false,
+          message: err.message || "Không thể kết nối tới máy chủ MiniMax",
+        });
+      }
+    }
+  }
+
+  // 2. Chat invocation
   if (!message) {
     return res.status(400).json({ error: "Missing message parameter" });
   }
@@ -253,7 +336,7 @@ app.post("/api/ai/chat", async (req, res) => {
 
   const prompt = `[Chuyên mục: ${category || "Chung"}]\n[Ngữ cảnh: ${context || "Hệ thống CELLA CRM"}]${customerContext}\n\nYêu cầu tư vấn: ${message}`;
 
-  // MiniMax API Integration
+  // MiniMax API Integration if key provided
   const minimaxKey = req.body?.minimaxApiKey || process.env.MINIMAX_API_KEY || process.env.VITE_MINIMAX_API_KEY;
   if (minimaxKey) {
     try {
@@ -267,10 +350,14 @@ app.post("/api/ai/chat", async (req, res) => {
           model: "MiniMax-Text-01",
           messages: [
             { role: "system", content: systemInstruction },
+            ...history.slice(-6).map((h: any) => ({
+              role: h.role === "user" ? "user" : "assistant",
+              content: h.text || h.content || "",
+            })),
             { role: "user", content: prompt },
           ],
           temperature: 0.7,
-          max_tokens: 350,
+          max_tokens: 450,
         }),
       });
 
@@ -278,7 +365,7 @@ app.post("/api/ai/chat", async (req, res) => {
         const mmData = await minimaxRes.json();
         const mmContent = mmData.choices?.[0]?.message?.content;
         if (mmContent) {
-          return res.json({ reply: mmContent, model: "MiniMax-Text-01 (minimax)" });
+          return res.json({ reply: mmContent.trim(), provider: "minimax", model: "MiniMax-Text-01" });
         }
       }
     } catch (mmErr: any) {
@@ -286,59 +373,69 @@ app.post("/api/ai/chat", async (req, res) => {
     }
   }
 
-  const ai = getAI();
-  if (ai) {
-    // Attempt 1: Try primary model 'gemini-3.8-flash'
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-        config: {
-          systemInstruction,
-        },
-      });
+  // Google Gemini Integration (High speed, deeply intelligent)
+  const geminiKey =
+    req.body?.geminiApiKey ||
+    process.env.GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY;
 
-      if (response && response.text) {
-        return res.json({ reply: response.text, model: "gemini-3.8-flash" });
-      }
-    } catch (primaryError: any) {
-      console.warn(
-        "Primary model (gemini-3.8-flash) unavailable or busy:",
-        primaryError?.message || primaryError
+  if (geminiKey) {
+    try {
+      const contentsPayload = [
+        ...history.slice(-6).map((h: any) => ({
+          role: h.role === "user" ? "user" : "model",
+          parts: [{ text: h.text || h.content || "" }],
+        })),
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ];
+
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey.trim()}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: systemInstruction }],
+            },
+            contents: contentsPayload,
+            generationConfig: {
+              temperature: 0.65,
+              maxOutputTokens: 600,
+            },
+          }),
+        }
       );
 
-      // Attempt 2: Fallback to high-throughput lightweight model 'gemini-3.1-flash-lite'
-      try {
-        const fallbackResponse = await ai.models.generateContent({
-          model: "gemini-3.1-flash-lite",
-          contents: prompt,
-          config: {
-            systemInstruction,
-          },
-        });
-
-        if (fallbackResponse && fallbackResponse.text) {
+      if (geminiRes.ok) {
+        const gData = await geminiRes.json();
+        const geminiReply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (geminiReply && geminiReply.trim()) {
           return res.json({
-            reply: fallbackResponse.text,
-            model: "gemini-3.1-flash-lite",
+            reply: geminiReply.trim(),
+            provider: "gemini",
+            model: "Gemini 2.5 Flash",
           });
         }
-      } catch (fallbackError: any) {
-        console.warn(
-          "Fallback model (gemini-3.1-flash-lite) unavailable or busy:",
-          fallbackError?.message || fallbackError
-        );
       }
+    } catch (gErr: any) {
+      console.warn("Gemini 2.5 Flash call failed in server:", gErr?.message || gErr);
     }
   }
 
-  // Graceful intelligent domain engine: always guarantees an immediate, expert response
+  // Graceful intelligent domain engine fallback
   const domainReply = generateDomainExpertResponse(message, category);
   return res.json({
     reply: domainReply,
+    provider: "cella_engine",
+    model: "CELLA Expert Knowledge 2.0",
     isFallback: true,
   });
 });
+
 
 
 // Domain Expert Knowledge Generator for Beauty CRM & Academy

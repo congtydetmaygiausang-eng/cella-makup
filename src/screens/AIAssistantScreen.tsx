@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  Settings,
   BookOpen,
   CalendarCheck,
   DollarSign,
@@ -18,14 +17,25 @@ import {
   ShieldCheck,
   Wand2,
   ChevronRight,
-  HelpCircle,
   ExternalLink,
+  Copy,
+  Check,
+  Eye,
+  EyeOff,
+  Zap,
+  Bot,
+  RotateCcw,
 } from 'lucide-react';
 import {
   askCellaAI,
   getMinimaxApiKey,
   setMinimaxApiKey,
-  testMinimaxConnection,
+  getGeminiApiKey,
+  setGeminiApiKey,
+  testAiConnection,
+  detectApiKeyType,
+  getPreferredAiProvider,
+  setPreferredAiProvider,
 } from '../services/minimaxService';
 
 interface AIAssistantScreenProps {
@@ -59,6 +69,7 @@ const SYSTEM_TOPICS = [
     icon: DollarSign,
     iconBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     prompt: 'Hãy cho tôi biết chi tiết bảng giá các dịch vụ makeup cô dâu ngày cưới VIP, ăn hỏi, thử makeup và dự tiệc tại CELLA Studio?',
+    followUp: 'Gói VIP bao gồm dịch vụ gì thêm?',
   },
   {
     title: 'Học phí & Khóa học Pro Artist',
@@ -66,6 +77,7 @@ const SYSTEM_TOPICS = [
     icon: BookOpen,
     iconBg: 'bg-amber-50 text-amber-700 border-amber-200',
     prompt: 'Khóa học Makeup Chuyên Nghiệp Toàn Diện (Pro Artist) và Master Trainer tại CELLA Academy có học phí bao nhiêu, quyền lợi và bằng cấp thế nào?',
+    followUp: 'Thời gian đào tạo bao lâu và có hỗ trợ dụng cụ không?',
   },
   {
     title: 'Quy trình Đặt cọc & Dời lịch hẹn',
@@ -73,6 +85,7 @@ const SYSTEM_TOPICS = [
     icon: CalendarCheck,
     iconBg: 'bg-blue-50 text-blue-700 border-blue-200',
     prompt: 'Quy định đặt cọc giữ slot giờ đẹp và chính sách đổi, dời hoặc hủy lịch hẹn makeup tại CELLA như thế nào?',
+    followUp: 'Nếu khách dời lịch gấp trong 24h thì xử lý sao?',
   },
   {
     title: 'Kịch bản Chốt Sales khách hỏi giá',
@@ -80,6 +93,7 @@ const SYSTEM_TOPICS = [
     icon: HeartHandshake,
     iconBg: 'bg-rose-50 text-rose-700 border-rose-200',
     prompt: 'Khách hàng vừa nhắn tin hỏi: "Gói cô dâu ngày cưới giá bao nhiêu vậy em?". Hãy phân tích tâm lý và gợi ý câu trả lời chốt hẹn tự nhiên, không ép khách.',
+    followUp: 'Nếu khách chê giá cao hơn chỗ khác thì xử lý thế nào?',
   },
   {
     title: 'Xử lý lớp nền bị mốc (cakey)',
@@ -87,6 +101,7 @@ const SYSTEM_TOPICS = [
     icon: Wand2,
     iconBg: 'bg-purple-50 text-purple-700 border-purple-200',
     prompt: 'Chia sẻ các bước skin-prep và kỹ thuật đánh nền không bị mốc, kiềm dầu bền màu suốt 12 tiếng của Master CELLA?',
+    followUp: 'Cách cấp ẩm cho da khô tróc vảy trước khi đánh nền?',
   },
   {
     title: 'Phân quyền hệ thống CELLA (RBAC)',
@@ -94,6 +109,7 @@ const SYSTEM_TOPICS = [
     icon: ShieldCheck,
     iconBg: 'bg-teal-50 text-teal-700 border-teal-200',
     prompt: 'Phân quyền trong hệ thống CELLA quy định ai được Xem, ai được Thêm, Sửa và Xóa các dữ liệu Khách hàng, Lịch hẹn, Khóa học và Doanh thu?',
+    followUp: 'Vai trò ARTIST và SALES khác nhau chỗ nào?',
   },
 ];
 
@@ -106,11 +122,17 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentCategory, setCurrentCategory] = useState('Chung');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // MiniMax API Key Settings State
-  const [apiKey, setApiKey] = useState(() => getMinimaxApiKey());
+  // AI Provider & Key Settings State
+  const [geminiKey, setGeminiKeyState] = useState(() => getGeminiApiKey());
+  const [minimaxKey, setMinimaxKeyState] = useState(() => getMinimaxApiKey());
+  const [preferredProvider, setPreferredState] = useState<'gemini' | 'minimax' | 'auto'>(() => getPreferredAiProvider());
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [inputKey, setInputKey] = useState(apiKey);
+  const [activeTab, setActiveTab] = useState<'gemini' | 'minimax'>('gemini');
+  const [inputKey, setInputKey] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [testingKey, setTestingKey] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -118,6 +140,44 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const showChat = messages.length > 0;
+
+  // Active AI connection name and status
+  const currentProviderInfo = useMemo(() => {
+    if (preferredProvider === 'minimax' && minimaxKey) {
+      return {
+        name: 'MiniMax-Text-01',
+        badge: 'MiniMax LLM',
+        desc: 'Đã kích hoạt MiniMax API',
+        icon: Bot,
+        isOnline: true,
+      };
+    }
+    if (geminiKey) {
+      return {
+        name: 'Gemini 2.5 Flash',
+        badge: 'Gemini 2.5 Flash ⚡',
+        desc: 'Đã kích hoạt Google AI Studio',
+        icon: Zap,
+        isOnline: true,
+      };
+    }
+    if (minimaxKey) {
+      return {
+        name: 'MiniMax-Text-01',
+        badge: 'MiniMax LLM',
+        desc: 'Đã kích hoạt MiniMax API',
+        icon: Bot,
+        isOnline: true,
+      };
+    }
+    return {
+      name: 'CELLA Expert Knowledge',
+      badge: 'Knowledge 2.0',
+      desc: 'Tri thức nội bộ Studio & Học viện',
+      icon: Sparkles,
+      isOnline: false,
+    };
+  }, [geminiKey, minimaxKey, preferredProvider]);
 
   // Name calculation
   const firstName = useMemo(() => {
@@ -134,26 +194,76 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
     scrollToBottom();
   }, [messages, isTyping]);
 
+  // Open settings with current key
+  const handleOpenSettings = () => {
+    if (activeTab === 'gemini') {
+      setInputKey(geminiKey);
+    } else {
+      setInputKey(minimaxKey);
+    }
+    setTestResult(null);
+    setIsSettingsOpen(true);
+  };
+
+  // Switch tab in settings modal
+  const handleSwitchTab = (tab: 'gemini' | 'minimax') => {
+    setActiveTab(tab);
+    setTestResult(null);
+    if (tab === 'gemini') {
+      setInputKey(geminiKey);
+    } else {
+      setInputKey(minimaxKey);
+    }
+  };
+
+  // Restore built-in verified Gemini key
+  const handleRestoreBuiltinKey = () => {
+    const defaultKey = getGeminiApiKey();
+    setInputKey(defaultKey);
+    setTestResult(null);
+  };
+
   // Handle Save API Key
   const handleSaveApiKey = () => {
     const trimmed = inputKey.trim();
-    setMinimaxApiKey(trimmed);
-    setApiKey(trimmed);
+    if (activeTab === 'gemini') {
+      setGeminiApiKey(trimmed);
+      setGeminiKeyState(trimmed || getGeminiApiKey());
+      setPreferredAiProvider('gemini');
+      setPreferredState('gemini');
+    } else {
+      setMinimaxApiKey(trimmed);
+      setMinimaxKeyState(trimmed);
+      if (trimmed) {
+        setPreferredAiProvider('minimax');
+        setPreferredState('minimax');
+      }
+    }
     setIsSettingsOpen(false);
     setTestResult(null);
   };
 
   // Handle Test Connection
   const handleTestKey = async () => {
-    if (!inputKey.trim()) {
-      setTestResult({ success: false, message: 'Vui lòng nhập API Key MiniMax trước khi kiểm tra' });
+    const keyToTest = inputKey.trim();
+    if (!keyToTest) {
+      setTestResult({
+        success: false,
+        message: `Vui lòng nhập API Key ${activeTab === 'gemini' ? 'Google Gemini' : 'MiniMax'} trước khi kiểm tra`,
+      });
       return;
     }
     setTestingKey(true);
     setTestResult(null);
-    const res = await testMinimaxConnection(inputKey.trim());
+    const res = await testAiConnection(keyToTest, activeTab);
     setTestingKey(false);
     setTestResult(res);
+  };
+
+  const handleCopyText = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleSend = async (text?: string, category?: string) => {
@@ -179,7 +289,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         message: msg,
         category: cat,
         customerData: customerContext,
-        history: messages.slice(-4).map((m) => ({ role: m.role, text: m.text })),
+        history: messages.slice(-5).map((m) => ({ role: m.role, text: m.text })),
       });
 
       const aiMsg: Message = {
@@ -196,7 +306,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
       const fallbackMsg: Message = {
         id: `ai-err-${Date.now()}`,
         role: 'ai',
-        text: 'Dạ hiện tại đường truyền đang chậm, em xin gửi thông tin giải đáp trực tiếp từ hệ thống dữ liệu CELLA đến bạn nhé!',
+        text: 'Dạ đường truyền mạng đang bận một chút, em đã tra cứu thông tin theo chuẩn vận hành CELLA Studio & Academy cho bạn nhé 💕',
         timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         provider: 'cella_engine',
         model: 'CELLA Expert Knowledge 2.0',
@@ -213,9 +323,35 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
     setInputMessage('');
   };
 
+  // Render markdown bold and bullets nicely
+  const formatAiMessage = (content: string) => {
+    const lines = content.split('\n');
+    return lines.map((line, idx) => {
+      // Bold rendering
+      const parts = line.split(/(\*\*[^*]+\*\*)/g);
+      const formattedLine = parts.map((part, pIdx) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return (
+            <strong key={pIdx} className="font-bold text-[#14261C]">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        return part;
+      });
+
+      const isBullet = line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*');
+      return (
+        <span key={idx} className={`block ${isBullet ? 'pl-2.5 my-0.5' : ''}`}>
+          {formattedLine}
+        </span>
+      );
+    });
+  };
+
   return (
     <div className="min-h-full bg-[#F4F7F4] bg-botanical-mesh flex flex-col relative" style={{ height: '100%' }}>
-      {/* ─── Top Header (Botanical Styling) ─── */}
+      {/* ─── Top Header (CELLA Brand Forest Aesthetics) ─── */}
       <div className="flex items-center justify-between px-4 pt-12 pb-3.5 bg-white/95 backdrop-blur-xl border-b border-[#264736]/10 shadow-xs z-20">
         <div className="flex items-center gap-2.5">
           <button
@@ -230,17 +366,18 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shadow-md">
                 <Sparkles className="w-4.5 h-4.5 text-emerald-300" />
               </div>
-              <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${apiKey ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${currentProviderInfo.isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-400'}`} />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <h2 className="text-[14.5px] font-bold text-[#1A2820] leading-tight">CELLA AI Assistant</h2>
-                <span className={`text-[9.5px] font-extrabold px-1.5 py-0.5 rounded-full ${apiKey ? 'bg-emerald-100 text-emerald-800' : 'bg-[#EAF2EC] text-[#264736]'}`}>
-                  {apiKey ? 'MiniMax API' : 'Knowledge 2.0'}
+                <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
+                  {currentProviderInfo.badge}
                 </span>
               </div>
-              <p className="text-[10.5px] text-[#426953] font-medium">
-                {apiKey ? '🟢 Đã kích hoạt MiniMax LLM' : '✨ Tri thức Hệ thống & Studio'}
+              <p className="text-[10.5px] text-[#426953] font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                {currentProviderInfo.desc}
               </p>
             </div>
           </div>
@@ -249,20 +386,12 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         <div className="flex items-center gap-1.5">
           {/* Key Settings Button */}
           <button
-            onClick={() => {
-              setInputKey(apiKey);
-              setTestResult(null);
-              setIsSettingsOpen(true);
-            }}
-            className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95 ${
-              apiKey
-                ? 'bg-[#EAF2EC] border-[#264736]/20 text-[#1E3A2F] hover:bg-[#DFECE2]'
-                : 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
-            }`}
-            title="Cài đặt kết nối MiniMax API"
+            onClick={handleOpenSettings}
+            className="px-2.5 py-1.5 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] hover:bg-[#DFECE2] text-[11px] font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
+            title="Cài đặt kết nối AI API (Gemini / MiniMax)"
           >
-            <Key className="w-3.5 h-3.5" />
-            <span>{apiKey ? 'API Key' : 'Nối API'}</span>
+            <Key className="w-3.5 h-3.5 text-[#264736]" />
+            <span>API Key</span>
           </button>
 
           {showChat && (
@@ -281,11 +410,11 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
       {customerContext?.name && (
         <div className="px-4 py-2 bg-[#EAF2EC] border-b border-[#264736]/10 flex items-center gap-2">
           <User className="w-3.5 h-3.5 text-[#264736] shrink-0" />
-          <p className="text-[11px] text-[#1E3A2F] font-medium">
-            Đang tư vấn cho khách: <strong>{customerContext.name}</strong>
-            {customerContext.crmStage && ` · Nhóm: ${customerContext.crmStage}`}
+          <p className="text-[11px] text-[#1E3A2F] font-medium truncate">
+            Đang tư vấn khách: <strong>{customerContext.name}</strong>
+            {customerContext.crmStage && ` · ${customerContext.crmStage}`}
             {customerContext.totalSpent
-              ? ` · Đã chi tiêu: ${customerContext.totalSpent.toLocaleString('vi-VN')}đ`
+              ? ` · Đã chi: ${customerContext.totalSpent.toLocaleString('vi-VN')}đ`
               : ''}
           </p>
         </div>
@@ -295,7 +424,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
       <div className="flex-1 overflow-y-auto pb-[105px] no-scrollbar px-3.5 pt-4">
         {!showChat ? (
           /* ── Welcome & System Training Guide ── */
-          <div className="flex flex-col items-center pt-4 pb-4">
+          <div className="flex flex-col items-center pt-3 pb-4">
             {/* Robot Avatar */}
             <div className="relative w-20 h-20 mb-3">
               <div className="w-full h-full rounded-3xl bg-gradient-to-tr from-[#2D503E] to-[#1A3326] flex items-center justify-center shadow-lg shadow-[#1A3326]/20 ring-4 ring-white">
@@ -313,15 +442,15 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
 
             {/* Connection Status Pill */}
             <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 border border-[#264736]/15 shadow-2xs text-[11.5px]">
-              <span className={`w-2 h-2 rounded-full ${apiKey ? 'bg-emerald-500 animate-ping' : 'bg-emerald-500'}`} />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
               <span className="font-bold text-[#1E3A2F]">
-                {apiKey ? 'Đang kết nối: MiniMax-Text-01' : 'Đang chạy: CELLA Knowledge Engine 2.0'}
+                Đang kết nối: {currentProviderInfo.name}
               </span>
               <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="text-[10px] text-[#264736] underline font-bold ml-1"
+                onClick={handleOpenSettings}
+                className="text-[10px] text-[#264736] underline font-bold ml-1 hover:text-[#173022]"
               >
-                {apiKey ? 'Đổi Key' : 'Thêm Key'}
+                Đổi Key
               </button>
             </div>
 
@@ -341,7 +470,7 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                     <button
                       key={i}
                       onClick={() => handleSend(topic.prompt, topic.category)}
-                      className="w-full flex items-center gap-3 p-3 bg-white/90 hover:bg-white rounded-2xl border border-[#264736]/10 shadow-xs hover:border-[#264736]/30 active:scale-[0.98] transition-all text-left group"
+                      className="w-full flex items-center gap-3 p-3 bg-white/90 hover:bg-white rounded-2xl border border-[#264736]/10 shadow-xs hover:border-[#264736]/30 active:scale-[0.98] transition-all text-left group cursor-pointer"
                     >
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${topic.iconBg}`}>
                         <Icon className="w-4.5 h-4.5 stroke-[2.2]" />
@@ -382,15 +511,30 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                     </div>
                   )}
 
-                  <div className={`max-w-[82%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+                  <div className={`max-w-[85%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
                     <div
-                      className={`px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap ${
+                      className={`px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed relative group ${
                         isUser
-                          ? 'btn-forest rounded-br-xs shadow-sm font-medium'
+                          ? 'btn-forest rounded-br-xs shadow-sm font-medium text-white'
                           : 'bg-white/95 border border-[#264736]/10 text-[#1A2820] rounded-bl-xs shadow-xs'
                       }`}
                     >
-                      {msg.text}
+                      {isUser ? msg.text : formatAiMessage(msg.text)}
+
+                      {/* Copy action for AI messages */}
+                      {!isUser && (
+                        <button
+                          onClick={() => handleCopyText(msg.id, msg.text)}
+                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-50 hover:bg-[#EAF2EC] text-slate-400 hover:text-[#264736] opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200/60 shadow-2xs"
+                          title="Sao chép câu trả lời để gửi khách"
+                        >
+                          {copiedId === msg.id ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 px-1 mt-1">
@@ -398,6 +542,11 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
                       {!isUser && msg.model && (
                         <span className="text-[9.5px] font-semibold text-[#426953] bg-[#EAF2EC] px-1.5 py-0.2 rounded-md">
                           {msg.model}
+                        </span>
+                      )}
+                      {!isUser && copiedId === msg.id && (
+                        <span className="text-[9.5px] text-emerald-700 font-bold">
+                          ✓ Đã chép
                         </span>
                       )}
                     </div>
@@ -451,18 +600,19 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
         </div>
       </div>
 
-      {/* ─── MODAL CÀI ĐẶT MINIMAX API KEY ─── */}
+      {/* ─── MODAL CÀI ĐẶT API KEY (GOOGLE GEMINI & MINIMAX) ─── */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-2xl bg-[#EAF2EC] flex items-center justify-center text-[#264736]">
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-bold text-[#1A2820]">Kết nối MiniMax API</h3>
-                  <p className="text-[11px] text-slate-500">Kích hoạt trí tuệ nhân tạo CELLA</p>
+                  <h3 className="text-[16px] font-bold text-[#1A2820]">Kết nối Trí tuệ AI CELLA</h3>
+                  <p className="text-[11px] text-slate-500">Google Gemini 2.5 Flash & MiniMax LLM</p>
                 </div>
               </div>
               <button
@@ -473,48 +623,126 @@ export const AIAssistantScreen: React.FC<AIAssistantScreenProps> = ({
               </button>
             </div>
 
+            {/* Provider Switch Tabs */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => handleSwitchTab('gemini')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === 'gemini'
+                    ? 'bg-white text-[#264736] shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Google Gemini (Khuyên dùng)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSwitchTab('minimax')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === 'minimax'
+                    ? 'bg-white text-[#264736] shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Bot className="w-3.5 h-3.5 text-[#264736]" />
+                <span>MiniMax API</span>
+              </button>
+            </div>
+
+            {/* Key Input */}
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  MiniMax API Key:
-                </label>
-                <input
-                  type="password"
-                  value={inputKey}
-                  onChange={(e) => setInputKey(e.target.value)}
-                  placeholder="Dán API Key MiniMax tại đây (sk-... hoặc ey...)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:border-[#264736] focus:outline-none focus:ring-2 focus:ring-[#264736]/20 bg-[#F8FAF8]"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {activeTab === 'gemini' ? 'Google Gemini API Key:' : 'MiniMax API Key:'}
+                  </label>
+                  {activeTab === 'gemini' && (
+                    <button
+                      type="button"
+                      onClick={handleRestoreBuiltinKey}
+                      className="text-[10.5px] text-[#264736] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Key sẵn có của hệ thống
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={inputKey}
+                    onChange={(e) => setInputKey(e.target.value)}
+                    placeholder={
+                      activeTab === 'gemini'
+                        ? 'Dán Gemini API Key (AQ... hoặc AIzaSy...)'
+                        : 'Dán MiniMax API Key (sk-... hoặc ey...)'
+                    }
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 text-xs font-mono focus:border-[#264736] focus:outline-none focus:ring-2 focus:ring-[#264736]/20 bg-[#F8FAF8]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
+              {/* Guide card */}
               <div className="text-[11.5px] text-slate-600 bg-[#EAF2EC]/60 p-3 rounded-2xl border border-[#264736]/10 space-y-1">
-                <p className="font-bold text-[#1E3A2F]">💡 Hướng dẫn nhận Key:</p>
-                <p>1. Đăng ký tài khoản tại cổng MiniMax: <a href="https://platform.minimaxi.com" target="_blank" rel="noreferrer" className="text-[#264736] font-bold underline inline-flex items-center gap-0.5">platform.minimaxi.com <ExternalLink className="w-3 h-3" /></a></p>
-                <p>2. Vào mục <strong>API Keys</strong> ➔ Bấm <strong>Create Key</strong> ➔ Copy và dán vào ô trên.</p>
-                <p>3. Khi có Key, hệ thống sẽ sử dụng mô hình LLM siêu cấp <strong>MiniMax-Text-01 / abab6.5s</strong>.</p>
+                {activeTab === 'gemini' ? (
+                  <>
+                    <p className="font-bold text-[#1E3A2F]">⚡ Google Gemini 2.5 Flash:</p>
+                    <p>• Phản hồi siêu tốc độ (0.5s - 1s), tiếng Việt tự nhiên, am hiểu tâm lý khách hàng.</p>
+                    <p>• Hệ thống đã được tích hợp sẵn Key chuẩn của CELLA. Bạn có thể bấm <strong>"Kiểm tra kết nối"</strong> để xác thực ngay.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-bold text-[#1E3A2F]">🤖 MiniMax API (abab6.5s / MiniMax-Text-01):</p>
+                    <p>• Đăng ký tại <a href="https://platform.minimaxi.com" target="_blank" rel="noreferrer" className="text-[#264736] font-bold underline inline-flex items-center gap-0.5">platform.minimaxi.com <ExternalLink className="w-3 h-3" /></a></p>
+                    <p>• Tạo key trong mục API Keys và dán vào ô bên trên.</p>
+                  </>
+                )}
               </div>
 
+              {/* Test Connection Result */}
               {testResult && (
-                <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${testResult.success ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
-                  {testResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    testResult.success
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-rose-50 text-rose-800 border border-rose-200'
+                  }`}
+                >
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
                   <span>{testResult.message}</span>
                 </div>
               )}
             </div>
 
+            {/* Action Buttons */}
             <div className="flex items-center gap-2 pt-2">
               <button
                 type="button"
                 onClick={handleTestKey}
                 disabled={testingKey}
-                className="flex-1 py-2.5 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] text-xs font-bold hover:bg-[#DFECE2] active:scale-95 transition-all"
+                className="flex-1 py-2.5 rounded-xl border border-[#264736]/20 bg-[#EAF2EC] text-[#1E3A2F] text-xs font-bold hover:bg-[#DFECE2] active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
                 {testingKey ? 'Đang kiểm tra...' : 'Kiểm tra kết nối'}
               </button>
               <button
                 type="button"
                 onClick={handleSaveApiKey}
-                className="flex-1 py-2.5 rounded-xl btn-forest text-xs font-bold shadow-sm active:scale-95 transition-all"
+                className="flex-1 py-2.5 rounded-xl btn-forest text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer"
               >
                 Lưu & Kích hoạt
               </button>

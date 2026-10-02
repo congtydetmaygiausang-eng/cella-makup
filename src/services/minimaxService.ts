@@ -185,14 +185,51 @@ export interface MinimaxResponse {
   model?: string;
 }
 
-const LOCAL_STORAGE_KEY = 'cella_minimax_api_key';
+const LOCAL_STORAGE_MINIMAX_KEY = 'cella_minimax_api_key';
+const LOCAL_STORAGE_GEMINI_KEY = 'cella_ai_gemini_key';
+const LOCAL_STORAGE_PREFERRED_PROVIDER = 'cella_ai_preferred_provider';
 
 /**
- * Lấy MiniMax API Key đã lưu (ưu tiên localStorage, fallback sang env)
+ * Lấy Gemini API Key (ưu tiên localStorage, rồi env)
+ */
+export function getGeminiApiKey(): string {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(LOCAL_STORAGE_GEMINI_KEY);
+    if (saved && saved.trim()) return saved.trim();
+  }
+  try {
+    if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.VITE_GEMINI_API_KEY) {
+      return (import.meta as any).env.VITE_GEMINI_API_KEY;
+    }
+  } catch {}
+  if (typeof process !== 'undefined' && process.env?.VITE_GEMINI_API_KEY) {
+    return process.env.VITE_GEMINI_API_KEY;
+  }
+  if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
+  return '';
+}
+
+/**
+ * Lưu Gemini API Key
+ */
+export function setGeminiApiKey(key: string): void {
+  if (typeof window !== 'undefined') {
+    if (key.trim()) {
+      localStorage.setItem(LOCAL_STORAGE_GEMINI_KEY, key.trim());
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_GEMINI_KEY);
+    }
+  }
+}
+
+/**
+ * Lấy MiniMax API Key đã lưu
  */
 export function getMinimaxApiKey(): string {
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const saved = localStorage.getItem(LOCAL_STORAGE_MINIMAX_KEY);
     if (saved && saved.trim()) return saved.trim();
   }
   try {
@@ -212,135 +249,162 @@ export function getMinimaxApiKey(): string {
 export function setMinimaxApiKey(key: string): void {
   if (typeof window !== 'undefined') {
     if (key.trim()) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, key.trim());
+      localStorage.setItem(LOCAL_STORAGE_MINIMAX_KEY, key.trim());
     } else {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(LOCAL_STORAGE_MINIMAX_KEY);
     }
   }
 }
 
 /**
- * Kiểm tra kết nối đến API MiniMax
+ * Đặt nhà cung cấp AI ưu tiên ('gemini' | 'minimax' | 'auto')
+ */
+export function setPreferredAiProvider(provider: 'gemini' | 'minimax' | 'auto'): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(LOCAL_STORAGE_PREFERRED_PROVIDER, provider);
+  }
+}
+
+export function getPreferredAiProvider(): 'gemini' | 'minimax' | 'auto' {
+  if (typeof window !== 'undefined') {
+    const p = localStorage.getItem(LOCAL_STORAGE_PREFERRED_PROVIDER);
+    if (p === 'minimax' || p === 'gemini' || p === 'auto') return p;
+  }
+  return 'auto';
+}
+
+/**
+ * Kiểm tra xem loại key nào dựa vào cú pháp
+ */
+export function detectApiKeyType(key: string): 'gemini' | 'minimax' | 'unknown' {
+  const k = (key || '').trim();
+  if (k.startsWith('AQ.') || k.startsWith('AIzaSy')) return 'gemini';
+  if (k.startsWith('sk-') || k.startsWith('ey') || k.length > 40) return 'minimax';
+  return 'unknown';
+}
+
+/**
+ * Kiểm tra kết nối AI thông minh (hỗ trợ cả MiniMax & Gemini, tránh lỗi CORS qua backend proxy)
+ */
+export async function testAiConnection(
+  apiKey: string,
+  preferredProvider?: 'gemini' | 'minimax' | 'auto'
+): Promise<{ success: boolean; message: string; provider: 'gemini' | 'minimax' }> {
+  const key = apiKey.trim();
+  if (!key) {
+    return { success: false, message: 'Chưa nhập API Key', provider: 'gemini' };
+  }
+
+  const detected = detectApiKeyType(key);
+  const provider =
+    preferredProvider && preferredProvider !== 'auto'
+      ? preferredProvider
+      : detected === 'minimax'
+      ? 'minimax'
+      : 'gemini';
+
+  // 1. Thử kiểm tra qua Backend Proxy (/api/ai/chat) để không bị chặn CORS
+  try {
+    const res = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'test',
+        provider,
+        apiKey: key,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        success: data.success,
+        message: data.message || (data.success ? 'Kết nối thành công!' : 'Kết nối thất bại'),
+        provider: data.provider || provider,
+      };
+    }
+  } catch (backendErr) {
+    console.warn('Backend proxy test failed, attempting client-direct test:', backendErr);
+  }
+
+  // 2. Client-direct test nếu proxy không khả dụng
+  if (provider === 'gemini') {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
+      );
+      if (res.ok) {
+        return {
+          success: true,
+          message: 'Kết nối Google Gemini 2.5 Flash thành công rực rỡ!',
+          provider: 'gemini',
+        };
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        message: errData.error?.message || `Lỗi xác thực Google Gemini (${res.status})`,
+        provider: 'gemini',
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err.message || 'Không thể kết nối đến máy chủ Google Gemini',
+        provider: 'gemini',
+      };
+    }
+  } else {
+    // MiniMax direct
+    try {
+      const response = await fetch('https://api.minimax.chat/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+          model: 'MiniMax-Text-01',
+          messages: [
+            { role: 'system', content: 'You are CELLA AI.' },
+            { role: 'user', content: 'Ping' },
+          ],
+          max_tokens: 20,
+        }),
+      });
+
+      if (response.ok) {
+        return {
+          success: true,
+          message: 'Kết nối MiniMax-Text-01 thành công!',
+          provider: 'minimax',
+        };
+      }
+
+      const errData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        message: errData.error?.message || `Lỗi máy chủ MiniMax (${response.status})`,
+        provider: 'minimax',
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: 'Lưu ý: MiniMax direct có thể bị chặn CORS trên trình duyệt, nhưng sẽ chạy mượt qua Server backend.',
+        provider: 'minimax',
+      };
+    }
+  }
+}
+
+/**
+ * Tương thích ngược: kiểm tra kết nối MiniMax
  */
 export async function testMinimaxConnection(apiKey: string): Promise<{ success: boolean; message: string }> {
-  if (!apiKey || !apiKey.trim()) {
-    return { success: false, message: 'Chưa nhập API Key MiniMax' };
-  }
-
-  try {
-    const response = await fetch('https://api.minimax.chat/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey.trim()}`,
-      },
-      body: JSON.stringify({
-        model: 'MiniMax-Text-01',
-        messages: [
-          { role: 'system', content: 'You are CELLA AI.' },
-          { role: 'user', content: 'Xin chào, hãy phản hồi 1 câu ngắn xác nhận kết nối.' },
-        ],
-        max_tokens: 60,
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const text = data.choices?.[0]?.message?.content || 'Đã kết nối thành công!';
-      return { success: true, message: `Kết nối thành công! (${text.slice(0, 50)}...)` };
-    }
-
-    const errData = await response.json().catch(() => ({}));
-    return {
-      success: false,
-      message: errData.error?.message || `Lỗi máy chủ MiniMax (${response.status})`,
-    };
-  } catch (err: any) {
-    return {
-      success: false,
-      message: err.message || 'Không thể kết nối tới máy chủ MiniMax',
-    };
-  }
+  return testAiConnection(apiKey, 'minimax');
 }
 
 /**
- * Gửi yêu cầu trò chuyện tới MiniMax API
- */
-export async function callMinimaxChat(
-  prompt: string,
-  history: ChatMessage[] = [],
-  apiKey?: string
-): Promise<string | null> {
-  const key = apiKey || getMinimaxApiKey();
-  if (!key) return null;
-
-  const messagesPayload: ChatMessage[] = [
-    { role: 'system', content: CELLA_SYSTEM_PROMPT },
-    ...history.slice(-6), // Gửi kèm 6 tin nhắn gần nhất để AI hiểu ngữ cảnh
-    { role: 'user', content: prompt },
-  ];
-
-  try {
-    // 1. Thử gọi qua endpoint OpenAI-compatible chuẩn của MiniMax
-    const response = await fetch('https://api.minimax.chat/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${key.trim()}`,
-      },
-      body: JSON.stringify({
-        model: 'MiniMax-Text-01',
-        messages: messagesPayload,
-        temperature: 0.7,
-        max_tokens: 350,
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      if (content) return content;
-    }
-
-    // 2. Fallback thử endpoint phụ của MiniMax
-    const altResponse = await fetch('https://api.minimaxi.chat/v1/text/chatcompletion_v2', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${key.trim()}`,
-      },
-      body: JSON.stringify({
-        model: 'abab6.5s-chat',
-        messages: [
-          {
-            sender_type: 'USER',
-            sender_name: 'KhachHang',
-            text: prompt,
-          },
-        ],
-        bot_setting: [
-          {
-            bot_name: 'CELLA AI',
-            content: CELLA_SYSTEM_PROMPT,
-          },
-        ],
-      }),
-    });
-
-    if (altResponse.ok) {
-      const altData = await altResponse.json();
-      const altContent = altData.choices?.[0]?.messages?.[0]?.text;
-      if (altContent) return altContent;
-    }
-  } catch (error) {
-    console.warn('MiniMax direct call failed, falling back to backend or domain engine:', error);
-  }
-
-  return null;
-}
-
-/**
- * Hàm gọi AI đa tầng (MiniMax Direct -> Backend Proxy -> CELLA Knowledge Engine)
+ * Hàm gọi AI đa tầng (Backend Proxy -> Direct Gemini -> CELLA Master Engine)
  */
 export async function askCellaAI(params: {
   message: string;
@@ -349,7 +413,9 @@ export async function askCellaAI(params: {
   history?: { role: 'user' | 'ai'; text: string }[];
 }): Promise<MinimaxResponse> {
   const { message, category = 'Chung', customerData, history = [] } = params;
-  const apiKey = getMinimaxApiKey();
+
+  const minimaxKey = getMinimaxApiKey();
+  const geminiKey = getGeminiApiKey();
 
   // Chuẩn bị lịch sử trò chuyện
   const chatHistory: ChatMessage[] = history.map((h) => ({
@@ -357,26 +423,7 @@ export async function askCellaAI(params: {
     content: h.text,
   }));
 
-  // Ngữ cảnh khách hàng nếu có
-  const customerContext = customerData
-    ? `\n[Thông tin khách: ${customerData.name || 'N/A'} - Trạng thái: ${customerData.crmStage || 'N/A'} - Tổng chi tiêu: ${customerData.totalSpent ? customerData.totalSpent.toLocaleString('vi-VN') + 'đ' : '0đ'}]`
-    : '';
-
-  const fullPrompt = `[Chuyên mục: ${category}]${customerContext}\n\nNội dung hỏi: ${message}`;
-
-  // TẦNG 1: Gọi trực tiếp MiniMax nếu đã có API Key
-  if (apiKey) {
-    const minimaxReply = await callMinimaxChat(fullPrompt, chatHistory, apiKey);
-    if (minimaxReply) {
-      return {
-        reply: minimaxReply,
-        provider: 'minimax',
-        model: 'MiniMax-Text-01',
-      };
-    }
-  }
-
-  // TẦNG 2: Gọi qua backend API (/api/ai/chat)
+  // TẦNG 1: Gọi qua backend API (/api/ai/chat)
   try {
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
@@ -385,7 +432,9 @@ export async function askCellaAI(params: {
         message,
         category,
         customerData,
-        minimaxApiKey: apiKey || undefined,
+        history,
+        minimaxApiKey: minimaxKey || undefined,
+        geminiApiKey: geminiKey || undefined,
       }),
     });
 
@@ -394,13 +443,66 @@ export async function askCellaAI(params: {
       if (data.reply) {
         return {
           reply: data.reply,
-          provider: data.model?.includes('minimax') ? 'minimax' : 'gemini',
-          model: data.model || 'CELLA Server AI',
+          provider: data.provider || (data.model?.includes('MiniMax') ? 'minimax' : 'gemini'),
+          model: data.model || 'Gemini 2.5 Flash',
         };
       }
     }
-  } catch {
-    // Backend không khả dụng, tiếp tục fallback tầng 3
+  } catch (err) {
+    console.warn('Backend /api/ai/chat call failed, falling back to direct browser AI:', err);
+  }
+
+  // TẦNG 2: Gọi trực tiếp Google Gemini từ Browser (Hoàn toàn hỗ trợ CORS)
+  if (geminiKey) {
+    try {
+      const customerContext = customerData
+        ? `\n\n[DỮ LIỆU KHÁCH HÀNG CRM: Tên: ${customerData.name || 'N/A'}, Trạng thái: ${customerData.crmStage || 'N/A'}, Chi tiêu: ${customerData.totalSpent ? customerData.totalSpent.toLocaleString('vi-VN') + 'đ' : '0đ'}]`
+        : '';
+      const fullPrompt = `[Chuyên mục: ${category}]${customerContext}\n\nYêu cầu tư vấn: ${message}`;
+
+      const contentsPayload = [
+        ...history.slice(-4).map((h) => ({
+          role: h.role === 'user' ? 'user' : 'model',
+          parts: [{ text: h.text }],
+        })),
+        {
+          role: 'user',
+          parts: [{ text: fullPrompt }],
+        },
+      ];
+
+      const gRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: CELLA_SYSTEM_PROMPT }],
+            },
+            contents: contentsPayload,
+            generationConfig: {
+              temperature: 0.65,
+              maxOutputTokens: 600,
+            },
+          }),
+        }
+      );
+
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        const geminiText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (geminiText && geminiText.trim()) {
+          return {
+            reply: geminiText.trim(),
+            provider: 'gemini',
+            model: 'Gemini 2.5 Flash (Direct)',
+          };
+        }
+      }
+    } catch (directGeminiErr) {
+      console.warn('Direct Gemini call failed:', directGeminiErr);
+    }
   }
 
   // TẦNG 3: CELLA Master Domain Knowledge Engine (Đảm bảo luôn phản hồi chính xác 100% về hệ thống)
