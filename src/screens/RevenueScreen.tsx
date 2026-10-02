@@ -45,10 +45,10 @@ export const RevenueScreen: React.FC<RevenueScreenProps> = ({ onNavigate, onBack
         onBack={onBack || (() => onNavigate('home'))}
         rightAction={
           <button
-            onClick={() => onNavigate('payroll')}
+            onClick={() => onNavigate('cash_flow')}
             className="text-xs font-bold text-[#264736] bg-[#EAF2EC] px-2.5 py-1.5 rounded-xl border border-[#264736]/20 hover:bg-[#d8e6db] transition-colors"
           >
-            Bảng lương cá nhân
+            Sổ Quỹ Thu Chi
           </button>
         }
       />

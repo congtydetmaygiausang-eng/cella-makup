@@ -22,7 +22,9 @@ import {
   Users2,
   UserCheck,
   BookOpen,
-  Info
+  Info,
+  ReceiptText,
+  DollarSign
 } from 'lucide-react';
 
 interface TopDropdownMenuProps {
@@ -62,6 +64,25 @@ export const TopDropdownMenu: React.FC<TopDropdownMenuProps> = ({
   };
 
   const menuSections = [
+    {
+      group: 'Tài chính & Kho vật tư',
+      items: [
+        {
+          id: 'cash_flow' as ScreenId,
+          title: 'Phiếu Thu - Chi & Vật tư',
+          desc: 'Quản lý thu chi, mua nguyên vật tư hàng tháng',
+          icon: ReceiptText,
+          iconBg: 'bg-emerald-50 text-emerald-800 border border-emerald-300/80',
+        },
+        {
+          id: 'revenue' as ScreenId,
+          title: 'Báo cáo doanh thu',
+          desc: 'Tăng trưởng & lợi nhuận tài chính',
+          icon: DollarSign,
+          iconBg: 'bg-amber-50 text-amber-700 border border-amber-200/80',
+        },
+      ],
+    },
     {
       group: 'Danh bạ & Quản lý',
       items: [

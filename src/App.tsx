@@ -28,6 +28,7 @@ import { CreateBookingScreen } from './screens/CreateBookingScreen';
 import { BookingDetailScreen } from './screens/BookingDetailScreen';
 import { TasksScreen } from './screens/TasksScreen';
 import { RevenueScreen } from './screens/RevenueScreen';
+import { CashFlowScreen } from './screens/CashFlowScreen';
 import { HRScreen } from './screens/HRScreen';
 import { RolesScreen } from './screens/RolesScreen';
 import { AIAssistantScreen } from './screens/AIAssistantScreen';
@@ -828,6 +829,10 @@ export default function App() {
 
             {currentScreen === 'revenue' && (
               <RevenueScreen onNavigate={navigateTo} onBack={handleBack} />
+            )}
+
+            {currentScreen === 'cash_flow' && (
+              <CashFlowScreen onNavigate={navigateTo} onBack={handleBack} currentUser={currentUser} />
             )}
 
             {currentScreen === 'academy' && (

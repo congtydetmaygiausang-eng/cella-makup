@@ -137,6 +137,7 @@ export type ScreenId =
   | 'booking_detail'
   | 'tasks'
   | 'revenue'
+  | 'cash_flow'
   | 'academy'
   | 'ai_assistant'
   | 'profile'
@@ -148,6 +149,40 @@ export type ScreenId =
   | 'user_management'
   | 'about'
   | 'more';
+
+export type VoucherType = 'EXPENSE' | 'INCOME';
+
+export type VoucherCategory =
+  | 'SUPPLIES_COSMETICS' // Mua nguyên vật tư & Mỹ phẩm trang điểm
+  | 'SUPPLIES_ACADEMY' // Dụng cụ & Vật tư thực hành Học viện
+  | 'EQUIPMENT' // Dụng cụ, máy móc, cọ & đèn trang điểm
+  | 'OPERATIONS' // Chi phí vận hành mặt bằng, điện nước
+  | 'MARKETING' // Chi phí quảng cáo TikTok/Facebook
+  | 'SALARY_ADVANCE' // Lương, thưởng & Tạm ứng nhân viên
+  | 'INCOME_SERVICE' // Thu dịch vụ Makeup & Làm tóc
+  | 'INCOME_ACADEMY' // Thu học phí khóa học
+  | 'INCOME_RETAIL' // Thu bán lẻ mỹ phẩm
+  | 'OTHER'; // Khác
+
+export interface CashVoucher {
+  id: string;
+  code: string; // #PC-202610-001 hoặc #PT-202610-001
+  type: VoucherType; // EXPENSE (Phiếu chi) | INCOME (Phiếu thu)
+  category: VoucherCategory;
+  categoryName: string;
+  title: string;
+  amount: number;
+  date: string; // YYYY-MM-DD
+  time?: string;
+  recipientOrPayer: string; // Nhà cung cấp / Đối tác / Người nhận
+  creatorName: string; // Người lập phiếu
+  paymentMethod: 'TRANSFER' | 'CASH' | 'CARD';
+  referenceCode?: string; // Số hóa đơn / Mã giao dịch
+  notes?: string;
+  itemsList?: Array<{ name: string; quantity: number; unitPrice: number; subtotal: number }>;
+  status?: 'COMPLETED' | 'PENDING' | 'CANCELLED';
+  createdAt?: string;
+}
 
 export interface NewsfeedPost {
   id: string;

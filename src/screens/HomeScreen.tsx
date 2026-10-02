@@ -5,7 +5,7 @@ import { CURRENT_USER } from '../data/mockData';
 import { MOCK_POSTS } from '../data/mockPosts';
 import { CreatePostInput } from '../components/newsfeed/CreatePostInput';
 import { PostCard } from '../components/newsfeed/PostCard';
-import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info, GraduationCap, Users } from 'lucide-react';
+import { Search, Sparkles, UserPlus, CalendarPlus, Share2, Facebook, Instagram, Youtube, X, Plus, CalendarClock, PlaySquare, Gift, MessageCircle, Image, Info, GraduationCap, Users, ReceiptText } from 'lucide-react';
 
 interface HomeScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -58,6 +58,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             </div>
             <span className="text-[11px] font-bold text-[#1E3A2F]">Trợ lý AI</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('cash_flow')}>
+            <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-300/60 flex items-center justify-center cursor-pointer active:scale-95 transition-transform hover:bg-emerald-100 shadow-xs">
+              <ReceiptText className="w-6 h-6 text-[#264736]" />
+            </div>
+            <span className="text-[11px] font-bold text-[#1E3A2F]">Phiếu thu chi</span>
           </div>
           
           <div className="flex flex-col items-center gap-1.5 shrink-0" onClick={() => onNavigate('create_customer')}>
