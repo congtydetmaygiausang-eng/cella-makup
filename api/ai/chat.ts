@@ -216,37 +216,45 @@ export default async function handler(req: any, res: any) {
           },
         ];
 
-        const geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${effectiveGeminiKey.trim()}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: CELLA_SYSTEM_PROMPT }],
-              },
-              contents: contentsPayload,
-              generationConfig: {
-                temperature: 0.65,
-                maxOutputTokens: 600,
-              },
-            }),
-          }
-        );
+        // TẦNG 1: Google Gemini (Ưu tiên gemini-3.5-flash, fallback gemini-3.1-flash-lite và gemini-flash-latest)
+        const geminiModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+        for (const mName of geminiModels) {
+          try {
+            const geminiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${effectiveGeminiKey.trim()}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  systemInstruction: {
+                    parts: [{ text: CELLA_SYSTEM_PROMPT }],
+                  },
+                  contents: contentsPayload,
+                  generationConfig: {
+                    temperature: 0.65,
+                    maxOutputTokens: 600,
+                  },
+                }),
+              }
+            );
 
-        if (geminiRes.ok) {
-          const gData = await geminiRes.json();
-          const geminiReply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (geminiReply && geminiReply.trim()) {
-            return res.status(200).json({
-              reply: geminiReply.trim(),
-              provider: 'gemini',
-              model: 'Gemini 2.5 Flash',
-            });
+            if (geminiRes.ok) {
+              const gData = await geminiRes.json();
+              const geminiReply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (geminiReply && geminiReply.trim()) {
+                return res.status(200).json({
+                  reply: geminiReply.trim(),
+                  provider: 'gemini',
+                  model: mName === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Gemini Flash-Lite',
+                });
+              }
+            }
+          } catch (modelErr) {
+            console.warn(`Model ${mName} attempt failed:`, modelErr);
           }
         }
       } catch (gErr) {
-        console.warn('Gemini 2.5 Flash call failed in Vercel function:', gErr);
+        console.warn('Gemini calls failed in Vercel function:', gErr);
       }
     }
 

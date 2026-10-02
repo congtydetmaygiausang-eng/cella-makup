@@ -392,37 +392,45 @@ app.post("/api/ai/chat", async (req, res) => {
         },
       ];
 
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey.trim()}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: systemInstruction }],
-            },
-            contents: contentsPayload,
-            generationConfig: {
-              temperature: 0.65,
-              maxOutputTokens: 600,
-            },
-          }),
-        }
-      );
+      // Google Gemini: Try gemini-3.5-flash, fallback gemini-3.1-flash-lite & gemini-flash-latest
+      const geminiModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+      for (const mName of geminiModels) {
+        try {
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${geminiKey.trim()}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: systemInstruction }],
+                },
+                contents: contentsPayload,
+                generationConfig: {
+                  temperature: 0.65,
+                  maxOutputTokens: 600,
+                },
+              }),
+            }
+          );
 
-      if (geminiRes.ok) {
-        const gData = await geminiRes.json();
-        const geminiReply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (geminiReply && geminiReply.trim()) {
-          return res.json({
-            reply: geminiReply.trim(),
-            provider: "gemini",
-            model: "Gemini 2.5 Flash",
-          });
+          if (geminiRes.ok) {
+            const gData = await geminiRes.json();
+            const geminiReply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (geminiReply && geminiReply.trim()) {
+              return res.json({
+                reply: geminiReply.trim(),
+                provider: "gemini",
+                model: mName === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Gemini Flash-Lite',
+              });
+            }
+          }
+        } catch (modelErr: any) {
+          console.warn(`Model ${mName} call failed in server:`, modelErr?.message || modelErr);
         }
       }
     } catch (gErr: any) {
-      console.warn("Gemini 2.5 Flash call failed in server:", gErr?.message || gErr);
+      console.warn("Gemini calls failed in server:", gErr?.message || gErr);
     }
   }
 

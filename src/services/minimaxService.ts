@@ -471,37 +471,44 @@ export async function askCellaAI(params: {
         },
       ];
 
-      const gRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: CELLA_SYSTEM_PROMPT }],
-            },
-            contents: contentsPayload,
-            generationConfig: {
-              temperature: 0.65,
-              maxOutputTokens: 600,
-            },
-          }),
-        }
-      );
+      const geminiModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+      for (const mName of geminiModels) {
+        try {
+          const gRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent?key=${geminiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: CELLA_SYSTEM_PROMPT }],
+                },
+                contents: contentsPayload,
+                generationConfig: {
+                  temperature: 0.65,
+                  maxOutputTokens: 600,
+                },
+              }),
+            }
+          );
 
-      if (gRes.ok) {
-        const gData = await gRes.json();
-        const geminiText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (geminiText && geminiText.trim()) {
-          return {
-            reply: geminiText.trim(),
-            provider: 'gemini',
-            model: 'Gemini 2.5 Flash (Direct)',
-          };
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            const geminiText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (geminiText && geminiText.trim()) {
+              return {
+                reply: geminiText.trim(),
+                provider: 'gemini',
+                model: mName === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Gemini Flash-Lite',
+              };
+            }
+          }
+        } catch (mErr) {
+          console.warn(`Direct model ${mName} call failed:`, mErr);
         }
       }
     } catch (directGeminiErr) {
-      console.warn('Direct Gemini call failed:', directGeminiErr);
+      console.warn('Direct Gemini calls failed:', directGeminiErr);
     }
   }
 
